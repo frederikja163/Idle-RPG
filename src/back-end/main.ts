@@ -1,34 +1,20 @@
-import index from "@/front-end/index.html";
-import { serverSocket, type ServerSocket } from "@/shared/events";
-import type { ServerWebSocket } from "bun";
+import { server } from "./server";
+import { OAuth2Client } from "google-auth-library";
 
-const sockets = new Map<ServerWebSocket<unknown>, ServerSocket>();
+const client = new OAuth2Client(
+  "758890044013-qq2amlba21ic2fb7drsjavpa16mmkons.apps.googleusercontent.com"
+);
 
-const server = Bun.serve({
-  routes: {
-    "/*": index,
-  },
-  fetch(request, server) {
-    if (server.upgrade(request)) {
-      return;
-    }
-    return new Response("Failed to upgrade websocket", { status: 400 });
-  },
-  websocket: {
-    open(ws) {
-      const socket = serverSocket(ws);
-      sockets.set(ws, socket);
-      socket.on("Ping", () => socket.send("Pong", {}));
-    },
-    message(ws, message) {
-      const socket = sockets.get(ws);
-      socket.handleMessage(String(message));
-    },
-    close(ws, code, reason) {
-      sockets.delete(ws);
-    },
-  },
-  development: process.env.NODE_ENV !== "production",
+server.onSocketOpen((socket) => {
+  socket.on("Ping", (d) => socket.send("Pong", {}));
+  socket.on("Account/Authenticate", (d) => authenticate(d.token));
 });
 
-console.log(`Server running at ${server.url}`);
+async function authenticate(token: string) {
+  const ticket = await client.verifyIdToken({
+    idToken: token,
+    audience:
+      "758890044013-qq2amlba21ic2fb7drsjavpa16mmkons.apps.googleusercontent.com",
+  });
+  console.log(ticket);
+}

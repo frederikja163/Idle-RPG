@@ -5,15 +5,18 @@
  * It is included in `src/index.html`.
  */
 
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { createRoot } from "react-dom/client";
 import { StrictMode } from "react";
 import { App } from "./App";
 
 const elem = document.getElementById("root")!;
 const app = (
-  <StrictMode>
-    <App />
-  </StrictMode>
+  <GoogleOAuthProvider clientId="758890044013-qq2amlba21ic2fb7drsjavpa16mmkons.apps.googleusercontent.com">
+    <StrictMode>
+      <App />
+    </StrictMode>
+  </GoogleOAuthProvider>
 );
 
 if (import.meta.hot) {
