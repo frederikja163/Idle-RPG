@@ -25,6 +25,7 @@ class Server {
       },
       development: process.env.NODE_ENV !== "production",
     });
+    console.log(`Server running at: ${this._server.url}`);
   }
 
   private fetch(request: Request, server: Bun.Server) {
@@ -44,6 +45,7 @@ class Server {
     ws: ServerWebSocket,
     message: string | Buffer<ArrayBufferLike>
   ) {
+    console.log(ws);
     const socket = this._sockets.get(ws);
     socket.handleMessage(String(message));
   }
