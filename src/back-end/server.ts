@@ -45,14 +45,13 @@ class Server {
     ws: ServerWebSocket,
     message: string | Buffer<ArrayBufferLike>
   ) {
-    console.log(ws);
     const socket = this._sockets.get(ws);
-    socket.handleMessage(String(message));
+    if (socket) socket.handleMessage(String(message));
   }
 
   private socketClose(ws: ServerWebSocket, code: number, reason: string) {
     const socket = this._sockets.get(ws);
-    this._closeEvents.forEach((cb) => cb(socket));
+    if (socket) this._closeEvents.forEach((cb) => cb(socket));
     this._sockets.delete(ws);
   }
 

@@ -7,10 +7,15 @@
   "module": "src/back-end/main.ts",
   "scripts": {
     "dev": "bun --hot src/back-end/main.ts",
-    "start": "NODE_ENV=production bun src/back-end/main.ts"
+    "start": "NODE_ENV=production bun src/back-end/main.ts",
+    "db:generate": "npx drizzle-kit generate",
+    "db:migrate": "npx drizzle-kit migrate",
+    "db:push": "npx drizzle-kit push",
+    "db": "npx drizzle-kit studio --verbose"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.0",
+    "@libsql/client": "^0.15.4",
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-select": "^2.1.6",
     "@radix-ui/react-slot": "^1.1.2",
@@ -18,6 +23,8 @@
     "bun-plugin-tailwind": "^0.0.14",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^16.5.0",
+    "drizzle-orm": "^0.42.0",
     "google-auth-library": "^9.15.1",
     "lucide-react": "^0.475.0",
     "react": "^19",
@@ -29,8 +36,9 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@types/bun": "latest",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/bun": "latest"
+    "drizzle-kit": "^0.31.0"
   }
 }

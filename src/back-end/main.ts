@@ -22,11 +22,17 @@ async function authenticate(token: string) {
     audience:
       "758890044013-qq2amlba21ic2fb7drsjavpa16mmkons.apps.googleusercontent.com",
   });
+
+  const payload = ticket.getPayload();
+  if (!payload) return;
+
   const {
     sub: googleId,
     email: email,
     picture: profilePicture,
-  } = ticket.getPayload();
-  console.log(1);
-  database.insert("users", { googleId, email, profilePicture });
+    email_verified: emailVerified,
+  } = payload;
+  if (!email || !emailVerified) return;
+
+  database.upsertUser(googleId, email!, profilePicture);
 }

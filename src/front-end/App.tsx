@@ -18,6 +18,7 @@ export function App() {
   });
 
   const handleSuccess = (response: CredentialResponse) => {
+    if (!socket || !response.credential) return;
     socket.send("Account/Authenticate", { token: response.credential });
   };
 
