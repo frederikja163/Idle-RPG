@@ -1,6 +1,6 @@
 import index from "@/front-end/index.html";
 import { serverSocket, type ServerSocket } from "@/shared/socket";
-import type { ServerWebSocket } from "bun";
+import { serve, type ServerWebSocket } from "bun";
 
 export type SocketEvent = (socket: ServerSocket) => void;
 class Server {
@@ -13,7 +13,8 @@ class Server {
     this._openEvents = new Set<SocketEvent>();
     this._closeEvents = new Set<SocketEvent>();
     this._sockets = new Map<ServerWebSocket<unknown>, ServerSocket>();
-    this._server = Bun.serve({
+    this._server = serve({
+      port: process.env.PORT,
       routes: {
         "/*": index,
       },
