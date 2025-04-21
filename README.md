@@ -18,4 +18,4 @@ To run for production:
 bun start
 ```
 
-This project was created using `bun init` in bun v1.2.10. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+If you update commands you should restart the server.

@@ -1,3 +1,4 @@
 export type ClientServerEvent = {
-    "Ping": {},
-}
+  Ping: {};
+  "Account/Authenticate": { token: string };
+};

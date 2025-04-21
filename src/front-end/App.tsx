@@ -1,19 +1,35 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "./index.css";
-import { clientSocket } from "@/shared/events";
-
-let ws: WebSocket | null = null;
+import { clientSocket, type ClientSocket } from "@/shared/socket";
+import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 
 export function App() {
-  useEffect(() => {
-    if (ws) return;
+  const [socket, setSocket] = useState<ClientSocket | null>(null);
 
-    ws = new WebSocket(String(window.location));
-    clientSocket(ws).then((socket) => {
-      socket.send("Ping", {});
-      socket.on("Pong", () => console.log("Pong"));
+  useEffect(() => {
+    if (socket) return;
+
+    const ws = new WebSocket(String(window.location));
+    clientSocket(ws).then((s) => {
+      s.send("Ping", {});
+      s.on("Pong", () => console.log("Pong"));
+      setSocket(s);
     });
   });
 
-  return <h1>Idle RPG</h1>;
+  const handleSuccess = (response: CredentialResponse) => {
+    if (!socket || !response.credential) return;
+    socket.send("Account/Authenticate", { token: response.credential });
+  };
+
+  return (
+    <>
+      {socket ? (
+        <GoogleLogin onSuccess={handleSuccess} />
+      ) : (
+        <p>Establishing connection.</p>
+      )}
+      <h1>Idle RPG</h1>
+    </>
+  );
 }
