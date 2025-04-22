@@ -8,6 +8,9 @@ primary_region = 'fra'
 
 [build]
 
+[deploy]
+  release_command = "bun db:migrate"
+
 [http_service]
   internal_port = 3000
   force_https = true
