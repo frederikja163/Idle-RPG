@@ -1,6 +1,6 @@
 import index from "@/front-end/index.html";
 import { serverSocket, type ServerSocket } from "@/shared/socket";
-import { serve, type ServerWebSocket } from "bun";
+import { file, serve, type ServerWebSocket } from "bun";
 
 export type SocketEvent = (socket: ServerSocket) => void;
 class Server {
@@ -25,6 +25,14 @@ class Server {
         close: this.socketClose.bind(this),
       },
       development: process.env.NODE_ENV !== "production",
+      tls: {
+        cert: process.env.TLS_CERT_PATH
+          ? file(process.env.TLS_CERT_PATH)
+          : undefined,
+        key: process.env.TLS_KEY_PATH
+          ? file(process.env.TLS_KEY_PATH)
+          : undefined,
+      },
     });
     console.log(`Server running at: ${this._server.url}`);
   }
