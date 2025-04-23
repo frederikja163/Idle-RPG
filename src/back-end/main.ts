@@ -1,38 +1,19 @@
+import { initAuthenticationEvents } from "./authentication";
 import { addCommand } from "./commands";
-import { database } from "./database";
-import { server } from "./server";
-import { OAuth2Client } from "google-auth-library";
+import { initDb } from "./database";
+import { initServer, server } from "./server";
 
-const client = new OAuth2Client(
-  "758890044013-qq2amlba21ic2fb7drsjavpa16mmkons.apps.googleusercontent.com"
-);
-
-server.onSocketOpen((socket) => {
-  socket.on("Ping", (d) => socket.send("Pong", {}));
-  socket.on("Account/Authenticate", (d) => authenticate(d.token));
-});
 addCommand("stop", "Stops the server", () => {
   console.log("Stopping server");
   process.exit();
 });
 
-async function authenticate(token: string) {
-  const ticket = await client.verifyIdToken({
-    idToken: token,
-    audience:
-      "758890044013-qq2amlba21ic2fb7drsjavpa16mmkons.apps.googleusercontent.com",
+function main() {
+  initServer();
+  initDb();
+  server.onSocketOpen((socket) => {
+    socket.on("Ping", (_, __) => socket.send("Pong", {}));
+    initAuthenticationEvents(socket);
   });
-
-  const payload = ticket.getPayload();
-  if (!payload) return;
-
-  const {
-    sub: googleId,
-    email: email,
-    picture: profilePicture,
-    email_verified: emailVerified,
-  } = payload;
-  if (!email || !emailVerified) return;
-
-  database.upsertUser(googleId, email!, profilePicture);
 }
+main();

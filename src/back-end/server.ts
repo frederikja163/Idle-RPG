@@ -1,6 +1,6 @@
 import index from "@/front-end/index.html";
-import { serverSocket, type ServerSocket } from "@/shared/socket";
 import { serve, type ServerWebSocket } from "bun";
+import { type ServerSocket, serverSocket } from "./server-socket";
 
 export type SocketEvent = (socket: ServerSocket) => void;
 class Server {
@@ -65,5 +65,6 @@ class Server {
     this._closeEvents.add(callback);
   }
 }
-
 export const server = new Server();
+
+export function initServer() {}

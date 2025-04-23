@@ -1,35 +1,32 @@
-import { useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import "./index.css";
-import { clientSocket, type ClientSocket } from "@/shared/socket";
-import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
+import { type ClientSocket, clientSocket } from "./client-socket";
+import { Login } from "./components/Login";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Profiles } from "./components/Profiles";
+import { NavBar } from "./components/NavBar";
+
+export const SocketContext = createContext<ClientSocket | null>(null);
 
 export function App() {
   const [socket, setSocket] = useState<ClientSocket | null>(null);
 
   useEffect(() => {
     if (socket) return;
-
     const ws = new WebSocket(String(window.location));
-    clientSocket(ws).then((s) => {
-      s.send("Ping", {});
-      s.on("Pong", () => console.log("Pong"));
-      setSocket(s);
-    });
+    clientSocket(ws).then(setSocket);
   });
 
-  const handleSuccess = (response: CredentialResponse) => {
-    if (!socket || !response.credential) return;
-    socket.send("Account/Authenticate", { token: response.credential });
-  };
-
   return (
-    <>
-      {socket ? (
-        <GoogleLogin onSuccess={handleSuccess} />
-      ) : (
-        <p>Establishing connection.</p>
-      )}
-      <h1>Idle RPG</h1>
-    </>
+    <SocketContext.Provider value={socket}>
+      <NavBar />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/profiles" element={<Profiles />} />
+        </Routes>
+      </BrowserRouter>
+    </SocketContext.Provider>
   );
 }

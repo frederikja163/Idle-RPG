@@ -15,7 +15,10 @@ export class Database {
       .values({ googleId, email, profilePicture })
       .onConflictDoUpdate({
         target: userTable.googleId,
-        set: { lastLogin: sql`(current_timestamp)` },
+        set: {
+          profilePicture: profilePicture,
+          lastLogin: sql`(current_timestamp)`,
+        },
       })
       .returning();
 
@@ -25,3 +28,5 @@ export class Database {
 }
 
 export const database = new Database();
+
+export function initDb() {}
