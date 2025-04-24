@@ -1,6 +1,7 @@
 import { initAuthenticationEvents } from "./authentication";
 import { addCommand } from "./commands";
 import { initDb } from "./database";
+import { initProfileEvents } from "./profiles";
 import { initServer, server } from "./server";
 
 addCommand("stop", "Stops the server", () => {
@@ -14,6 +15,7 @@ function main() {
   server.onSocketOpen((socket) => {
     socket.on("Ping", (_, __) => socket.send("Pong", {}));
     initAuthenticationEvents(socket);
+    initProfileEvents(socket);
   });
 }
 main();

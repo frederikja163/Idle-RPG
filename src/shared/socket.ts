@@ -1,5 +1,8 @@
 import type { ServerWebSocket } from "bun";
-import type { ClientServerEvent, ServerClientEvent } from "./socket-events";
+import {
+  type ClientServerEvent,
+  type ServerClientEvent,
+} from "./socket-events";
 
 export type AllEvents = ServerClientEvent | ClientServerEvent;
 export type AllSockets = WebSocket | ServerWebSocket;

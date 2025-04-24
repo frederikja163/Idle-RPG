@@ -27,15 +27,24 @@ export const userTable = sqliteTable(
   ]
 );
 
+export const userRelations = relations(userTable, ({ many }) => ({
+  userProfileRelation: many(userProfileTable),
+}));
+
 export const profileTable = sqliteTable("profiles", {
   id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   inventory: text("inventory").notNull().default("[]"),
+  name: text("name").notNull(),
   mining: int("mining", { mode: "number" }).notNull().default(0),
   smithery: int("smithery", { mode: "number" }).notNull().default(0),
   lumberjacking: int("lumberjacking", { mode: "number" }).notNull().default(0),
   carpentry: int("carpentry", { mode: "number" }).notNull().default(0),
   crafting: int("crafting", { mode: "number" }).notNull().default(0),
 });
+
+export const profileRelations = relations(profileTable, ({ many }) => ({
+  userProfileRelation: many(userProfileTable),
+}));
 
 export const userProfileTable = sqliteTable(
   "user_profile_relation",
