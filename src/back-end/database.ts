@@ -1,6 +1,8 @@
 import { drizzle } from "drizzle-orm/libsql";
-import { userTable } from "./db/schema";
-import { sql } from "drizzle-orm";
+import { profileTable, userProfileTable, userTable } from "./db/schema";
+import { eq, sql } from "drizzle-orm";
+
+export type UserId = number;
 
 export class Database {
   private readonly _db = drizzle(process.env.DB_FILE_NAME!);
@@ -24,6 +26,17 @@ export class Database {
 
     const user = users[0];
     return user;
+  }
+
+  public async getProfiles(userId: UserId) {
+    const profiles = await this._db
+      .select()
+      .from(userTable)
+      .innerJoin(userProfileTable, eq(userTable.id, userProfileTable.user))
+      .innerJoin(profileTable, eq(userProfileTable.profile, profileTable.id))
+      .where(eq(userTable.id, userId));
+
+    return profiles.map((p) => p.profiles);
   }
 }
 
