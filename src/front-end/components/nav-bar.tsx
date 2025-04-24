@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { SocketContext } from "../App";
-import { Button } from "./ui/button";
+import { Button } from "./ui/button.tsx";
 
 export function NavBar() {
   const socket = useContext(SocketContext);

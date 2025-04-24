@@ -1,10 +1,10 @@
 import { createContext, useEffect, useState } from "react";
 import "./index.css";
 import { type ClientSocket, clientSocket } from "./client-socket";
-import { Login } from "./components/Login";
+import { Login } from "./components/pages/login.tsx";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Profiles } from "./components/Profiles";
-import { NavBar } from "./components/NavBar";
+import { Profiles } from "./components/pages/profiles.tsx";
+import { NavBar } from "./components/nav-bar.tsx";
 
 export const SocketContext = createContext<ClientSocket | null>(null);
 
