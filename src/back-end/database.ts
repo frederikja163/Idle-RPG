@@ -1,8 +1,14 @@
 import { drizzle } from "drizzle-orm/libsql";
-import { profileTable, userProfileTable, userTable } from "./db/schema";
+import {
+  profileTable,
+  userProfileRelations,
+  userProfileTable,
+  userTable,
+} from "./db/schema";
 import { eq, sql } from "drizzle-orm";
 
 export type UserId = number;
+export type ProfileId = number;
 
 export class Database {
   private readonly _db = drizzle(process.env.DB_FILE_NAME!);
@@ -37,6 +43,26 @@ export class Database {
       .where(eq(userTable.id, userId));
 
     return profiles.map((p) => p.profiles);
+  }
+
+  public async createProfile(userId: UserId, name: string) {
+    const profiles = await this._db
+      .insert(profileTable)
+      .values({ name })
+      .onConflictDoNothing({
+        target: profileTable.name,
+      })
+      .returning();
+    const profile = profiles.length == 1 ? profiles[0] : null;
+    if (!profile) return null;
+    await this._db
+      .insert(userProfileTable)
+      .values({ user: userId, profile: profile.id });
+    return profile;
+  }
+
+  public async deleteProfile(profileId: ProfileId) {
+    await this._db.delete(profileTable).where(eq(profileTable.id, profileId));
   }
 }
 

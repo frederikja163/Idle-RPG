@@ -34,7 +34,7 @@ export const userRelations = relations(userTable, ({ many }) => ({
 export const profileTable = sqliteTable("profiles", {
   id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   inventory: text("inventory").notNull().default("[]"),
-  name: text("name").notNull(),
+  name: text("name").notNull().unique(),
   mining: int("mining", { mode: "number" }).notNull().default(0),
   smithery: int("smithery", { mode: "number" }).notNull().default(0),
   lumberjacking: int("lumberjacking", { mode: "number" }).notNull().default(0),

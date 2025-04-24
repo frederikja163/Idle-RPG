@@ -2,7 +2,6 @@ import { OAuth2Client } from "google-auth-library";
 import { database } from "./database";
 import type { ServerSocket } from "./server-socket";
 import { ErrorType, type ClientServerEvent } from "@/shared/socket-events";
-import { getProfileDtos } from "./profiles";
 
 export function initAuthenticationEvents(socket: ServerSocket) {
   socket.on("Authentication/GoogleLogin", authenticateGoogle);
@@ -47,8 +46,5 @@ async function authenticateGoogle(
 
   const user = await database.upsertUser(googleId, email!, profilePicture);
   socket.user = user;
-  const profiles = await getProfileDtos(user.id);
-  socket.send("Authentication/LoginSuccess", {
-    profiles: profiles,
-  });
+  socket.send("Authentication/LoginSuccess", {});
 }
