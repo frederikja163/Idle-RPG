@@ -1,5 +1,5 @@
 import { useContext, useEffect } from "react";
-import { SocketContext } from "../App";
+import { SocketContext } from "../../App.tsx";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 
