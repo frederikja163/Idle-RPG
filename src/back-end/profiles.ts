@@ -55,10 +55,11 @@ async function deleteProfile(
     return socket.error(ErrorType.InvalidProfile);
 
   const profile = profiles[index];
-  if (ServerSocket.getProfileSockets(profile.id)?.size != 0)
+  if (ServerSocket.getProfileSockets(profile.id)?.size ?? 0 != 0)
     return socket.error(ErrorType.ProfileInUse);
 
   database.deleteProfile(profiles[index].id);
+  profiles.splice(index);
   ServerSocket.sendUser(socket.user.id, "Profiles/UpdateProfiles", {
     profiles: profiles.map(getProfileDto),
   });

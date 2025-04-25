@@ -1,3 +1,4 @@
+import { Socket } from "@/shared/socket";
 import { initAuthenticationEvents } from "./authentication";
 import { addCommand } from "./commands";
 import { initDb } from "./database";
@@ -17,5 +18,6 @@ function main() {
     initAuthenticationEvents(socket);
     initProfileEvents(socket);
   });
+  Socket.LogEvents = process.env.NODE_ENV !== "production";
 }
 main();

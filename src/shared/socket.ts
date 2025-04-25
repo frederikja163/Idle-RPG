@@ -11,12 +11,17 @@ export class Socket<TIncoming extends AllEvents, TOutgoing extends AllEvents> {
   private readonly _send: (data: string) => void;
   private readonly _events: ((message: string) => void)[];
 
+  public static LogEvents: boolean = false;
+
   constructor(send: (data: string) => void) {
     this._send = send;
     this._events = [];
   }
 
   public handleMessage(message: string) {
+    if (Socket.LogEvents) {
+      console.log(message);
+    }
     for (const event of this._events) {
       event(message);
     }

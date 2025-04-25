@@ -5,6 +5,7 @@ import { Login } from "./components/pages/login.tsx";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Profiles } from "./components/pages/profiles.tsx";
 import { NavBar } from "./components/nav-bar.tsx";
+import { Test } from "./components/pages/test.tsx";
 
 export const SocketContext = createContext<ClientSocket | null>(null);
 
@@ -25,6 +26,7 @@ export function App() {
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/profiles" element={<Profiles />} />
+          {import.meta.hot ? <Route path="/test" element={<Test />} /> : null}
         </Routes>
       </BrowserRouter>
     </SocketContext.Provider>
