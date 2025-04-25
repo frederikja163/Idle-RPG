@@ -1,5 +1,9 @@
 import { SocketContext } from "@/front-end/App";
-import type { ClientServerEvent } from "@/shared/socket-events";
+import type { EventType } from "@/shared/socket";
+import {
+  clientServerEvent,
+  type ClientServerEvent,
+} from "@/shared/socket-events";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import { useContext, useEffect, useState } from "react";
 
@@ -9,6 +13,7 @@ export function Test() {
 
   useEffect(() => {
     socket?.on("Authentication/LoginSuccess", () => setLoggedIn(true));
+    socket?.send("Ping", {});
   }, [socket]);
 
   const handleSuccess = (r: CredentialResponse) => {
@@ -16,7 +21,7 @@ export function Test() {
   };
 
   const send = (form: FormData) => {
-    const event = form.get("event") as keyof ClientServerEvent;
+    const event = form.get("event") as EventType<ClientServerEvent>;
     const data = JSON.parse(String(form.get("data")));
     socket?.send(event, data);
   };

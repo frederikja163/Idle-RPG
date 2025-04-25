@@ -2,6 +2,7 @@ import { OAuth2Client } from "google-auth-library";
 import { database } from "./database";
 import type { ServerSocket } from "./server-socket";
 import { ErrorType, type ClientServerEvent } from "@/shared/socket-events";
+import type { DataType } from "@/shared/socket";
 
 export function initAuthenticationEvents(socket: ServerSocket) {
   socket.on("Authentication/GoogleLogin", authenticateGoogle);
@@ -10,7 +11,7 @@ export function initAuthenticationEvents(socket: ServerSocket) {
 
 function logout(
   socket: ServerSocket,
-  data: ClientServerEvent["Authentication/Logout"]
+  data: DataType<ClientServerEvent, "Authentication/Logout">
 ) {
   socket.user = null;
   socket.profile = null;
@@ -23,7 +24,7 @@ const googleOauthClient = new OAuth2Client(
 
 async function authenticateGoogle(
   socket: ServerSocket,
-  data: ClientServerEvent["Authentication/GoogleLogin"]
+  data: DataType<ClientServerEvent, "Authentication/GoogleLogin">
 ) {
   const ticket = await googleOauthClient.verifyIdToken({
     idToken: data.token,
@@ -32,7 +33,7 @@ async function authenticateGoogle(
   });
 
   const payload = ticket.getPayload();
-  if (!payload) return;
+  if (!payload) return socket.error(ErrorType.InvalidInput);
 
   const {
     sub: googleId,
@@ -41,7 +42,7 @@ async function authenticateGoogle(
     email_verified: emailVerified,
   } = payload;
 
-  if (!email) return;
+  if (!email) return socket.error(ErrorType.InvalidInput);
   if (!emailVerified) return socket.error(ErrorType.EmailNotVerified);
 
   const user = await database.upsertUser(googleId, email!, profilePicture);

@@ -6,7 +6,8 @@ import {
   type ClientServerEvent,
   type ProfileDto,
 } from "@/shared/socket-events";
-import { serverSocket, ServerSocket } from "./server-socket";
+import { ServerSocket } from "./server-socket";
+import type { DataType } from "@/shared/socket";
 
 export function initProfileEvents(socket: ServerSocket) {
   socket.on("Profiles/GetProfiles", getProfiles);
@@ -17,7 +18,7 @@ export function initProfileEvents(socket: ServerSocket) {
 
 async function getProfiles(
   socket: ServerSocket,
-  data: ClientServerEvent["Profiles/GetProfiles"]
+  data: DataType<ClientServerEvent, "Profiles/GetProfiles">
 ) {
   if (!socket.user) {
     socket.error(ErrorType.RequiresLogin);

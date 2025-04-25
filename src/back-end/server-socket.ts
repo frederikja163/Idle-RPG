@@ -1,6 +1,8 @@
-import { Socket } from "@/shared/socket";
+import { Socket, type DataType, type EventType } from "@/shared/socket";
 import {
+  clientServerEvent,
   ErrorType,
+  serverClientEvent,
   type ClientServerEvent,
   type ServerClientEvent,
 } from "@/shared/socket-events";
@@ -10,6 +12,9 @@ import type { InferSelectModel } from "drizzle-orm";
 import { type ProfileId, type UserId } from "./database";
 import { Lookup } from "@/shared/lookup";
 import { server } from "./server";
+import { TypeCompiler } from "@sinclair/typebox/compiler";
+
+const typeCheck = TypeCompiler.Compile(clientServerEvent);
 
 export class ServerSocket extends Socket<ClientServerEvent, ServerClientEvent> {
   private static readonly userSockets = new Lookup<UserId, ServerSocket>();
@@ -22,7 +27,7 @@ export class ServerSocket extends Socket<ClientServerEvent, ServerClientEvent> {
   private _profile: InferSelectModel<typeof profileTable> | null = null;
 
   constructor(ws: ServerWebSocket<unknown>) {
-    super(ws.send.bind(ws));
+    super(typeCheck, ws.send.bind(ws));
   }
 
   public get user(): InferSelectModel<typeof userTable> | null {
@@ -59,10 +64,10 @@ export class ServerSocket extends Socket<ClientServerEvent, ServerClientEvent> {
     return ServerSocket.userSockets.getValues(userId);
   }
 
-  public static sendUser<T extends keyof ServerClientEvent>(
+  public static sendUser<TEvent extends EventType<ServerClientEvent>>(
     userId: UserId,
-    event: T,
-    data: ServerClientEvent[T]
+    event: TEvent,
+    data: DataType<ServerClientEvent, TEvent>
   ) {
     ServerSocket.getUserSockets(userId)?.forEach((s) => s.send(event, data));
   }
@@ -71,25 +76,22 @@ export class ServerSocket extends Socket<ClientServerEvent, ServerClientEvent> {
     return ServerSocket.profileSockets.getValues(profileId);
   }
 
-  public static sendProfile<T extends keyof ServerClientEvent>(
+  public static sendProfile<TEvent extends EventType<ServerClientEvent>>(
     profileId: ProfileId,
-    event: T,
-    data: ServerClientEvent[T]
+    event: TEvent,
+    data: DataType<ServerClientEvent, TEvent>
   ) {
     ServerSocket.getProfileSockets(profileId)?.forEach((s) =>
       s.send(event, data)
     );
   }
 
-  public on<T extends keyof ClientServerEvent>(
-    event: T,
-    callback: (socket: ServerSocket, data: ClientServerEvent[T]) => void
-  ): void {
-    super.on(event, (s, d) => callback(s as ServerSocket, d));
-  }
-
   public error(error: ErrorType) {
     this.send("Error", { error });
+  }
+
+  public onError(message: string): void {
+    this.send("Error", { error: ErrorType.InternalError });
   }
 }
 

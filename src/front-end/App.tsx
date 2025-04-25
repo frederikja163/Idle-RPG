@@ -26,7 +26,7 @@ export function App() {
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/profiles" element={<Profiles />} />
-          {import.meta.hot ? <Route path="/test" element={<Test />} /> : null}
+          <Route path="/test" element={<Test />} />
         </Routes>
       </BrowserRouter>
     </SocketContext.Provider>

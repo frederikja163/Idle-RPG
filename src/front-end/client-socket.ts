@@ -1,10 +1,15 @@
 import { Socket } from "@/shared/socket";
-import type {
-  ClientServerEvent,
-  ServerClientEvent,
+import {
+  clientServerEvent,
+  ErrorType,
+  serverClientEvent,
 } from "@/shared/socket-events";
+import { TypeCompiler } from "@sinclair/typebox/compiler";
 
-export type ClientSocket = Socket<ServerClientEvent, ClientServerEvent>;
+export type ClientSocket = Socket<
+  typeof serverClientEvent,
+  typeof clientServerEvent
+>;
 export async function clientSocket(ws: WebSocket) {
   await new Promise<void>((resolve) => {
     if (ws.readyState == ws.OPEN) {
@@ -13,8 +18,8 @@ export async function clientSocket(ws: WebSocket) {
       ws.addEventListener("open", () => resolve(), { once: true });
     }
   });
-
-  const socket = new Socket<ServerClientEvent, ClientServerEvent>(
+  const socket = new Socket<typeof serverClientEvent, typeof clientServerEvent>(
+    TypeCompiler.Compile(serverClientEvent),
     ws.send.bind(ws)
   );
   ws.addEventListener("message", (ev) => socket.handleMessage(ev.data));
