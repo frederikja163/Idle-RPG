@@ -35,42 +35,24 @@ export type ProfileDto = Static<typeof profileDto>;
 
 export const clientServerEvent = Type.Union([
   // Pong
-  Type.Object({ type: Type.Literal("Ping"), data: Type.Object({}) }),
+  event("Ping", {}),
   // Authentication/LoginSuccess
   // Error: EmailNotVerified
-  Type.Object({
-    type: Type.Literal("Authentication/GoogleLogin"),
-    data: Type.Object({ token: Type.String() }),
-  }),
+  event("Authentication/GoogleLogin", { token: Type.String() }),
   // Authentication/LogoutSuccess
-  Type.Object({
-    type: Type.Literal("Authentication/Logout"),
-    data: Type.Object({}),
-  }),
+  event("Authentication/Logout", {}),
   // Profiles/UpdateProfiles
   // Error: RequiresLogin
-  Type.Object({
-    type: Type.Literal("Profiles/GetProfiles"),
-    data: Type.Object({}),
-  }),
+  event("Profiles/GetProfiles", {}),
   // Profiles/UpdateProfiles
   // Error: RequiresLogin, NameTaken
-  Type.Object({
-    type: Type.Literal("Profiles/CreateProfile"),
-    data: Type.Object({ name: Type.String() }),
-  }),
+  event("Profiles/CreateProfile", { name: Type.String() }),
   // Profiles/UpdateProfiles
   // Error: RequiresLogin, ProfileInUse, InvalidProfile
-  Type.Object({
-    type: Type.Literal("Profiles/DeleteProfile"),
-    data: Type.Object({ index: Type.Number() }),
-  }),
+  event("Profiles/DeleteProfile", { index: Type.Number() }),
   // Profiles/SelectProfileSuccess
   // Error: RequiresLogin, InvalidProfile
-  Type.Object({
-    type: Type.Literal("Profiles/SelectProfile"),
-    data: Type.Object({ index: Type.Number() }),
-  }),
+  event("Profiles/SelectProfile", { index: Type.Number() }),
 ]);
 export type ClientServerEvent = typeof clientServerEvent;
 
