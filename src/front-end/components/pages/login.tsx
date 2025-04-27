@@ -6,30 +6,30 @@ import {useNavigate} from 'react-router-dom';
 import {Column} from '@/front-end/components/layout/column.tsx';
 
 export function Login() {
-	const socket = useContext(SocketContext);
-	const navigate = useNavigate();
-	const {login} = useAuth();
+  const socket = useContext(SocketContext);
+  const navigate = useNavigate();
+  const {login} = useAuth();
 
-	useEffect(() => {
-		if (!socket) return;
+  useEffect(() => {
+    if (!socket) return;
 
-		socket.on('Authentication/LoginSuccess', (s, d) => {
-			navigate('/profiles');
-		});
+    socket.on('Authentication/LoginSuccess', (s, d) => {
+      navigate('/profiles');
+    });
 
-		socket.on('Authentication/LogoutSuccess', (s, d) => {
-			navigate('/login');
-		});
-	}, [socket]);
+    socket.on('Authentication/LogoutSuccess', (s, d) => {
+      navigate('/login');
+    });
+  }, [socket]);
 
-	return (
-		<Column className="justify-center items-center p-6">
-			<h1>Idle RPG login page</h1>
-			{login ? (
-				<GoogleLogin onSuccess={login}/>
-			) : (
-				<p>Establishing connection.</p>
-			)}
-		</Column>
-	);
+  return (
+    <Column className="justify-center items-center p-6">
+      <h1>Idle RPG login page</h1>
+      {login ? (
+        <GoogleLogin onSuccess={login}/>
+      ) : (
+        <p>Establishing connection.</p>
+      )}
+    </Column>
+  );
 }
