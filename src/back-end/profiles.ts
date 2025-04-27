@@ -3,11 +3,12 @@ import { database, type UserId } from "./database";
 import { profileTable } from "./db/schema";
 import {
   ErrorType,
+  profileDto,
   type ClientServerEvent,
-  type ProfileDto,
 } from "@/shared/socket-events";
-import { ServerSocket } from "./server-socket";
+import { ServerSocket, type ServerData } from "./server-socket";
 import type { DataType } from "@/shared/socket";
+import type { Static } from "@sinclair/typebox";
 
 export function initProfileEvents(socket: ServerSocket) {
   socket.on("Profiles/GetProfiles", getProfiles);
@@ -18,7 +19,7 @@ export function initProfileEvents(socket: ServerSocket) {
 
 async function getProfiles(
   socket: ServerSocket,
-  data: DataType<ClientServerEvent, "Profiles/GetProfiles">
+  {}: ServerData<"Profiles/GetProfiles">
 ) {
   if (!socket.user) {
     socket.error(ErrorType.RequiresLogin);
@@ -33,7 +34,7 @@ async function getProfiles(
 
 async function createProfile(
   socket: ServerSocket,
-  { name }: ClientServerEvent["Profiles/CreateProfile"]
+  { name }: ServerData<"Profiles/CreateProfile">
 ) {
   if (!socket.user) return socket.error(ErrorType.RequiresLogin);
 
@@ -48,12 +49,12 @@ async function createProfile(
 
 async function deleteProfile(
   socket: ServerSocket,
-  { index }: ClientServerEvent["Profiles/DeleteProfile"]
+  { index }: ServerData<"Profiles/DeleteProfile">
 ) {
   if (!socket.user) return socket.error(ErrorType.RequiresLogin);
   const profiles = await database.getProfiles(socket.user.id);
   if (index < 0 || index >= profiles.length)
-    return socket.error(ErrorType.InvalidProfile);
+    return socket.error(ErrorType.ArgumentOutOfRange);
 
   const profile = profiles[index];
   if (ServerSocket.getProfileSockets(profile.id)?.size ?? 0 != 0)
@@ -68,14 +69,14 @@ async function deleteProfile(
 
 async function selectProfile(
   socket: ServerSocket,
-  { index }: ClientServerEvent["Profiles/SelectProfile"]
+  { index }: ServerData<"Profiles/SelectProfile">
 ) {
   if (!socket.user) return socket.error(ErrorType.RequiresLogin);
 
   const profiles = await database.getProfiles(socket.user.id);
 
   if (index < 0 || index >= profiles.length)
-    return socket.error(ErrorType.InvalidProfile);
+    return socket.error(ErrorType.ArgumentOutOfRange);
 
   socket.profile = profiles[index];
   socket.send("Profiles/SelectProfileSuccess", {});
@@ -83,7 +84,7 @@ async function selectProfile(
 
 function getProfileDto(
   profile: InferSelectModel<typeof profileTable>
-): ProfileDto {
+): Static<typeof profileDto> {
   return {
     name: profile.name,
     mining: profile.mining,

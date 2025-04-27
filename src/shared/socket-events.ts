@@ -20,7 +20,8 @@ export enum ErrorType {
   RequiresLogin, // = "You must login to do this.",
   ProfileInUse, // = "This profile is already in use, please make sure you log out on all devices before deleting a profile.",
   NameTaken, // = "A profile with this name already exists.",
-  InvalidProfile, // = "The selected profile is invalid, please select a valid profile.",
+  ArgumentOutOfRange, // = "Provided argument is out of range.",
+  RequiresProfile, // = "You must select a profile to do this."
 }
 
 export const profileDto = Type.Object({
@@ -31,7 +32,13 @@ export const profileDto = Type.Object({
   carpentry: Type.Number(),
   crafting: Type.Number(),
 });
-export type ProfileDto = Static<typeof profileDto>;
+
+export const inventoryDto = Type.Array(
+  Type.Object({
+    itemId: Type.String(),
+    count: Type.Number(),
+  })
+);
 
 export const clientServerEvent = Type.Union([
   // Pong
@@ -48,11 +55,20 @@ export const clientServerEvent = Type.Union([
   // Error: RequiresLogin, NameTaken
   event("Profiles/CreateProfile", { name: Type.String() }),
   // Profiles/UpdateProfiles
-  // Error: RequiresLogin, ProfileInUse, InvalidProfile
+  // Error: RequiresLogin, ProfileInUse, ArgumentOutOfRange
   event("Profiles/DeleteProfile", { index: Type.Number() }),
   // Profiles/SelectProfileSuccess
-  // Error: RequiresLogin, InvalidProfile
+  // Error: RequiresLogin, ArgumentOutOfRange
   event("Profiles/SelectProfile", { index: Type.Number() }),
+  // Inventory/UpdateInventory
+  // Error: RequiresProfile
+  event("Inventory/GetInventory", {}),
+  // Inventory/UpdateInventory
+  // Error: RequiresProfile, ArgumentOutOfRange
+  event("Inventory/SwapItems", {
+    index1: Type.Number(),
+    index2: Type.Number(),
+  }),
 ]);
 export type ClientServerEvent = typeof clientServerEvent;
 
@@ -63,5 +79,6 @@ export const serverClientEvent = Type.Union([
   event("Authentication/LogoutSuccess", {}),
   event("Profiles/UpdateProfiles", { profiles: Type.Array(profileDto) }),
   event("Profiles/SelectProfileSuccess", {}),
+  event("Inventory/UpdateInventory", { items: inventoryDto }),
 ]);
 export type ServerClientEvent = typeof serverClientEvent;

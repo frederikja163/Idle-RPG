@@ -15,6 +15,10 @@ import { server } from "./server";
 import { TypeCompiler } from "@sinclair/typebox/compiler";
 
 const typeCheck = TypeCompiler.Compile(clientServerEvent);
+export type ServerData<TData extends EventType<ClientServerEvent>> = DataType<
+  ClientServerEvent,
+  TData
+>;
 
 export class ServerSocket extends Socket<ClientServerEvent, ServerClientEvent> {
   private static readonly userSockets = new Lookup<UserId, ServerSocket>();

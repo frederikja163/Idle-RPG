@@ -1,4 +1,5 @@
 import { relations, sql } from "drizzle-orm";
+import { primaryKey, unique } from "drizzle-orm/gel-core";
 import {
   foreignKey,
   int,
@@ -31,19 +32,25 @@ export const userRelations = relations(userTable, ({ many }) => ({
   userProfileRelation: many(userProfileTable),
 }));
 
-export const profileTable = sqliteTable("profiles", {
-  id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  inventory: text("inventory").notNull().default("[]"),
-  name: text("name").notNull().unique(),
-  mining: int("mining", { mode: "number" }).notNull().default(0),
-  smithery: int("smithery", { mode: "number" }).notNull().default(0),
-  lumberjacking: int("lumberjacking", { mode: "number" }).notNull().default(0),
-  carpentry: int("carpentry", { mode: "number" }).notNull().default(0),
-  crafting: int("crafting", { mode: "number" }).notNull().default(0),
-});
+export const profileTable = sqliteTable(
+  "profiles",
+  {
+    id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+    name: text("name").notNull().unique(),
+    mining: int("mining", { mode: "number" }).notNull().default(0),
+    smithery: int("smithery", { mode: "number" }).notNull().default(0),
+    lumberjacking: int("lumberjacking", { mode: "number" })
+      .notNull()
+      .default(0),
+    carpentry: int("carpentry", { mode: "number" }).notNull().default(0),
+    crafting: int("crafting", { mode: "number" }).notNull().default(0),
+  },
+  (table) => [uniqueIndex("name_idx").on(table.name)]
+);
 
 export const profileRelations = relations(profileTable, ({ many }) => ({
   userProfileRelation: many(userProfileTable),
+  inventoryRelation: many(inventoryTable),
 }));
 
 export const userProfileTable = sqliteTable(
@@ -74,6 +81,31 @@ export const userProfileRelations = relations(userProfileTable, ({ one }) => ({
   }),
   profile: one(profileTable, {
     fields: [userProfileTable.profile],
+    references: [profileTable.id],
+  }),
+}));
+
+export const inventoryTable = sqliteTable(
+  "inventory_table",
+  {
+    profileId: int("id", { mode: "number" }).notNull(),
+    itemId: text("item_id").notNull(),
+    count: int("count", { mode: "number" }).notNull(),
+    index: int("index", { mode: "number" }).notNull(),
+  },
+  (table) => [
+    uniqueIndex("item_idx").on(table.profileId, table.itemId),
+    uniqueIndex("index_idx").on(table.profileId, table.index),
+    foreignKey({
+      columns: [table.profileId],
+      foreignColumns: [profileTable.id],
+    }).onDelete("cascade"),
+  ]
+);
+
+export const intentoryRelations = relations(inventoryTable, ({ one }) => ({
+  profile: one(profileTable, {
+    fields: [inventoryTable.profileId],
     references: [profileTable.id],
   }),
 }));
