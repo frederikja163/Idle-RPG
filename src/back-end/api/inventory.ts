@@ -1,7 +1,7 @@
 import type { DataType } from "@/shared/socket";
-import type { ServerData, ServerSocket } from "./server-socket";
+import type { ServerData, ServerSocket } from "../server-socket";
 import { ErrorType, type ClientServerEvent } from "@/shared/socket-events";
-import { database } from "./database";
+import { database } from "../database";
 
 export function initInventoryEvents(socket: ServerSocket) {
   socket.on("Inventory/GetInventory", GetInventory);

@@ -1,6 +1,6 @@
 import { OAuth2Client } from "google-auth-library";
-import { database } from "./database";
-import type { ServerData, ServerSocket } from "./server-socket";
+import { database } from "../database";
+import type { ServerData, ServerSocket } from "../server-socket";
 import { ErrorType, type ClientServerEvent } from "@/shared/socket-events";
 import type { DataType } from "@/shared/socket";
 

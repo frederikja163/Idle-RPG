@@ -1,10 +1,10 @@
 import { Socket } from "@/shared/socket";
-import { initAuthenticationEvents } from "./authentication";
+import { initAuthenticationEvents } from "./api/authentication";
 import { addCommand } from "./commands";
 import { initDb } from "./database";
-import { initProfileEvents } from "./profiles";
+import { initProfileEvents } from "./api/profiles";
 import { initServer, server } from "./server";
-import { initInventoryEvents } from "./inventory";
+import { initInventoryEvents } from "./api/inventory";
 
 addCommand("stop", "Stops the server", () => {
   console.log("Stopping server");
