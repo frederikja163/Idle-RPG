@@ -1,6 +1,6 @@
 import { OAuth2Client } from "google-auth-library";
 import { database } from "./database";
-import type { ServerSocket } from "./server-socket";
+import type { ServerData, ServerSocket } from "./server-socket";
 import { ErrorType, type ClientServerEvent } from "@/shared/socket-events";
 import type { DataType } from "@/shared/socket";
 
@@ -9,10 +9,7 @@ export function initAuthenticationEvents(socket: ServerSocket) {
   socket.on("Authentication/Logout", logout);
 }
 
-function logout(
-  socket: ServerSocket,
-  data: DataType<ClientServerEvent, "Authentication/Logout">
-) {
+function logout(socket: ServerSocket, {}: ServerData<"Authentication/Logout">) {
   socket.user = null;
   socket.profile = null;
   socket.send("Authentication/LogoutSuccess", {});
@@ -24,7 +21,7 @@ const googleOauthClient = new OAuth2Client(
 
 async function authenticateGoogle(
   socket: ServerSocket,
-  data: DataType<ClientServerEvent, "Authentication/GoogleLogin">
+  data: ServerData<"Authentication/GoogleLogin">
 ) {
   const ticket = await googleOauthClient.verifyIdToken({
     idToken: data.token,

@@ -1,11 +1,12 @@
 import { drizzle } from "drizzle-orm/libsql";
 import {
+  inventoryTable,
   profileTable,
   userProfileRelations,
   userProfileTable,
   userTable,
 } from "./db/schema";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 export type UserId = number;
 export type ProfileId = number;
@@ -63,6 +64,27 @@ export class Database {
 
   public async deleteProfile(profileId: ProfileId) {
     await this._db.delete(profileTable).where(eq(profileTable.id, profileId));
+  }
+
+  public async getInventory(profileId: ProfileId) {
+    const items = await this._db
+      .select({ itemId: inventoryTable.itemId, count: inventoryTable.count })
+      .from(inventoryTable)
+      .where(eq(inventoryTable.profileId, profileId))
+      .orderBy(inventoryTable.index);
+    return items;
+  }
+
+  public async setIndex(profileId: ProfileId, index: number, newIndex: number) {
+    await this._db
+      .update(inventoryTable)
+      .set({ index: newIndex })
+      .where(
+        and(
+          eq(inventoryTable.profileId, profileId),
+          eq(inventoryTable.index, index)
+        )
+      );
   }
 }
 

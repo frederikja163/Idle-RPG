@@ -4,6 +4,7 @@ import { addCommand } from "./commands";
 import { initDb } from "./database";
 import { initProfileEvents } from "./profiles";
 import { initServer, server } from "./server";
+import { initInventoryEvents } from "./inventory";
 
 addCommand("stop", "Stops the server", () => {
   console.log("Stopping server");
@@ -17,6 +18,7 @@ function main() {
     socket.on("Ping", (_, __) => socket.send("Pong", {}));
     initAuthenticationEvents(socket);
     initProfileEvents(socket);
+    initInventoryEvents(socket);
   });
   Socket.LogEvents = process.env.NODE_ENV !== "production";
 }
