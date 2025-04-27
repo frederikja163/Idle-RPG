@@ -1,29 +1,22 @@
-import { useContext, useEffect, useState } from "react";
-import { SocketContext } from "../App";
-import { Button } from "./ui/button.tsx";
+import {useContext} from 'react';
+import {SocketContext} from '../App';
+import {Button} from './ui/button.tsx';
+import {useAuth} from '@/front-end/providers/auth-provider.tsx';
+import {Row} from '@/front-end/components/layout/row.tsx';
 
 export function NavBar() {
-  const socket = useContext(SocketContext);
-  const [loggedIn, setLoggedIn] = useState(false);
+	const socket = useContext(SocketContext);
+	const {isLoggedIn} = useAuth();
 
-  useEffect(() => {
-    socket?.on("Authentication/LoginSuccess", (s, d) => {
-      setLoggedIn(true);
-    });
-    socket?.on("Authentication/LogoutSuccess", (s, d) => {
-      setLoggedIn(false);
-    });
-  }, [socket]);
-
-  return (
-    <div>
-      {loggedIn ? (
-        <Button onClick={() => socket?.send("Authentication/Logout", {})}>
-          Log out
-        </Button>
-      ) : (
-        <p>Go to home</p>
-      )}
-    </div>
-  );
+	return (
+		<Row className="bg-blue-500">
+			{isLoggedIn ? (
+				<Button onClick={() => socket?.send('Authentication/Logout', {})}>
+					Log out
+				</Button>
+			) : (
+				<p>Go to home</p>
+			)}
+		</Row>
+	);
 }
