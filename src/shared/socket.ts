@@ -1,63 +1,64 @@
-import type { ServerWebSocket } from "bun";
-import type { ClientServerEvent } from "./client-server-events";
-import type { ServerClientEvent } from "./server-client-events";
+import type { Static } from "@sinclair/typebox";
+import {
+  type ServerClientEvent,
+  type ClientServerEvent,
+} from "./socket-events";
+import { TypeCheck } from "@sinclair/typebox/compiler";
 
-export type AllEvents = ServerClientEvent | ClientServerEvent;
-export type AllSockets = WebSocket | ServerWebSocket;
+export type AllEvents = ClientServerEvent | ServerClientEvent;
+export type EventType<T extends AllEvents> = Static<T>["type"];
+export type DataType<
+  T extends AllEvents,
+  TEvent extends EventType<T>
+> = Extract<Static<T>, { type: TEvent }>["data"];
 
 export class Socket<TIncoming extends AllEvents, TOutgoing extends AllEvents> {
   private readonly _send: (data: string) => void;
   private readonly _events: ((message: string) => void)[];
+  private readonly _typeCheck: TypeCheck<TIncoming>;
 
-  constructor(send: (data: string) => void) {
+  public static LogEvents: boolean = false;
+
+  constructor(typeCheck: TypeCheck<TIncoming>, send: (data: string) => void) {
     this._send = send;
+    this._typeCheck = typeCheck;
     this._events = [];
   }
 
   public handleMessage(message: string) {
+    if (Socket.LogEvents) {
+      console.log(message);
+    }
     for (const event of this._events) {
       event(message);
     }
   }
 
-  public send<T extends keyof TOutgoing>(event: T, data: TOutgoing[T]) {
+  public send<
+    TEvent extends EventType<TOutgoing>,
+    TData extends DataType<TOutgoing, TEvent>
+  >(event: TEvent, data: TData) {
     const obj = { type: event, data: data };
     const json = JSON.stringify(obj);
     this._send(json);
   }
 
-  public on<T extends keyof TIncoming>(
-    event: T,
-    callback: (a: TIncoming[T]) => void
-  ) {
+  public on<
+    TEvent extends EventType<TIncoming>,
+    TData extends DataType<TIncoming, TEvent>
+  >(event: TEvent, callback: (socket: typeof this, data: TData) => void) {
     this._events.push((message) => {
-      const obj = JSON.parse(message) as { type: string; data: unknown };
-      if (obj.type === event) {
-        // TODO: Validate that the incoming data has the correct type.
-        const data = obj.data as TIncoming[T];
-        callback(data);
-      }
+      const obj = JSON.parse(message);
+      if (this._typeCheck.Check(obj)) {
+        if (obj.type === event) {
+          const data = obj.data as TData;
+          callback(this, data);
+        }
+      } else this.onError(message);
     });
   }
-}
 
-export type ServerSocket = Socket<ClientServerEvent, ServerClientEvent>;
-export function serverSocket(ws: ServerWebSocket<unknown>) {
-  return new Socket<ClientServerEvent, ServerClientEvent>(ws.send.bind(ws));
-}
-export type ClientSocket = Socket<ServerClientEvent, ClientServerEvent>;
-export async function clientSocket(ws: WebSocket) {
-  await new Promise<void>((resolve) => {
-    if (ws.readyState == ws.OPEN) {
-      resolve();
-    } else {
-      ws.addEventListener("open", () => resolve(), { once: true });
-    }
-  });
-
-  const socket = new Socket<ServerClientEvent, ClientServerEvent>(
-    ws.send.bind(ws)
-  );
-  ws.addEventListener("message", (ev) => socket.handleMessage(ev.data));
-  return socket;
+  public onError(message: string) {
+    console.error("An error has occured", message);
+  }
 }

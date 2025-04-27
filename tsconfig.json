@@ -2,19 +2,23 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "allowJs": true,
-
     // Bundler mode
     "moduleResolution": "bundler",
     "module": "preserve",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
+    "downlevelIteration": true,
     "noEmit": true,
     "strict": true,
-
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ]
 }
