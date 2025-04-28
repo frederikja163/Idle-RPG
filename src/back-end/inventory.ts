@@ -29,5 +29,6 @@ export class Inventory {
     for (const inventory of this._needsSave) {
       await database.saveInventory(inventory._profileId, inventory._items);
     }
+    this._needsSave.clear();
   }
 }
