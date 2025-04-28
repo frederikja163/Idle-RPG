@@ -7,7 +7,7 @@ import {useNavigate} from 'react-router-dom';
 import {routes} from '@/front-end/router/routes.ts';
 import {useSocket} from '@/front-end/providers/socket-provider.tsx';
 import type {ProfileDto} from '@/shared/socket-types.ts';
-import {Text} from '@/front-end/components/ui/text.tsx';
+import {Typography} from '@/front-end/components/ui/typography.tsx';
 
 interface Props {
   profileIndex: number;
@@ -34,7 +34,7 @@ export const ProfileCard: FC<Props> = React.memo((props) => {
   return (
     <Card className="bg-green-200 w-64 h-96 p-4" onClick={selectProfile}>
       <Column className="h-full items-center justify-between">
-        <Text className="text-center text-lg">{profile?.name}</Text>
+        <Typography className="text-center text-lg">{profile?.name}</Typography>
         <Row className="w-full justify-end">
           <div className="flex p-2">
             <Trash2 onClick={deleteProfile}/>

@@ -1,6 +1,8 @@
 ﻿import React, {type FC} from 'react';
 import type {ItemDto} from '@/shared/socket-types.ts';
-import {Text} from '@/front-end/components/ui/text.tsx';
+import {Typography} from '@/front-end/components/ui/typography.tsx';
+import {Column} from '@/front-end/components/layout/column.tsx';
+import {items} from '@/shared/items';
 
 interface Props {
   item: ItemDto;
@@ -10,13 +12,10 @@ export const InventoryItem: FC<Props> = React.memo((props) => {
   const {item} = props;
 
   return (
-    <div className="grid w-10 h-10 bg-gray-200">
+    <Column className="bg-gray-200 rounded w-16 h-16 p-1" title={items.get(item.itemId)?.display}>
       <img src={`/assets/${item.itemId}.svg`} alt={item.itemId}/>
-      <Text>
+      <Typography className="row-start-2 col-span-2 text-center">
         {item.count}
-      </Text>
-      <Text>
-        {item.itemId}
-      </Text>
-    </div>);
+      </Typography>
+    </Column>);
 });

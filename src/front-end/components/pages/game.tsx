@@ -2,5 +2,9 @@
 import {Inventory} from '@/front-end/components/game/inventory.tsx';
 
 export const Game: FC = React.memo(() => {
-  return <Inventory/>;
+  return (
+    <div className="m-6">
+      <Inventory/>
+    </div>
+  );
 });

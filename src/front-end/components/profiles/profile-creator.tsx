@@ -3,7 +3,7 @@ import {Card} from '@/front-end/components/ui/card.tsx';
 import {Plus} from 'lucide-react';
 import {Form} from 'radix-ui';
 import {Input} from '@/front-end/components/ui/input.tsx';
-import {Text} from '@/front-end/components/ui/text.tsx';
+import {Typography} from '@/front-end/components/ui/typography.tsx';
 import {Modal} from '@/front-end/components/ui/modal.tsx';
 import {Button} from '@/front-end/components/ui/button.tsx';
 import {Column} from '@/front-end/components/layout/column.tsx';
@@ -40,7 +40,7 @@ export const ProfileCreator: FC = React.memo(() => {
         <Form.Submit>
           <Button>
             <Plus/>
-            <Text>Create profile</Text>
+            <Typography>Create profile</Typography>
           </Button>
         </Form.Submit>
       </Column>
