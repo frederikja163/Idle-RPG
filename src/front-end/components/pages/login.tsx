@@ -1,12 +1,12 @@
 import {GoogleLogin} from '@react-oauth/google';
 import {useAuth} from '@/front-end/providers/auth-provider.tsx';
-import {useContext, useEffect} from 'react';
-import {SocketContext} from '@/front-end/App.tsx';
+import {useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {Column} from '@/front-end/components/layout/column.tsx';
+import {useSocket} from '@/front-end/providers/socket-provider.tsx';
 
 export function Login() {
-  const socket = useContext(SocketContext);
+  const socket = useSocket();
   const navigate = useNavigate();
   const {login} = useAuth();
 

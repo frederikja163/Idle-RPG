@@ -1,24 +1,22 @@
-const t = { t: "test" };
+const t = {t: 'test'};
 
 export const items = new Map<string, Item>();
-ore("Talc");
-ore("Gypsum");
-ore("Calcite");
-ore("Flourite");
-ore("Apatite");
-wood("Balsa");
-wood("Pine");
-wood("Cedar");
-wood("Cherry");
-wood("Oak");
+ore('Talc');
+ore('Gypsum');
+ore('Calcite');
+ore('Flourite');
+ore('Apatite');
+wood('Balsa');
+wood('Pine');
+wood('Cedar');
+wood('Cherry');
+wood('Oak');
 
 function ore(name: string) {
   const id = name.toLowerCase();
   addItem(`${id}_ore`, `${name} ore`);
   addItem(`${id}_pickaxe_head`, `${name} pickaxe head`);
-  addItem(`${id}_pickaxe`, `${name} pickaxe`);
   addItem(`${id}_axe_head`, `${name} axe head`);
-  addItem(`${id}_axe`, `${name} axe`);
 }
 
 function wood(name: string) {
@@ -28,7 +26,7 @@ function wood(name: string) {
 }
 
 function addItem(id: string, display: string) {
-  items.set(id, { id, display });
+  items.set(id, {id, display});
 }
 
 export type Item = {

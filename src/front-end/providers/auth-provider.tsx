@@ -1,61 +1,61 @@
 ﻿import React, {createContext, type FC, type ReactNode, useCallback, useContext, useEffect, useState} from 'react';
-import {SocketContext} from '@/front-end/App.tsx';
 import type {CredentialResponse} from '@react-oauth/google';
+import {useSocket} from '@/front-end/providers/socket-provider.tsx';
 
 interface IAuthContext {
-	isLoggedIn: boolean;
-	login?: (credentialResponse: CredentialResponse) => void;
-	logout?: () => void;
+  isLoggedIn: boolean;
+  login?: (credentialResponse: CredentialResponse) => void;
+  logout?: () => void;
 }
 
 const initialState: IAuthContext = {
-	isLoggedIn: false,
-	login: undefined,
-	logout: undefined,
+  isLoggedIn: false,
+  login: undefined,
+  logout: undefined,
 };
 
 const AuthContext = createContext<IAuthContext>(initialState);
 export const useAuth = (): IAuthContext => useContext(AuthContext);
 
 interface Props {
-	children: ReactNode | ReactNode[];
+  children: ReactNode | ReactNode[];
 }
 
 export const AuthProvider: FC<Props> = React.memo((props) => {
-	const {children} = props;
+  const {children} = props;
 
-	const socket = useContext(SocketContext);
+  const socket = useSocket();
 
-	const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-	const login = useCallback((credentialResponse: CredentialResponse) => {
-		if (!socket || !credentialResponse.credential) return;
-		socket.send('Authentication/GoogleLogin', {token: credentialResponse.credential});
-	}, [socket]);
+  const login = useCallback((credentialResponse: CredentialResponse) => {
+    if (!socket || !credentialResponse.credential) return;
+    socket.send('Authentication/GoogleLogin', {token: credentialResponse.credential});
+  }, [socket]);
 
-	const logout = useCallback(() => {
-		if (!socket) return;
-		socket.send('Authentication/Logout', {});
-	}, [socket]);
+  const logout = useCallback(() => {
+    if (!socket) return;
+    socket.send('Authentication/Logout', {});
+  }, [socket]);
 
-	useEffect(() => {
-		if (!socket) return;
+  useEffect(() => {
+    if (!socket) return;
 
-		socket.on('Authentication/LoginSuccess', (s, d) => {
-			setIsLoggedIn(true);
-		});
+    socket.on('Authentication/LoginSuccess', (s, d) => {
+      setIsLoggedIn(true);
+    });
 
-		socket.on('Authentication/LogoutSuccess', (s, d) => {
-			setIsLoggedIn(false);
-		});
-	}, [socket]);
+    socket.on('Authentication/LogoutSuccess', (s, d) => {
+      setIsLoggedIn(false);
+    });
+  }, [socket]);
 
-	return (
-		<AuthContext.Provider value={{
-			isLoggedIn,
-			login,
-			logout,
-		}}>
-			{children}
-		</AuthContext.Provider>);
+  return (
+    <AuthContext.Provider value={{
+      isLoggedIn,
+      login,
+      logout,
+    }}>
+      {children}
+    </AuthContext.Provider>);
 });
