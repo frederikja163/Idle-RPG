@@ -9,6 +9,7 @@ import {
 import { ServerSocket, type ServerData } from "../server-socket";
 import type { DataType } from "@/shared/socket";
 import type { Static } from "@sinclair/typebox";
+import { Inventory } from "../inventory";
 
 export function initProfileEvents(socket: ServerSocket) {
   socket.on("Profiles/GetProfiles", getProfiles);
@@ -21,14 +22,11 @@ async function getProfiles(
   socket: ServerSocket,
   {}: ServerData<"Profiles/GetProfiles">
 ) {
-  if (!socket.user) {
-    socket.error(ErrorType.RequiresLogin);
-    return;
-  }
+  const user = socket.user;
+  if (!user) return socket.error(ErrorType.RequiresLogin);
 
-  const profiles = await database.getProfiles(socket.user.id);
   socket.send("Profiles/UpdateProfiles", {
-    profiles: profiles.map(getProfileDto),
+    profiles: user.profiles.map((p) => p.getDto()),
   });
 }
 
@@ -36,14 +34,13 @@ async function createProfile(
   socket: ServerSocket,
   { name }: ServerData<"Profiles/CreateProfile">
 ) {
-  if (!socket.user) return socket.error(ErrorType.RequiresLogin);
-
-  const profile = await database.createProfile(socket.user.id, name);
+  const user = socket.user;
+  if (!user) return socket.error(ErrorType.RequiresLogin);
+  const profile = await user.addProfile(name);
   if (!profile) return socket.error(ErrorType.NameTaken);
 
-  const profiles = await database.getProfiles(socket.user.id);
-  ServerSocket.sendUser(socket.user.id, "Profiles/UpdateProfiles", {
-    profiles: profiles.map(getProfileDto),
+  user.send("Profiles/UpdateProfiles", {
+    profiles: user.profiles.map((p) => p.getDto()),
   });
 }
 
@@ -51,19 +48,19 @@ async function deleteProfile(
   socket: ServerSocket,
   { index }: ServerData<"Profiles/DeleteProfile">
 ) {
-  if (!socket.user) return socket.error(ErrorType.RequiresLogin);
-  const profiles = await database.getProfiles(socket.user.id);
+  const user = socket.user;
+  if (!user) return socket.error(ErrorType.RequiresLogin);
+
+  const profiles = user.profiles;
   if (index < 0 || index >= profiles.length)
     return socket.error(ErrorType.ArgumentOutOfRange);
 
   const profile = profiles[index];
-  if (ServerSocket.getProfileSockets(profile.id)?.size ?? 0 != 0)
-    return socket.error(ErrorType.ProfileInUse);
+  if (profile.hasSockets) return socket.error(ErrorType.ProfileInUse);
 
-  database.deleteProfile(profiles[index].id);
-  profiles.splice(index);
-  ServerSocket.sendUser(socket.user.id, "Profiles/UpdateProfiles", {
-    profiles: profiles.map(getProfileDto),
+  await user.deleteProfile(index);
+  user.send("Profiles/UpdateProfiles", {
+    profiles: user.profiles.map((p) => p.getDto()),
   });
 }
 
@@ -71,26 +68,14 @@ async function selectProfile(
   socket: ServerSocket,
   { index }: ServerData<"Profiles/SelectProfile">
 ) {
-  if (!socket.user) return socket.error(ErrorType.RequiresLogin);
-
-  const profiles = await database.getProfiles(socket.user.id);
-
+  const user = socket.user;
+  if (!user) return socket.error(ErrorType.RequiresLogin);
+  const profiles = user.profiles;
   if (index < 0 || index >= profiles.length)
     return socket.error(ErrorType.ArgumentOutOfRange);
 
-  socket.profile = profiles[index];
+  const profile = profiles[index];
+  socket.profile = profile;
+  socket.inventory = await Inventory.createInventory(profile.data.id);
   socket.send("Profiles/SelectProfileSuccess", {});
-}
-
-function getProfileDto(
-  profile: InferSelectModel<typeof profileTable>
-): Static<typeof profileDto> {
-  return {
-    name: profile.name,
-    mining: profile.mining,
-    smithery: profile.smithery,
-    lumberjacking: profile.lumberjacking,
-    carpentry: profile.carpentry,
-    crafting: profile.crafting,
-  };
 }

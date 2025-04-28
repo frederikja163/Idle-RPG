@@ -1,7 +1,7 @@
-﻿import React, {type FC, type HTMLAttributes} from 'react';
+﻿import React, {type FC, type HTMLProps} from 'react';
 
-export const Column: FC<HTMLAttributes<HTMLDivElement>> = React.memo((props) => {
-	const {children} = props;
+export const Column: FC<HTMLProps<HTMLDivElement>> = React.memo((props) => {
+	const {children, className} = props;
 
-	return <div className="flex flex-col" {...props}>{children}</div>;
+	return <div {...props} className={'flex flex-col ' + className}>{children}</div>;
 });

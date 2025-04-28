@@ -33,12 +33,12 @@ export const profileDto = Type.Object({
   crafting: Type.Number(),
 });
 
-export const inventoryDto = Type.Array(
-  Type.Object({
-    itemId: Type.String(),
-    count: Type.Number(),
-  })
-);
+export const item = Type.Object({
+  itemId: Type.String(),
+  count: Type.Number(),
+});
+export type ItemType = Static<typeof item>;
+export const inventoryDto = Type.Array(item);
 
 export const clientServerEvent = Type.Union([
   // Pong

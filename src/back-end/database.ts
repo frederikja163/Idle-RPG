@@ -2,11 +2,11 @@ import { drizzle } from "drizzle-orm/libsql";
 import {
   inventoryTable,
   profileTable,
-  userProfileRelations,
   userProfileTable,
   userTable,
 } from "./db/schema";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
+import type { ItemType } from "@/shared/socket-events";
 
 export type UserId = number;
 export type ProfileId = number;
@@ -17,7 +17,7 @@ export class Database {
   public async upsertUser(
     googleId: string,
     email: string,
-    profilePicture?: string
+    profilePicture: string
   ) {
     const users = await this._db
       .insert(userTable)
@@ -26,13 +26,22 @@ export class Database {
         target: userTable.googleId,
         set: {
           profilePicture: profilePicture,
-          lastLogin: sql`(current_timestamp)`,
+          lastLogin: sql`CURRENT_TIMESTAMP`,
         },
       })
       .returning();
 
     const user = users[0];
     return user;
+  }
+
+  public async updateUsersTime(userIds: UserId[]) {
+    await this._db
+      .update(userTable)
+      .set({
+        lastLogin: sql`CURRENT_TIMESTAMP`,
+      })
+      .where(inArray(userTable.id, userIds));
   }
 
   public async getProfiles(userId: UserId) {
@@ -47,23 +56,35 @@ export class Database {
   }
 
   public async createProfile(userId: UserId, name: string) {
-    const profiles = await this._db
-      .insert(profileTable)
-      .values({ name })
-      .onConflictDoNothing({
-        target: profileTable.name,
-      })
-      .returning();
-    const profile = profiles.length == 1 ? profiles[0] : null;
-    if (!profile) return null;
-    await this._db
-      .insert(userProfileTable)
-      .values({ user: userId, profile: profile.id });
-    return profile;
+    return await this._db.transaction(async (tx) => {
+      const profiles = await tx
+        .insert(profileTable)
+        .values({ name })
+        .onConflictDoNothing({
+          target: profileTable.name,
+        })
+        .returning();
+      const profile = profiles.length == 1 ? profiles[0] : null;
+      if (!profile) return null;
+      await tx
+        .insert(userProfileTable)
+        .values({ user: userId, profile: profile.id });
+      return profile;
+    });
   }
 
   public async deleteProfile(profileId: ProfileId) {
     await this._db.delete(profileTable).where(eq(profileTable.id, profileId));
+  }
+
+  public async updateProfile(
+    profileId: ProfileId,
+    data: Partial<typeof profileTable.$inferSelect>
+  ) {
+    await this._db
+      .update(profileTable)
+      .set(data)
+      .where(eq(profileTable.id, profileId));
   }
 
   public async getInventory(profileId: ProfileId) {
@@ -75,16 +96,21 @@ export class Database {
     return items;
   }
 
-  public async setIndex(profileId: ProfileId, index: number, newIndex: number) {
-    await this._db
-      .update(inventoryTable)
-      .set({ index: newIndex })
-      .where(
-        and(
-          eq(inventoryTable.profileId, profileId),
-          eq(inventoryTable.index, index)
-        )
+  public async saveInventory(profileId: ProfileId, items: ItemType[]) {
+    await this._db.transaction(async (tx) => {
+      await tx
+        .delete(inventoryTable)
+        .where(eq(inventoryTable.profileId, profileId));
+
+      await tx.insert(inventoryTable).values(
+        items.map((item, index) => ({
+          profileId,
+          itemId: item.itemId,
+          count: item.count,
+          index,
+        }))
       );
+    });
   }
 }
 
