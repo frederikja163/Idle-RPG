@@ -3,7 +3,6 @@ import type { profileDto, ServerClientEvent } from "@/shared/socket-events";
 import type { DataType, EventType } from "@/shared/socket";
 import { ServerSocket } from "./server-socket";
 import { database } from "./database";
-import type { ProfileDto } from "@/front-end/components/pages/profiles";
 import type { Static } from "@sinclair/typebox";
 
 type ProfileType = typeof profileTable.$inferSelect;
