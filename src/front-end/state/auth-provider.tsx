@@ -1,6 +1,6 @@
 ﻿import React, {createContext, type FC, type ReactNode, useCallback, useContext, useEffect, useState} from 'react';
 import type {CredentialResponse} from '@react-oauth/google';
-import {useSocket} from '@/front-end/providers/socket-provider.tsx';
+import {useSocket} from '@/front-end/state/socket-provider.tsx';
 
 interface IAuthContext {
   isLoggedIn: boolean;

@@ -13,7 +13,7 @@ import {
 } from '@sinclair/typebox';
 import {type ChangeEvent, type ReactNode, useEffect, useState} from 'react';
 import {Row} from '../layout/row';
-import {useSocket} from '@/front-end/providers/socket-provider.tsx';
+import {useSocket} from '@/front-end/state/socket-provider.tsx';
 
 export function Test() {
   const socket = useSocket();

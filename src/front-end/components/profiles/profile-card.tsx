@@ -5,7 +5,7 @@ import {Trash2} from 'lucide-react';
 import {Row} from '../layout/row';
 import {useNavigate} from 'react-router-dom';
 import {routes} from '@/front-end/router/routes.ts';
-import {useSocket} from '@/front-end/providers/socket-provider.tsx';
+import {useSocket} from '@/front-end/state/socket-provider.tsx';
 import type {ProfileDto} from '@/shared/socket-types.ts';
 import {Typography} from '@/front-end/components/ui/typography.tsx';
 

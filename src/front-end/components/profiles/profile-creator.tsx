@@ -10,7 +10,7 @@ import {Column} from '@/front-end/components/layout/column.tsx';
 import {getFormData} from '@/front-end/lib/utils.ts';
 import {useNavigate} from 'react-router-dom';
 import {routes} from '@/front-end/router/routes.ts';
-import {useSocket} from '@/front-end/providers/socket-provider.tsx';
+import {useSocket} from '@/front-end/state/socket-provider.tsx';
 
 interface ProfileForm {
   name: string;

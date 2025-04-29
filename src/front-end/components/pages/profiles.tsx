@@ -2,7 +2,7 @@ import React, {type FC, useEffect, useState} from 'react';
 import {Row} from '@/front-end/components/layout/row.tsx';
 import {ProfileCard} from '@/front-end/components/profiles/profile-card.tsx';
 import {ProfileCreator} from '@/front-end/components/profiles/profile-creator.tsx';
-import {useSocket} from '@/front-end/providers/socket-provider.tsx';
+import {useSocket} from '@/front-end/state/socket-provider.tsx';
 import type {ProfileDto} from '@/shared/socket-types.ts';
 
 export const Profiles: FC = React.memo(() => {

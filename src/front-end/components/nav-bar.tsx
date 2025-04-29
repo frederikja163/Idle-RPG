@@ -1,11 +1,11 @@
 import {useCallback} from 'react';
 import {Button} from './ui/button.tsx';
-import {useAuth} from '@/front-end/providers/auth-provider.tsx';
+import {useAuth} from '@/front-end/state/auth-provider.tsx';
 import {Row} from '@/front-end/components/layout/row.tsx';
 import {Typography} from '@/front-end/components/ui/typography.tsx';
 import {useNavigate} from 'react-router-dom';
 import {routes} from '@/front-end/router/routes.ts';
-import {useSocket} from '@/front-end/providers/socket-provider.tsx';
+import {useSocket} from '@/front-end/state/socket-provider.tsx';
 
 export function NavBar() {
   const socket = useSocket();

@@ -1,35 +1,44 @@
-﻿import React, {type CSSProperties, type FC, useEffect, useState} from 'react';
-import {useSocket} from '@/front-end/providers/socket-provider.tsx';
-import type {InventoryDto} from '@/shared/socket-types.ts';
+﻿import React, {type CSSProperties, type FC, useEffect, useMemo, useState} from 'react';
+import {useSocket} from '@/front-end/state/socket-provider.tsx';
 import {Column} from '@/front-end/components/layout/column.tsx';
 import {Row} from '../layout/row';
 import {InventoryItem} from '@/front-end/components/game/inventory-item.tsx';
 import {Card} from '@/front-end/components/ui/card.tsx';
 import {InventoryTab} from '@/front-end/components/game/inventory-tab.tsx';
+import {useAtomValue} from 'jotai';
+import {selectedInventoryTabAtom} from '@/front-end/state/atoms.tsx';
+import type {ItemStack} from '@/front-end/lib/types.ts';
+import {getItemStacksFromInventory} from '@/front-end/lib/utils.ts';
+import {ItemTag} from '@/shared/items';
 
 export const Inventory: FC = React.memo(() => {
   const socket = useSocket();
+  const selectedTab = useAtomValue(selectedInventoryTabAtom);
 
-  const [items, setItems] = useState<InventoryDto>();
+  const [itemStacks, setItemStacks] = useState<ItemStack[]>();
 
   useEffect(() => {
     socket?.send('Inventory/GetInventory', {});
 
     socket?.on('Inventory/UpdateInventory', (socket, data) => {
-      setItems(data.items);
+      setItemStacks(getItemStacksFromInventory(data.items));
     });
   }, []);
 
-  // TODO: manage state of selected tab
+  const shownItems = useMemo(() =>
+      itemStacks?.filter(itemStack => itemStack.item.tags.includes(selectedTab))
+        .map((itemStack, i) => <InventoryItem key={i} itemStack={itemStack}/>)
+    , [selectedTab, itemStacks]);
+
   return (
-    <Card className="bg-green-100">
+    <Card className="bg-green-100 overflow-hidden">
       <Column>
-        <Row className="rounded-t-xl h-12" style={styles.itemContainer}>
-          <InventoryTab id="items" label="Items" onClick={() => {
-          }}/>
+        <Row className="h-12" style={styles.itemContainer}>
+          <InventoryTab itemCategory={ItemTag.Resource} label="Items"/>
+          <InventoryTab itemCategory={ItemTag.Tool} label="Tools"/>
         </Row>
         <Row className="gap-2 p-4">
-          {items?.map((item, i) => <InventoryItem key={i} item={item}/>)}
+          {shownItems}
         </Row>
       </Column>
     </Card>
