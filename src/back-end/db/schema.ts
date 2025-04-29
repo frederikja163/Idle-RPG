@@ -1,5 +1,4 @@
 import { relations, sql } from "drizzle-orm";
-import { primaryKey, unique } from "drizzle-orm/gel-core";
 import {
   foreignKey,
   int,
@@ -43,7 +42,7 @@ export const profileTable = sqliteTable(
       .notNull()
       .default(0),
     carpentryXp: int("carpentry_xp", { mode: "number" }).notNull().default(0),
-    creationDate: int("creation_date", { mode: "timestamp_ms" })
+    creationTime: int("creation_time", { mode: "timestamp_ms" })
       .notNull()
       .default(sql`(current_timestamp)`),
     lastLogin: int("last_login", { mode: "timestamp_ms" })
