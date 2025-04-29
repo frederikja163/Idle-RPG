@@ -44,17 +44,6 @@ export class Database {
       .where(inArray(userTable.id, userIds));
   }
 
-  public async getProfiles(userId: UserId) {
-    const profiles = await this._db
-      .select()
-      .from(userTable)
-      .innerJoin(userProfileTable, eq(userTable.id, userProfileTable.user))
-      .innerJoin(profileTable, eq(userProfileTable.profile, profileTable.id))
-      .where(eq(userTable.id, userId));
-
-    return profiles.map((p) => p.profiles);
-  }
-
   public async createProfile(userId: UserId, name: string) {
     return await this._db.transaction(async (tx) => {
       const profiles = await tx
@@ -71,6 +60,17 @@ export class Database {
         .values({ user: userId, profile: profile.id });
       return profile;
     });
+  }
+
+  public async getProfiles(userId: UserId) {
+    const profiles = await this._db
+      .select()
+      .from(userTable)
+      .innerJoin(userProfileTable, eq(userTable.id, userProfileTable.user))
+      .innerJoin(profileTable, eq(userProfileTable.profile, profileTable.id))
+      .where(eq(userTable.id, userId));
+
+    return profiles.map((p) => p.profiles);
   }
 
   public async deleteProfile(profileId: ProfileId) {

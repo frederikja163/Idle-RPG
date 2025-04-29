@@ -28,7 +28,15 @@ export class ServerSocket extends Socket<ClientServerEvent, ServerClientEvent> {
   }
 
   public close() {
+    this.logout();
+  }
+
+  public logout(){
+    if (this.user)
+      this.user.removeSocket(this);
     this.user = null;
+    if (this.profile)
+      this.profile.removeSocket(this);
     this.profile = null;
     this.inventory = null;
   }

@@ -44,6 +44,12 @@ export const profileTable = sqliteTable(
       .default(0),
     carpentry: int("carpentry", { mode: "number" }).notNull().default(0),
     crafting: int("crafting", { mode: "number" }).notNull().default(0),
+    creationDate: int("creation_date", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(current_timestamp)`),
+    lastLogin: int("last_login", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(current_timestamp)`),
   },
   (table) => [uniqueIndex("name_idx").on(table.name)]
 );
