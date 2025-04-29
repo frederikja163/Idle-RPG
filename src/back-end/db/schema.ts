@@ -37,13 +37,12 @@ export const profileTable = sqliteTable(
   {
     id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
     name: text("name").notNull().unique(),
-    mining: int("mining", { mode: "number" }).notNull().default(0),
-    smithery: int("smithery", { mode: "number" }).notNull().default(0),
-    lumberjacking: int("lumberjacking", { mode: "number" })
+    miningXp: int("mining_xp", { mode: "number" }).notNull().default(0),
+    smitheryXp: int("smithery_xp", { mode: "number" }).notNull().default(0),
+    lumberjackingXp: int("lumberjacking_xp", { mode: "number" })
       .notNull()
       .default(0),
-    carpentry: int("carpentry", { mode: "number" }).notNull().default(0),
-    crafting: int("crafting", { mode: "number" }).notNull().default(0),
+    carpentryXp: int("carpentry_xp", { mode: "number" }).notNull().default(0),
     creationDate: int("creation_date", { mode: "timestamp_ms" })
       .notNull()
       .default(sql`(current_timestamp)`),

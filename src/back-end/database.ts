@@ -87,6 +87,22 @@ export class Database {
       .where(eq(profileTable.id, profileId));
   }
 
+  public async updateProfiles(profiles: typeof profileTable.$inferSelect[]) {
+    await this._db.transaction(async (tx) => {
+      for (const profile of profiles) {
+        await tx.update(profileTable)
+        .set(profile)
+        .where(eq(profileTable.id, profile.id));
+      }
+    })
+  }
+
+  public async updateProfileTimes(profileIds: ProfileId[]){
+    await this._db.update(profileTable).set({
+      lastLogin: sql`CURRENT_TIMESTAMP`,
+    }).where(inArray(profileTable.id, profileIds));
+  }
+
   public async getInventory(profileId: ProfileId) {
     const items = await this._db
       .select({ itemId: inventoryTable.itemId, count: inventoryTable.count })
