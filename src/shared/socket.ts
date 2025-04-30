@@ -59,6 +59,6 @@ export class Socket<TIncoming extends AllEvents, TOutgoing extends AllEvents> {
   }
 
   public onError(message: string) {
-    console.error("An error has occured", message);
+    console.error(message);
   }
 }

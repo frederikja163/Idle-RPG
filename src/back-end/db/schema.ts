@@ -14,7 +14,7 @@ export const userTable = sqliteTable(
     id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
     googleId: text("google_id").notNull().unique(),
     email: text("email").notNull().unique(),
-    profilePicture: text("profile_picture"),
+    profilePicture: text("profile_picture").notNull(),
     firstLogin: int("first_login", { mode: "timestamp_ms" })
       .notNull()
       .default(sql`(current_timestamp)`),
