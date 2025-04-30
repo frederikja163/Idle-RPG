@@ -9,12 +9,15 @@ interface Props {
   children: ReactNode | ReactNode[];
   content: ReactNode | ReactNode[];
   description?: ReactNode | ReactNode[];
+  isOpen?: boolean;
+
+  onClose?(): void;
 }
 
 export const Modal: FC<Props> = React.memo((props) => {
-  const {children, content, description} = props;
+  const {children, content, description, isOpen, onClose} = props;
 
-  return (<Dialog.Root>
+  return (<Dialog.Root open={isOpen}>
     <Dialog.Trigger>
       {children}
     </Dialog.Trigger>
@@ -26,7 +29,7 @@ export const Modal: FC<Props> = React.memo((props) => {
             <Dialog.Title className="grow">
               <Typography className="text-xl">Create profile</Typography>
             </Dialog.Title>
-            <Dialog.Close>
+            <Dialog.Close onClick={onClose}>
               <X/>
             </Dialog.Close>
           </Row>
