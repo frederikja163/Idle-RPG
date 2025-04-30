@@ -37,7 +37,7 @@ export const Inventory: FC = React.memo(() => {
           <InventoryTab itemCategory={ItemTag.Resource} label="Items"/>
           <InventoryTab itemCategory={ItemTag.Tool} label="Tools"/>
         </Row>
-        <Row className="gap-2 p-4">
+        <Row className="gap-2 p-4 h-80 overflow-y-scroll flex-wrap">
           {shownItems}
         </Row>
       </Column>

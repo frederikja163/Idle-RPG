@@ -15,7 +15,7 @@ wood('Oak');
 
 function ore(name: string) {
   const id = name.toLowerCase();
-  addItem(`${id}_ore`, `${name} ore`, ItemTag.Resource);
+  addItem(`${id}_ore`, `${name} ore`, ItemTag.Resource, ItemTag.Tool);
   addItem(`${id}_pickaxe_head`, `${name} pickaxe head`, ItemTag.Tool);
   addItem(`${id}_axe_head`, `${name} axe head`, ItemTag.Tool);
 }
@@ -34,6 +34,11 @@ export enum ItemTag {
   Resource,
   Tool
 }
+
+export const itemTagDisplayMap = new Map<ItemTag, string>([
+  [ItemTag.Resource, 'Resource'],
+  [ItemTag.Tool, 'Tool'],
+]);
 
 export type Item = {
   id: string;
