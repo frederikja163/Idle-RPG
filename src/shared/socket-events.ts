@@ -35,6 +35,7 @@ export const itemDto = Type.Object({
 
 export const inventoryDto = Type.Array(
   itemDto,
+);
 
 export const clientServerEvent = Type.Union([
   // Pong
