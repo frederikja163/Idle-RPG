@@ -11,9 +11,7 @@ export function initAuthenticationEvents(socket: ServerSocket) {
 }
 
 function logout(socket: ServerSocket, {}: ServerData<"Authentication/Logout">) {
-  socket.user = null;
-  socket.profile = null;
-  socket.inventory = null;
+  socket.logout();
   socket.send("Authentication/LogoutSuccess", {});
 }
 

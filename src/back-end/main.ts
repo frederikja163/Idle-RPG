@@ -19,7 +19,7 @@ function main() {
     await User.saveAll();
     await Profile.saveAll();
     await Inventory.saveAll();
-  }, debug ? 1000 : 5 * 60 * 1000);
+  }, debug ? 5 * 1000 : (5 * 60 * 1000));
 
   server.onSocketOpen((socket) => {
     socket.on('Ping', (_, __) => socket.send('Pong', {}));

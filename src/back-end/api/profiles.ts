@@ -1,14 +1,7 @@
-import type { InferSelectModel } from "drizzle-orm";
-import { database, type UserId } from "../database";
-import { profileTable } from "../db/schema";
 import {
   ErrorType,
-  profileDto,
-  type ClientServerEvent,
 } from "@/shared/socket-events";
 import { ServerSocket, type ServerData } from "../server-socket";
-import type { DataType } from "@/shared/socket";
-import type { Static } from "@sinclair/typebox";
 import { Inventory } from "../inventory";
 
 export function initProfileEvents(socket: ServerSocket) {
@@ -75,6 +68,7 @@ async function selectProfile(
     return socket.error(ErrorType.ArgumentOutOfRange);
 
   const profile = profiles[index];
+  profile.addSocket(socket);
   socket.profile = profile;
   socket.inventory = await Inventory.createInventory(profile.data.id);
   socket.send("Profiles/SelectProfileSuccess", {});
