@@ -1,6 +1,6 @@
-import type { ItemType } from "@/shared/socket-events";
-import { database, type ProfileId } from "./database";
-import type { inventoryTable } from "./db/schema";
+import type { ItemType } from '@/shared/socket-events';
+import { database, type ProfileId } from './database';
+import type { itemsTable } from './schema';
 
 export class Inventory {
   private static readonly _needsSave = new Set<Inventory>();

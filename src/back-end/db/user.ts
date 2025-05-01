@@ -1,11 +1,11 @@
-import type { DataType, EventType } from "@/shared/socket";
-import { database, type UserId } from "./database";
-import type { userTable } from "./db/schema";
-import { Profile } from "./profile";
-import { ServerSocket } from "./server-socket";
-import type { ServerClientEvent } from "@/shared/socket-events";
+import type { DataType, EventType } from '@/shared/socket';
+import { database, type UserId } from './database';
+import type { usersTable } from './schema';
+import { Profile } from './profile';
+import { ServerSocket } from '../server-socket';
+import type { ServerClientEvent } from '@/shared/socket-events';
 
-type UserType = typeof userTable.$inferSelect;
+type UserType = typeof usersTable.$inferSelect;
 export class User {
   private static usersByGoogleId = new Map<string, User>();
   private readonly _data: UserType;
@@ -15,6 +15,10 @@ export class User {
   private constructor(data: UserType, profiles: Profile[]) {
     this._data = data;
     this._profiles = profiles;
+  }
+
+  public get id() {
+    return this._data.id;
   }
 
   public get profiles() {
@@ -34,13 +38,10 @@ export class User {
   public async deleteProfile(index: number) {
     const profiles = this._profiles;
     profiles.splice(index);
-    await database.deleteProfile(profiles[index].data.id);
+    await database.deleteProfile(profiles[index].id);
   }
 
-  public send<TEvent extends EventType<ServerClientEvent>>(
-    event: TEvent,
-    data: DataType<ServerClientEvent, TEvent>
-  ) {
+  public send<TEvent extends EventType<ServerClientEvent>>(event: TEvent, data: DataType<ServerClientEvent, TEvent>) {
     for (const socket of this._sockets) {
       socket.send(event, data);
     }
@@ -54,18 +55,11 @@ export class User {
     }
   }
 
-  public static async createOrGetGoogle(
-    socket: ServerSocket,
-    googleId: string,
-    email: string,
-    profilePicture: string
-  ) {
+  public static async createOrGetGoogle(socket: ServerSocket, googleId: string, email: string, profilePicture: string) {
     let user = this.usersByGoogleId.get(googleId);
     if (!user) {
       const data = await database.upsertUser(googleId, email, profilePicture);
-      const profiles = (await database.getProfiles(data.id)).map(
-        (p) => new Profile(p)
-      );
+      const profiles = (await database.getProfiles(data.id)).map((p) => new Profile(p));
       user = new User(data, profiles);
     }
     // TODO: If the profile picture has been changed from the cached one, update it here.

@@ -1,115 +1,122 @@
-import { relations, sql } from "drizzle-orm";
-import {
-  foreignKey,
-  int,
-  sqliteTable,
-  text,
-  uniqueIndex,
-} from "drizzle-orm/sqlite-core";
+import { relations, sql } from 'drizzle-orm';
+import { foreignKey, int, primaryKey, sqliteTable, text, unique, uniqueIndex } from 'drizzle-orm/sqlite-core';
 
-export const userTable = sqliteTable(
-  "users",
+export const usersTable = sqliteTable(
+  'users',
   {
-    id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-    googleId: text("google_id").notNull().unique(),
-    email: text("email").notNull().unique(),
-    profilePicture: text("profile_picture").notNull(),
-    firstLogin: int("first_login", { mode: "timestamp_ms" })
+    id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+    googleId: text('google_id').notNull().unique(),
+    email: text('email').notNull().unique(),
+    profilePicture: text('profile_picture').notNull(),
+    firstLogin: int('first_login', { mode: 'timestamp_ms' })
       .notNull()
       .default(sql`(current_timestamp)`),
-    lastLogin: int("last_login", { mode: "timestamp_ms" })
+    lastLogin: int('last_login', { mode: 'timestamp_ms' })
       .notNull()
       .default(sql`(current_timestamp)`),
   },
-  (table) => [
-    uniqueIndex("google_idx").on(table.googleId),
-    uniqueIndex("email__idx").on(table.email),
-  ]
+  (table) => [uniqueIndex('google_idx').on(table.googleId), uniqueIndex('email__idx').on(table.email)],
 );
 
-export const userRelations = relations(userTable, ({ many }) => ({
+export const userRelations = relations(usersTable, ({ many }) => ({
   userProfileRelation: many(userProfileTable),
 }));
 
-export const profileTable = sqliteTable(
-  "profiles",
+export const profilesTable = sqliteTable(
+  'profiles',
   {
-    id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-    name: text("name").notNull().unique(),
-    miningXp: int("mining_xp", { mode: "number" }).notNull().default(0),
-    smitheryXp: int("smithery_xp", { mode: "number" }).notNull().default(0),
-    lumberjackingXp: int("lumberjacking_xp", { mode: "number" })
-      .notNull()
-      .default(0),
-    carpentryXp: int("carpentry_xp", { mode: "number" }).notNull().default(0),
-    creationTime: int("creation_time", { mode: "timestamp_ms" })
+    id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+    name: text('name').notNull().unique(),
+    creationTime: int('creation_time', { mode: 'timestamp_ms' })
       .notNull()
       .default(sql`(current_timestamp)`),
-    lastLogin: int("last_login", { mode: "timestamp_ms" })
+    lastLogin: int('last_login', { mode: 'timestamp_ms' })
       .notNull()
       .default(sql`(current_timestamp)`),
   },
-  (table) => [uniqueIndex("name_idx").on(table.name)]
+  (table) => [uniqueIndex('name_idx').on(table.name)],
 );
 
-export const profileRelations = relations(profileTable, ({ many }) => ({
+export const profileRelations = relations(profilesTable, ({ many }) => ({
   userProfileRelation: many(userProfileTable),
-  inventoryRelation: many(inventoryTable),
+  inventoryRelation: many(itemsTable),
 }));
 
 export const userProfileTable = sqliteTable(
-  "user_profile_relation",
+  'user_profile_relation',
   {
-    user: int("user_id", { mode: "number" }).references(() => userTable.id),
-    profile: int("profile_id", { mode: "number" }).references(
-      () => profileTable.id
-    ),
+    userId: int('user_id', { mode: 'number' }).references(() => usersTable.id),
+    profileId: int('profile_id', { mode: 'number' }).references(() => profilesTable.id),
   },
   (table) => [
-    uniqueIndex("idx").on(table.user, table.profile),
+    primaryKey({ name: 'idx', columns: [table.userId, table.profileId] }),
     foreignKey({
-      columns: [table.user],
-      foreignColumns: [userTable.id],
-    }).onDelete("cascade"),
+      columns: [table.userId],
+      foreignColumns: [usersTable.id],
+    }).onDelete('cascade'),
     foreignKey({
-      columns: [table.profile],
-      foreignColumns: [profileTable.id],
-    }).onDelete("cascade"),
-  ]
+      columns: [table.profileId],
+      foreignColumns: [profilesTable.id],
+    }).onDelete('cascade'),
+  ],
 );
 
 export const userProfileRelations = relations(userProfileTable, ({ one }) => ({
-  user: one(userTable, {
-    fields: [userProfileTable.user],
-    references: [userTable.id],
+  user: one(usersTable, {
+    fields: [userProfileTable.userId],
+    references: [usersTable.id],
   }),
-  profile: one(profileTable, {
-    fields: [userProfileTable.profile],
-    references: [profileTable.id],
+  profile: one(profilesTable, {
+    fields: [userProfileTable.profileId],
+    references: [profilesTable.id],
   }),
 }));
 
-export const inventoryTable = sqliteTable(
-  "inventory_table",
+export const itemsTable = sqliteTable(
+  'items',
   {
-    profileId: int("id", { mode: "number" }).notNull(),
-    itemId: text("item_id").notNull(),
-    count: int("count", { mode: "number" }).notNull(),
-    index: int("index", { mode: "number" }).notNull(),
+    profileId: int('id', { mode: 'number' }).notNull(),
+    itemId: text('item_id').notNull(),
+    count: int('count', { mode: 'number' }).notNull().default(0),
+    index: int('index', { mode: 'number' }).notNull(),
   },
   (table) => [
-    uniqueIndex("item_idx").on(table.profileId, table.itemId),
-    uniqueIndex("index_idx").on(table.profileId, table.index),
+    primaryKey({ name: 'index_idx', columns: [table.profileId, table.index] }),
+    unique('item_idx').on(table.profileId, table.itemId),
     foreignKey({
       columns: [table.profileId],
-      foreignColumns: [profileTable.id],
-    }).onDelete("cascade"),
-  ]
+      foreignColumns: [profilesTable.id],
+    }).onDelete('cascade'),
+  ],
 );
 
-export const intentoryRelations = relations(inventoryTable, ({ one }) => ({
-  profile: one(profileTable, {
-    fields: [inventoryTable.profileId],
-    references: [profileTable.id],
+export const itemsRelation = relations(itemsTable, ({ one }) => ({
+  profile: one(profilesTable, {
+    fields: [itemsTable.profileId],
+    references: [profilesTable.id],
+  }),
+}));
+
+export const skillsTable = sqliteTable(
+  'skills',
+  {
+    profileId: int('profile_id', { mode: 'number' }).notNull(),
+    skillId: text('skill_id').notNull(),
+    xp: int('xp', { mode: 'number' }).notNull().default(0),
+    level: int('level', { mode: 'number' }).notNull().default(0),
+  },
+  (table) => [
+    primaryKey({ name: 'idx', columns: [table.profileId, table.skillId] }),
+    foreignKey({
+      columns: [table.profileId],
+      foreignColumns: [profilesTable.id],
+    }),
+  ],
+);
+
+export const skillRelations = relations(skillsTable, ({ one }) => ({
+  profile: one(profilesTable, {
+    fields: [skillsTable.profileId],
+    references: [profilesTable.id],
   }),
 }));
