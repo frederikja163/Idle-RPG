@@ -1,10 +1,7 @@
-import { SocketContext } from "@/front-end/App";
-import type { EventType } from "@/shared/socket";
-import {
-  clientServerEvent,
-  type ClientServerEvent,
-} from "@/shared/socket-events";
-import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
+import { SocketContext } from '@/front-end/App';
+import type { EventType } from '@/shared/socket';
+import { clientServerEvent, type ClientServerEvent } from '@/shared/socket-events';
+import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
 import {
   TypeGuard,
   type TEnum,
@@ -15,31 +12,25 @@ import {
   type TSchema,
   type TString,
   type TUnion,
-} from "@sinclair/typebox";
-import {
-  useContext,
-  useEffect,
-  useState,
-  type ChangeEvent,
-  type ReactNode,
-} from "react";
-import { Row } from "../layout/row";
+} from '@sinclair/typebox';
+import { useContext, useEffect, useState, type ChangeEvent, type ReactNode } from 'react';
+import { Row } from '../layout/row';
 
 export function Test() {
   const socket = useContext(SocketContext);
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    socket?.on("Authentication/LoginSuccess", () => setLoggedIn(true));
-    socket?.send("Ping", {});
+    socket?.on('Auth/LoginSuccess', () => setLoggedIn(true));
+    socket?.send('Ping', {});
   }, [socket]);
 
   const handleSuccess = (r: CredentialResponse) => {
-    socket?.send("Authentication/GoogleLogin", { token: r.credential! });
+    socket?.send('Auth/GoogleLogin', { token: r.credential! });
   };
 
   const send = (form: FormData) => {
-    const data = formDiscriminatedUnion("event", form, clientServerEvent);
+    const data = formDiscriminatedUnion('event', form, clientServerEvent);
     socket?.send(data.type as any, data.data);
   };
 
@@ -49,10 +40,7 @@ export function Test() {
       {loggedIn ? null : <GoogleLogin onSuccess={handleSuccess} />}
       <form action={send}>
         <button type="submit">Send</button>
-        <DiscriminatedUnionInput
-          path="event"
-          object={clientServerEvent}
-        ></DiscriminatedUnionInput>
+        <DiscriminatedUnionInput path="event" object={clientServerEvent}></DiscriminatedUnionInput>
       </form>
     </>
   );
@@ -63,13 +51,8 @@ interface InputProps<T extends TSchema> {
   object: T;
 }
 
-type DiscriminatedUnionType = TUnion<
-  TObject<{ type: TLiteral; data: TObject }>[]
->;
-function DiscriminatedUnionInput({
-  path,
-  object: union,
-}: InputProps<DiscriminatedUnionType>) {
+type DiscriminatedUnionType = TUnion<TObject<{ type: TLiteral; data: TObject }>[]>;
+function DiscriminatedUnionInput({ path, object: union }: InputProps<DiscriminatedUnionType>) {
   const [options, setOptions] = useState<ReactNode>([]);
   const [data, setData] = useState<ReactNode | null>(null);
 
@@ -85,8 +68,7 @@ function DiscriminatedUnionInput({
 
   const onChange = (ev: ChangeEvent<HTMLSelectElement>) => {
     const type = ev.target.value;
-    const data = union.anyOf.find((o) => type === o.properties.type.const)
-      ?.properties.data;
+    const data = union.anyOf.find((o) => type === o.properties.type.const)?.properties.data;
     setData(<SchemaInput path={`${path}.data`} object={data!} />);
   };
 
@@ -101,23 +83,14 @@ function DiscriminatedUnionInput({
   );
 }
 
-function formDiscriminatedUnion(
-  path: string,
-  form: FormData,
-  union: DiscriminatedUnionType
-) {
+function formDiscriminatedUnion(path: string, form: FormData, union: DiscriminatedUnionType) {
   const type = String(form.get(`${path}.type`));
-  const dataSchema = union.anyOf.find(
-    (o) => type == String(o.properties.type.const)
-  )?.properties.data;
+  const dataSchema = union.anyOf.find((o) => type == String(o.properties.type.const))?.properties.data;
   const data = formSchema(`${path}.data`, form, dataSchema!);
   return { type, data };
 }
 
-function SchemaInput<T extends TSchema>({
-  path,
-  object: schema,
-}: InputProps<T>) {
+function SchemaInput<T extends TSchema>({ path, object: schema }: InputProps<T>) {
   if (TypeGuard.IsObject(schema)) {
     return <ObjectInput path={path} object={schema} />;
   } else if (TypeGuard.IsNumber(schema)) {
@@ -132,11 +105,7 @@ function SchemaInput<T extends TSchema>({
   );
 }
 
-function formSchema<T extends TSchema>(
-  path: string,
-  form: FormData,
-  schema: T
-) {
+function formSchema<T extends TSchema>(path: string, form: FormData, schema: T) {
   if (TypeGuard.IsObject(schema)) {
     return formObject(path, form, schema);
   } else if (TypeGuard.IsNumber(schema)) {
@@ -144,14 +113,11 @@ function formSchema<T extends TSchema>(
   } else if (TypeGuard.IsString(schema)) {
     return formString(path, form, schema);
   } else {
-    console.log("Object type not found.");
+    console.log('Object type not found.');
   }
 }
 
-function ObjectInput<T extends TProperties>({
-  path,
-  object,
-}: InputProps<TObject<T>>) {
+function ObjectInput<T extends TProperties>({ path, object }: InputProps<TObject<T>>) {
   const [props, setProps] = useState<ReactNode[]>([]);
   useEffect(() => {
     const propsComp = [];
@@ -162,7 +128,7 @@ function ObjectInput<T extends TProperties>({
         <Row key={propName}>
           <label>{propName}</label>
           <SchemaInput path={`${path}.${propName}`} object={prop}></SchemaInput>
-        </Row>
+        </Row>,
       );
     }
     setProps(propsComp);
@@ -170,11 +136,7 @@ function ObjectInput<T extends TProperties>({
   return props;
 }
 
-function formObject<T extends TProperties>(
-  path: string,
-  form: FormData,
-  object: TObject<TProperties>
-) {
+function formObject<T extends TProperties>(path: string, form: FormData, object: TObject<TProperties>) {
   const props = object.properties;
   const obj: any = {};
   for (const propName in props) {

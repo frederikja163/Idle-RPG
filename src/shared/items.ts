@@ -1,16 +1,16 @@
-const t = { t: "test" };
+const t = { t: 'test' };
 
 export const items = new Map<string, Item>();
-ore("Talc");
-ore("Gypsum");
-ore("Calcite");
-ore("Flourite");
-ore("Apatite");
-wood("Balsa");
-wood("Pine");
-wood("Cedar");
-wood("Cherry");
-wood("Oak");
+ore('Talc');
+ore('Gypsum');
+ore('Calcite');
+ore('Flourite');
+ore('Apatite');
+wood('Balsa');
+wood('Pine');
+wood('Cedar');
+wood('Cherry');
+wood('Oak');
 
 function ore(name: string) {
   const id = name.toLowerCase();
@@ -35,5 +35,3 @@ export type Item = {
   id: string;
   display: string;
 };
-
-export type ItemType = keyof typeof items;

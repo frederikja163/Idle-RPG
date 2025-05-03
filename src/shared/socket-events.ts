@@ -1,14 +1,6 @@
-import {
-  Type,
-  type Static,
-  type TLiteralValue,
-  type TProperties,
-} from "@sinclair/typebox";
+import { Type, type Static, type TLiteralValue, type TProperties } from '@sinclair/typebox';
 
-function event<T1 extends TLiteralValue, T2 extends TProperties>(
-  type: T1,
-  data: T2
-) {
+function event<T1 extends TLiteralValue, T2 extends TProperties>(type: T1, data: T2) {
   return Type.Object({ type: Type.Literal(type), data: Type.Object(data) });
 }
 
@@ -27,40 +19,42 @@ export enum ErrorType {
 export const profileDto = Type.Object({
   name: Type.String(),
 });
+export type ProfileDto = Static<typeof profileDto>;
 
 export const item = Type.Object({
   itemId: Type.String(),
   count: Type.Number(),
 });
-export type ItemType = Static<typeof item>;
+export type ItemDto = Static<typeof item>;
 export const inventoryDto = Type.Array(item);
+export type InventoryDto = Static<typeof inventoryDto>;
 
 export const clientServerEvent = Type.Union([
   // Pong
-  event("Ping", {}),
-  // Authentication/LoginSuccess
+  event('Ping', {}),
+  // Auth/LoginSuccess
   // Error: EmailNotVerified
-  event("Authentication/GoogleLogin", { token: Type.String() }),
-  // Authentication/LogoutSuccess
-  event("Authentication/Logout", {}),
+  event('Auth/GoogleLogin', { token: Type.String() }),
+  // Auth/LogoutSuccess
+  event('Auth/Logout', {}),
   // Profiles/UpdateProfiles
   // Error: RequiresLogin
-  event("Profiles/GetProfiles", {}),
+  event('Profile/GetProfiles', {}),
   // Profiles/UpdateProfiles
   // Error: RequiresLogin, NameTaken
-  event("Profiles/CreateProfile", { name: Type.String() }),
+  event('Profile/CreateProfile', { name: Type.String() }),
   // Profiles/UpdateProfiles
   // Error: RequiresLogin, ProfileInUse, ArgumentOutOfRange
-  event("Profiles/DeleteProfile", { index: Type.Number() }),
+  event('Profile/DeleteProfile', { index: Type.Number() }),
   // Profiles/SelectProfileSuccess
   // Error: RequiresLogin, ArgumentOutOfRange
-  event("Profiles/SelectProfile", { index: Type.Number() }),
+  event('Profile/SelectProfile', { index: Type.Number() }),
   // Inventory/UpdateInventory
   // Error: RequiresProfile
-  event("Inventory/GetInventory", {}),
+  event('Inventory/GetInventory', {}),
   // Inventory/UpdateInventory
   // Error: RequiresProfile, ArgumentOutOfRange
-  event("Inventory/SwapItems", {
+  event('Inventory/SwapItems', {
     index1: Type.Number(),
     index2: Type.Number(),
   }),
@@ -68,12 +62,12 @@ export const clientServerEvent = Type.Union([
 export type ClientServerEvent = typeof clientServerEvent;
 
 export const serverClientEvent = Type.Union([
-  event("Pong", {}),
-  event("Error", { error: Type.Enum(ErrorType) }),
-  event("Authentication/LoginSuccess", {}),
-  event("Authentication/LogoutSuccess", {}),
-  event("Profiles/UpdateProfiles", { profiles: Type.Array(profileDto) }),
-  event("Profiles/SelectProfileSuccess", {}),
-  event("Inventory/UpdateInventory", { items: inventoryDto }),
+  event('Pong', {}),
+  event('Error', { error: Type.Enum(ErrorType) }),
+  event('Auth/LoginSuccess', {}),
+  event('Auth/LogoutSuccess', {}),
+  event('Profile/UpdateProfiles', { profiles: Type.Array(profileDto) }),
+  event('Profile/SelectProfileSuccess', {}),
+  event('Inventory/UpdateInventory', { items: inventoryDto }),
 ]);
 export type ServerClientEvent = typeof serverClientEvent;
