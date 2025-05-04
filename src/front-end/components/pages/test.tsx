@@ -1,12 +1,6 @@
-import { SocketContext } from "@/front-end/App";
-import type { EventType } from "@/shared/socket";
+import {clientServerEvent} from '@/shared/socket-events';
+import {type CredentialResponse, GoogleLogin} from '@react-oauth/google';
 import {
-  clientServerEvent,
-  type ClientServerEvent,
-} from "@/shared/socket-events";
-import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
-import {
-  TypeGuard,
   type TEnum,
   type TLiteral,
   type TNumber,
@@ -15,38 +9,34 @@ import {
   type TSchema,
   type TString,
   type TUnion,
-} from "@sinclair/typebox";
-import {
-  useContext,
-  useEffect,
-  useState,
-  type ChangeEvent,
-  type ReactNode,
-} from "react";
-import { Row } from "../layout/row";
+  TypeGuard,
+} from '@sinclair/typebox';
+import {type ChangeEvent, type ReactNode, useEffect, useState} from 'react';
+import {Row} from '../layout/row';
+import {useSocket} from '@/front-end/state/socket-provider.tsx';
 
 export function Test() {
-  const socket = useContext(SocketContext);
+  const socket = useSocket();
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    socket?.on("Authentication/LoginSuccess", () => setLoggedIn(true));
-    socket?.send("Ping", {});
+    socket?.on('Authentication/LoginSuccess', () => setLoggedIn(true));
+    socket?.send('Ping', {});
   }, [socket]);
 
   const handleSuccess = (r: CredentialResponse) => {
-    socket?.send("Authentication/GoogleLogin", { token: r.credential! });
+    socket?.send('Authentication/GoogleLogin', {token: r.credential!});
   };
 
   const send = (form: FormData) => {
-    const data = formDiscriminatedUnion("event", form, clientServerEvent);
+    const data = formDiscriminatedUnion('event', form, clientServerEvent);
     socket?.send(data.type as any, data.data);
   };
 
   return (
     <>
       <h1>Testing</h1>
-      {loggedIn ? null : <GoogleLogin onSuccess={handleSuccess} />}
+      {loggedIn ? null : <GoogleLogin onSuccess={handleSuccess}/>}
       <form action={send}>
         <button type="submit">Send</button>
         <DiscriminatedUnionInput
@@ -66,10 +56,11 @@ interface InputProps<T extends TSchema> {
 type DiscriminatedUnionType = TUnion<
   TObject<{ type: TLiteral; data: TObject }>[]
 >;
+
 function DiscriminatedUnionInput({
-  path,
-  object: union,
-}: InputProps<DiscriminatedUnionType>) {
+                                   path,
+                                   object: union,
+                                 }: InputProps<DiscriminatedUnionType>) {
   const [options, setOptions] = useState<ReactNode>([]);
   const [data, setData] = useState<ReactNode | null>(null);
 
@@ -87,7 +78,7 @@ function DiscriminatedUnionInput({
     const type = ev.target.value;
     const data = union.anyOf.find((o) => type === o.properties.type.const)
       ?.properties.data;
-    setData(<SchemaInput path={`${path}.data`} object={data!} />);
+    setData(<SchemaInput path={`${path}.data`} object={data!}/>);
   };
 
   return (
@@ -95,7 +86,7 @@ function DiscriminatedUnionInput({
       <select name={`${path}.type`} onChange={(ev) => onChange(ev)}>
         {options}
       </select>
-      <br />
+      <br/>
       {data}
     </>
   );
@@ -104,26 +95,26 @@ function DiscriminatedUnionInput({
 function formDiscriminatedUnion(
   path: string,
   form: FormData,
-  union: DiscriminatedUnionType
+  union: DiscriminatedUnionType,
 ) {
   const type = String(form.get(`${path}.type`));
   const dataSchema = union.anyOf.find(
-    (o) => type == String(o.properties.type.const)
+    (o) => type == String(o.properties.type.const),
   )?.properties.data;
   const data = formSchema(`${path}.data`, form, dataSchema!);
-  return { type, data };
+  return {type, data};
 }
 
 function SchemaInput<T extends TSchema>({
-  path,
-  object: schema,
-}: InputProps<T>) {
+                                          path,
+                                          object: schema,
+                                        }: InputProps<T>) {
   if (TypeGuard.IsObject(schema)) {
-    return <ObjectInput path={path} object={schema} />;
+    return <ObjectInput path={path} object={schema}/>;
   } else if (TypeGuard.IsNumber(schema)) {
-    return <NumberInput path={path} object={schema} />;
+    return <NumberInput path={path} object={schema}/>;
   } else if (TypeGuard.IsString(schema)) {
-    return <StringInput path={path} object={schema} />;
+    return <StringInput path={path} object={schema}/>;
   }
   return (
     <>
@@ -135,7 +126,7 @@ function SchemaInput<T extends TSchema>({
 function formSchema<T extends TSchema>(
   path: string,
   form: FormData,
-  schema: T
+  schema: T,
 ) {
   if (TypeGuard.IsObject(schema)) {
     return formObject(path, form, schema);
@@ -144,14 +135,14 @@ function formSchema<T extends TSchema>(
   } else if (TypeGuard.IsString(schema)) {
     return formString(path, form, schema);
   } else {
-    console.log("Object type not found.");
+    console.log('Object type not found.');
   }
 }
 
 function ObjectInput<T extends TProperties>({
-  path,
-  object,
-}: InputProps<TObject<T>>) {
+                                              path,
+                                              object,
+                                            }: InputProps<TObject<T>>) {
   const [props, setProps] = useState<ReactNode[]>([]);
   useEffect(() => {
     const propsComp = [];
@@ -162,7 +153,7 @@ function ObjectInput<T extends TProperties>({
         <Row key={propName}>
           <label>{propName}</label>
           <SchemaInput path={`${path}.${propName}`} object={prop}></SchemaInput>
-        </Row>
+        </Row>,
       );
     }
     setProps(propsComp);
@@ -173,7 +164,7 @@ function ObjectInput<T extends TProperties>({
 function formObject<T extends TProperties>(
   path: string,
   form: FormData,
-  object: TObject<TProperties>
+  object: TObject<TProperties>,
 ) {
   const props = object.properties;
   const obj: any = {};
@@ -184,7 +175,7 @@ function formObject<T extends TProperties>(
   return obj;
 }
 
-function EnumInput({ path, object: enm }: InputProps<TEnum>) {
+function EnumInput({path, object: enm}: InputProps<TEnum>) {
   const [options, setOptions] = useState<ReactNode>([]);
   useEffect(() => {
     const options = [];
@@ -203,16 +194,16 @@ function formEnum(path: string, form: FormData, enm: TEnum) {
   return form.get(path);
 }
 
-function NumberInput({ path, object: num }: InputProps<TNumber>) {
-  return <input name={path} type="number" />;
+function NumberInput({path, object: num}: InputProps<TNumber>) {
+  return <input name={path} type="number"/>;
 }
 
 function formNumber(path: string, form: FormData, num: TNumber) {
   return parseInt(String(form.get(path)));
 }
 
-function StringInput({ path, object: str }: InputProps<TString>) {
-  return <input name={path} type="text" />;
+function StringInput({path, object: str}: InputProps<TString>) {
+  return <input name={path} type="text"/>;
 }
 
 function formString(path: string, form: FormData, str: TString) {
