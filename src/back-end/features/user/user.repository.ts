@@ -1,13 +1,12 @@
 import { eq, inArray, sql } from 'drizzle-orm';
 import type { OmitAutoFields, UserType } from '@/back-end/core/db/db.types';
-import { injectable, singleton } from 'tsyringe';
 import { users } from '@/back-end/core/db/schema/schema.users';
-import { InjectDB, type Database } from '@/back-end/core/db/db';
+import { injectDB, type Database } from '@/back-end/core/db/db';
+import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
 
-@injectable()
-@singleton()
+@injectableSingleton()
 export class UserRepository {
-  constructor(@InjectDB() private readonly db: Database) {}
+  constructor(@injectDB() private readonly db: Database) {}
 
   public async create(data: OmitAutoFields<UserType>): Promise<UserType | null> {
     try {

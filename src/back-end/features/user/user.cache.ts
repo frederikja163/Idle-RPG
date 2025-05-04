@@ -1,11 +1,10 @@
-import { injectable, singleton } from 'tsyringe';
-import { UserRepository } from './user.repository';
 import type { UserType } from '@/back-end/core/db/db.types';
-import type { ICache } from '@/back-end/core/cache';
+import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup.event';
+import { UserRepository } from './user.repository';
+import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
 
-@injectable()
-@singleton()
-export class UserCache implements ICache {
+@injectableSingleton(CleanupEventToken)
+export class UserCache implements CleanupEventListener {
   private readonly usersByGoogleId = new Map<string, WeakRef<UserType>>();
 
   public constructor(private readonly userRepo: UserRepository) {}

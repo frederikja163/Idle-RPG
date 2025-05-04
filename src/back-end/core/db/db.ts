@@ -11,7 +11,7 @@ export const db = drizzle(process.env.DB_FILE_NAME!, {
 });
 export type Database = typeof db;
 export class DatabaseToken {}
-container.registerInstance(DatabaseToken, db);
-export function InjectDB() {
+container.register(DatabaseToken, { useValue: db });
+export function injectDB() {
   return inject(DatabaseToken);
 }

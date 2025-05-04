@@ -1,13 +1,12 @@
-import { InjectDB, type Database } from '@/back-end/core/db/db';
+import { injectDB, type Database } from '@/back-end/core/db/db';
 import type { ItemType, ProfileId } from '@/back-end/core/db/db.types';
 import { items } from '@/back-end/core/db/schema/schema.items';
-import { injectable, singleton } from 'tsyringe';
 import { eq } from 'drizzle-orm';
+import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
 
-@injectable()
-@singleton()
+@injectableSingleton()
 export class InventoryRepository {
-  public constructor(@InjectDB() private readonly db: Database) {}
+  public constructor(@injectDB() private readonly db: Database) {}
 
   public async getByProfileId(profileId: ProfileId) {
     try {

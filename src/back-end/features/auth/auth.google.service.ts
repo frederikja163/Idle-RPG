@@ -1,27 +1,27 @@
 import { ErrorType } from '@/shared/socket-events';
 import { OAuth2Client } from 'google-auth-library';
 import { UserCache } from '../user/user.cache';
-import { injectable, singleton } from 'tsyringe';
-import { SessionStore } from '@/back-end/core/session/session.store';
-import type { ServerSocket } from '@/back-end/core/sockets/server.socket';
-import { SocketCache } from '@/back-end/core/sockets/socket.cache';
-import type { ISocketHandler } from '@/back-end/core/sockets/socket.ihandler';
-import type { ServerData } from '@/back-end/core/sockets/sockets.types';
+import type { ServerSocket } from '@/back-end/core/server/server.socket';
+import type { ServerData, SocketId } from '@/back-end/core/server/sockets/sockets.types';
+import { SocketOpenEventToken, type SocketOpenEventListener } from '@/back-end/core/events/socket.event';
+import { UserEventDispatcher } from '@/back-end/core/events/user.dispatcher';
+import { SocketHub } from '@/back-end/core/server/sockets/socket.hub';
+import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
 
-@injectable()
-@singleton()
-export class AuthGoogleSocketHandler implements ISocketHandler {
+@injectableSingleton(SocketOpenEventToken)
+export class AuthGoogleSocketHandler implements SocketOpenEventListener {
   private readonly _googleOauthClient = new OAuth2Client(
     '758890044013-qq2amlba21ic2fb7drsjavpa16mmkons.apps.googleusercontent.com',
   );
 
   constructor(
-    private readonly sessionStore: SessionStore,
+    private readonly socketHub: SocketHub,
+    private readonly userDispatch: UserEventDispatcher,
     private readonly userCache: UserCache,
-    private readonly socketCache: SocketCache,
   ) {}
 
-  public handleSocketOpen(socket: ServerSocket): void {
+  public onSocketOpen(socketId: SocketId): void {
+    const socket = this.socketHub.getSocket(socketId)!;
     socket.on('Auth/GoogleLogin', this.authenticateGoogle.bind(this));
   }
 
@@ -40,9 +40,7 @@ export class AuthGoogleSocketHandler implements ISocketHandler {
     if (!emailVerified) return socket.error(ErrorType.EmailNotVerified);
 
     const user = await this.userCache.findByGoogleId(googleId, email, profilePicture ?? '');
-    this.socketCache.addUserId(user.id, socket);
-    const session = this.sessionStore.get(socket.id);
-    session.user = user;
+    this.userDispatch.emitUserLoggedIn(socket.id, user.id);
     socket.send('Auth/LoginSuccess', {});
   }
 }

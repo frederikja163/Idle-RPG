@@ -1,17 +1,16 @@
-import { InjectDB, type Database } from '@/back-end/core/db/db';
-import type { OmitAutoFields, ProfileType } from '@/back-end/core/db/db.types';
+import { injectDB, type Database } from '@/back-end/core/db/db';
+import type { OmitAutoFields, ProfileId, ProfileType, UserId } from '@/back-end/core/db/db.types';
 import { profiles } from '@/back-end/core/db/schema/schema.profiles';
 import { userProfiles } from '@/back-end/core/db/schema/schema.userprofiles';
 import { users } from '@/back-end/core/db/schema/schema.users';
+import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
 import { eq, inArray, sql } from 'drizzle-orm';
-import { injectable, singleton } from 'tsyringe';
 
-@injectable()
-@singleton()
+@injectableSingleton()
 export class ProfileRepository {
-  public constructor(@InjectDB() private readonly db: Database) {}
+  public constructor(@injectDB() private readonly db: Database) {}
 
-  public async create(userId: number, data: OmitAutoFields<ProfileType>): Promise<ProfileType | null> {
+  public async create(userId: UserId, data: OmitAutoFields<ProfileType>): Promise<ProfileType | null> {
     try {
       return this.db.transaction(async (tx) => {
         const [profile] = await tx
@@ -29,15 +28,15 @@ export class ProfileRepository {
     }
   }
 
-  public async findByUserId(userId: number): Promise<ProfileType[]> {
+  public async findByUserId(userId: UserId): Promise<ProfileType[]> {
     try {
       return (
         await this.db
           .select()
           .from(users)
+          .where(eq(users.id, userId))
           .innerJoin(userProfiles, eq(users.id, userProfiles.userId))
           .innerJoin(profiles, eq(userProfiles.profileId, profiles.id))
-          .where(eq(users.id, userId))
           .orderBy(profiles.id)
       ).map((r) => r.profiles);
     } catch (error) {
@@ -46,7 +45,33 @@ export class ProfileRepository {
     }
   }
 
-  public async update(profileId: number, data: Partial<OmitAutoFields<ProfileType>>) {
+  public async findByProfileId(profileId: ProfileId) {
+    try {
+      const [profile] = await this.db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1);
+      return profile;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  public async findUsersForProfile(profileId: ProfileId) {
+    try {
+      return (
+        (
+          await this.db
+            .select({ id: userProfiles.userId })
+            .from(profiles)
+            .where(eq(profiles.id, profileId))
+            .innerJoin(userProfiles, eq(profiles.id, userProfiles.profileId))
+        ).map((r) => r.id) ?? null
+      );
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  }
+
+  public async update(profileId: ProfileId, data: Partial<OmitAutoFields<ProfileType>>) {
     try {
       await this.db.update(profiles).set(data).where(eq(profiles.id, profileId)).returning();
     } catch (error) {
@@ -54,7 +79,7 @@ export class ProfileRepository {
     }
   }
 
-  public async updateTimes(profileIds: number[]) {
+  public async updateTimes(profileIds: ProfileId[]) {
     await this.db
       .update(profiles)
       .set({

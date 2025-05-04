@@ -1,27 +1,25 @@
 import index from '@/front-end/index.html';
 import { file, serve, type ServerWebSocket } from 'bun';
-import { injectable, singleton } from 'tsyringe';
-import type { ISocketHandler } from './sockets/socket.ihandler';
-import { ServerSocket } from './sockets/server.socket';
-import { SessionStore } from './session/session.store';
+import { ServerSocket } from './server.socket';
+import { SocketEventDispatcher } from '../events/socket.dispatcher';
+import { SocketRegistry } from './sockets/socket.registry';
+import type { SocketId } from './sockets/sockets.types';
+import { injectableSingleton } from '../lib/lib.tsyringe';
 
-@injectable()
-@singleton()
+@injectableSingleton()
 export class Server {
-  private readonly _eventHandlers: ISocketHandler[] = [];
-  private readonly _sockets = new Map<ServerWebSocket<unknown>, ServerSocket>();
-  private _server?: Bun.Server;
+  private readonly sockets = new Map<ServerWebSocket, SocketId>();
+  private server?: Bun.Server;
 
-  constructor(private readonly sessionStore: SessionStore) {}
-
-  public addSocketHandler(handler: ISocketHandler) {
-    this._eventHandlers.push(handler);
-  }
+  constructor(
+    private readonly socketRegistry: SocketRegistry,
+    private readonly socketDispatcher: SocketEventDispatcher,
+  ) {}
 
   public start() {
-    if (this._server) this._server.stop();
+    if (this.server) this.server.stop();
 
-    this._server = serve({
+    this.server = serve({
       port: process.env.PORT,
       routes: {
         '/*': index,
@@ -38,7 +36,7 @@ export class Server {
         key: process.env.TLS_KEY_PATH ? file(process.env.TLS_KEY_PATH) : undefined,
       },
     });
-    console.log(`Server running at: ${this._server.url}`);
+    console.log(`Server running at: ${this.server.url}`);
   }
 
   private fetch(request: Request, server: Bun.Server) {
@@ -50,21 +48,22 @@ export class Server {
 
   private socketOpen(ws: ServerWebSocket) {
     const socket = new ServerSocket(ws);
-    this._sockets.set(ws, socket);
-    for (const eventHandler of this._eventHandlers) {
-      eventHandler.handleSocketOpen(socket);
-    }
+    this.sockets.set(ws, socket.id);
+    this.socketRegistry.addSocket(socket);
+    this.socketDispatcher.emitSocketOpen(socket.id);
   }
 
   private socketMessage(ws: ServerWebSocket, message: string | Buffer<ArrayBufferLike>) {
-    const socket = this._sockets.get(ws);
+    const socketId = this.sockets.get(ws)!;
+    const socket = this.socketRegistry.getSocket(socketId);
     const string = String(message);
     socket?.handleMessage(string);
   }
 
   private socketClose(ws: ServerWebSocket, code: number, reason: string) {
-    const socket = this._sockets.get(ws);
-    if (socket) this.sessionStore.close(socket?.id);
-    this._sockets.delete(ws);
+    const socketId = this.sockets.get(ws)!;
+    this.sockets.delete(ws);
+    this.socketDispatcher.emitSocketClose(socketId);
+    this.socketRegistry.removeSocket(socketId);
   }
 }
