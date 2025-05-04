@@ -1,7 +1,7 @@
 import type { ProfileType } from '@/back-end/core/db/db.types';
 import { ServerSocket } from '@/back-end/core/server/server.socket';
 import type { ServerData, SocketId } from '@/back-end/core/server/sockets/sockets.types';
-import { type ProfileDto, ErrorType } from '@/shared/socket-events';
+import { type ProfileDto, ErrorType } from '@/shared/socket/socket-events';
 import { ProfileEventDispatcher } from '@/back-end/core/events/profile.dispatcher';
 import { SocketOpenEventToken, type SocketOpenEventListener } from '@/back-end/core/events/socket.event';
 import { SocketHub } from '@/back-end/core/server/sockets/socket.hub';

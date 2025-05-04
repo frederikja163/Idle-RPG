@@ -1,5 +1,10 @@
-import { Socket } from '@/shared/socket';
-import { clientServerEvent, ErrorType, type ClientServerEvent, type ServerClientEvent } from '@/shared/socket-events';
+import { Socket } from '@/shared/socket/socket';
+import {
+  clientServerEvent,
+  ErrorType,
+  type ClientServerEvent,
+  type ServerClientEvent,
+} from '@/shared/socket/socket-events';
 import type { ServerWebSocket } from 'bun';
 import { TypeCompiler } from '@sinclair/typebox/compiler';
 import type { SocketId } from './sockets/sockets.types';

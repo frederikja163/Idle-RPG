@@ -5,13 +5,13 @@
  * It is included in `src/index.html`.
  */
 
-import { GoogleOAuthProvider } from "@react-oauth/google";
-import { createRoot } from "react-dom/client";
-import { StrictMode } from "react";
-import { App } from "./App";
-import { Socket } from "@/shared/socket";
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { createRoot } from 'react-dom/client';
+import { StrictMode } from 'react';
+import { App } from './App';
+import { Socket } from '@/shared/socket/socket';
 
-const elem = document.getElementById("root")!;
+const elem = document.getElementById('root')!;
 const app = (
   <GoogleOAuthProvider clientId="758890044013-qq2amlba21ic2fb7drsjavpa16mmkons.apps.googleusercontent.com">
     <StrictMode>
