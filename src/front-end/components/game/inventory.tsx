@@ -30,10 +30,12 @@ export const Inventory: FC = React.memo(() => {
         .map((itemStack, i) => <InventoryItem key={i} itemStack={itemStack}/>)
     , [selectedTab, itemStacks]);
 
+  // TODO: add drag and drop to swap items. Maybe look at this library: https://atlassian.design/components/pragmatic-drag-and-drop/tutorial
+
   return (
     <Card className="bg-green-100 overflow-hidden">
       <Column>
-        <Row className="h-12" style={styles.itemContainer}>
+        <Row className="h-12" style={styles.tabBar}>
           <InventoryTab itemCategory={ItemTag.Resource} label="Items"/>
           <InventoryTab itemCategory={ItemTag.Tool} label="Tools"/>
         </Row>
@@ -53,7 +55,7 @@ const styles: { [key: string]: CSSProperties } = {
     backgroundSize: '40px 40px',
     backgroundPosition: '0 0, 0 20px, 20px -20px, -20px 0px',
   },
-  itemContainer: {
+  tabBar: {
     backgroundColor: '#00000010',
   },
 };
