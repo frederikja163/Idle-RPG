@@ -1,4 +1,4 @@
-import { clientServerEvent } from '@/shared/socket/socket-events';
+import { clientServerEvent } from '@/shared/socket/socket.events';
 import { type CredentialResponse, GoogleLogin } from '@react-oauth/google';
 import {
   type TEnum,

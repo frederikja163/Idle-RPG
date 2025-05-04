@@ -29,6 +29,13 @@ export type ItemDto = Static<typeof itemDto>;
 export const inventoryDto = Type.Array(itemDto);
 export type InventoryDto = Static<typeof inventoryDto>;
 
+export const skillDto = Type.Object({
+  skillId: Type.String(),
+  level: Type.Number(),
+  xp: Type.Number(),
+});
+export const skillsDto = Type.Array(skillDto);
+
 export const clientServerEvent = Type.Union([
   // Pong
   event('Ping', {}),
@@ -58,6 +65,15 @@ export const clientServerEvent = Type.Union([
     index1: Type.Number(),
     index2: Type.Number(),
   }),
+  // Skill/UpdateSkills
+  // Error: RequiresProfile
+  event('Skill/GetSkills', {}),
+  // Activity/ActivityStarted
+  // Error: RequiresProfile
+  event('Activity/StartActivity', { activityId: Type.String() }),
+  // Activity/ActivityStarted
+  // Error: RequiresProfile
+  event('Activity/GetActivity', {}),
 ]);
 export type ClientServerEvent = typeof clientServerEvent;
 
@@ -69,5 +85,7 @@ export const serverClientEvent = Type.Union([
   event('Profile/UpdateProfiles', { profiles: Type.Array(profileDto) }),
   event('Profile/SelectProfileSuccess', {}),
   event('Inventory/UpdateInventory', { items: inventoryDto }),
+  event('Skill/UpdateSkills', { skills: skillsDto }),
+  event('Activity/ActivityStarted', { activityId: Type.String(), time: Type.Number() }),
 ]);
 export type ServerClientEvent = typeof serverClientEvent;

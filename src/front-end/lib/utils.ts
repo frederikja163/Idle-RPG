@@ -1,8 +1,8 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import type { FormEvent } from 'react';
-import type { InventoryDto } from '@/shared/socket/socket-types';
-import { items } from '@/shared/features/items';
+import type { InventoryDto } from '@/shared/socket/socket.types';
+import { items } from '@/shared/definition/definition.items';
 import type { ItemStack } from './types';
 
 export function cn(...inputs: ClassValue[]) {

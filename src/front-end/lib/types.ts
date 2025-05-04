@@ -1,4 +1,4 @@
-﻿import type { Item } from '@/shared/features/items';
+﻿import type { Item } from '@/shared/definition/definition.items';
 
 export interface ItemStack {
   item: Item;
