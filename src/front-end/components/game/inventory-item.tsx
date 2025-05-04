@@ -18,8 +18,8 @@ export const InventoryItem: FC<Props> = React.memo((props) => {
     <Column>
       <Typography className="font-bold text-center">{itemStack.item.display}</Typography>
       <Row className="gap-2">
-        {itemStack.item.tags.map(tag => <Typography
-          className="p-1 rounded bg-gray-200 leading-tight">{itemTagDisplayMap.get(tag)}</Typography>)}
+        {itemStack.item.tags.map((tag, i) => <Typography
+          key={i} className="p-1 rounded bg-gray-200 leading-tight">{itemTagDisplayMap.get(tag)}</Typography>)}
       </Row>
     </Column>
   </Card>, [itemStack.item.display, itemStack.item.tags]);
