@@ -1,6 +1,6 @@
-﻿import React, {createContext, type FC, type ReactNode, useCallback, useContext, useEffect, useState} from 'react';
-import type {CredentialResponse} from '@react-oauth/google';
-import {useSocket} from '@/front-end/state/socket-provider.tsx';
+﻿import React, { createContext, type FC, type ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import type { CredentialResponse } from '@react-oauth/google';
+import { useSocket } from '@/front-end/state/socket-provider.tsx';
 
 interface IAuthContext {
   isLoggedIn: boolean;
@@ -22,40 +22,45 @@ interface Props {
 }
 
 export const AuthProvider: FC<Props> = React.memo((props) => {
-  const {children} = props;
+  const { children } = props;
 
   const socket = useSocket();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const login = useCallback((credentialResponse: CredentialResponse) => {
-    if (!socket || !credentialResponse.credential) return;
-    socket.send('Authentication/GoogleLogin', {token: credentialResponse.credential});
-  }, [socket]);
+  const login = useCallback(
+    (credentialResponse: CredentialResponse) => {
+      if (!socket || !credentialResponse.credential) return;
+      socket.send('Auth/GoogleLogin', { token: credentialResponse.credential });
+    },
+    [socket],
+  );
 
   const logout = useCallback(() => {
     if (!socket) return;
-    socket.send('Authentication/Logout', {});
+    socket.send('Auth/Logout', {});
   }, [socket]);
 
   useEffect(() => {
     if (!socket) return;
 
-    socket.on('Authentication/LoginSuccess', (s, d) => {
+    socket.on('Auth/LoginSuccess', (s, d) => {
       setIsLoggedIn(true);
     });
 
-    socket.on('Authentication/LogoutSuccess', (s, d) => {
+    socket.on('Auth/LogoutSuccess', (s, d) => {
       setIsLoggedIn(false);
     });
   }, [socket]);
 
   return (
-    <AuthContext.Provider value={{
-      isLoggedIn,
-      login,
-      logout,
-    }}>
+    <AuthContext.Provider
+      value={{
+        isLoggedIn,
+        login,
+        logout,
+      }}>
       {children}
-    </AuthContext.Provider>);
+    </AuthContext.Provider>
+  );
 });

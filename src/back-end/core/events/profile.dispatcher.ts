@@ -29,7 +29,7 @@ export class ProfileEventDispatcher {
     }
   }
 
-  public emitProfileUnselected(socketId: SocketId, profileId: ProfileId) {
+  public emitProfileDeselected(socketId: SocketId, profileId: ProfileId) {
     for (const listener of this.deselectedListeners) {
       listener.onProfileDeselected(socketId, profileId);
     }

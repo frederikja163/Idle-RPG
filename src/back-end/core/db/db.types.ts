@@ -1,5 +1,4 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import type { db } from './db';
 import type { profiles } from './schema/schema.profiles';
 import type { users } from './schema/schema.users';
 import type { items } from './schema/schema.items';

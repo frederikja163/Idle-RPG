@@ -1,4 +1,4 @@
-﻿import React, { type FC, type FormEvent, useCallback, useMemo } from 'react';
+﻿import React, { type FC, type FormEvent, useCallback, useMemo, useState } from 'react';
 import { Card } from '@/front-end/components/ui/card.tsx';
 import { Plus } from 'lucide-react';
 import { Form } from 'radix-ui';
@@ -8,8 +8,6 @@ import { Modal } from '@/front-end/components/ui/modal.tsx';
 import { Button } from '@/front-end/components/ui/button.tsx';
 import { Column } from '@/front-end/components/layout/column.tsx';
 import { getFormData } from '@/front-end/lib/utils.ts';
-import { useNavigate } from 'react-router-dom';
-import { routes } from '@/front-end/router/routes.ts';
 import { useSocket } from '@/front-end/state/socket-provider.tsx';
 
 interface ProfileForm {
@@ -18,7 +16,16 @@ interface ProfileForm {
 
 export const ProfileCreator: FC = React.memo(() => {
   const socket = useSocket();
-  const navigate = useNavigate();
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  const openModal = useCallback(() => {
+    setIsOpen(true);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setIsOpen(false);
+  }, []);
 
   const createProfile = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
@@ -27,9 +34,9 @@ export const ProfileCreator: FC = React.memo(() => {
       const formData = getFormData<ProfileForm>(event);
       socket?.send('Profile/CreateProfile', { name: formData.name });
 
-      navigate(routes.game);
+      setIsOpen(false);
     },
-    [socket, navigate],
+    [socket],
   );
 
   const modalContent = useMemo(
@@ -54,8 +61,13 @@ export const ProfileCreator: FC = React.memo(() => {
   );
 
   return (
-    <Modal content={modalContent} description="Enter profile details">
-      <Card className="bg-green-200 w-64 h-96 p-4 flex items-center justify-center">
+    <Modal
+      content={modalContent}
+      title="Create profile"
+      description="Enter profile details"
+      isOpen={isOpen}
+      onClose={closeModal}>
+      <Card onClick={openModal} className="bg-green-200 w-64 h-96 p-4 flex items-center justify-center">
         <Plus size={100} />
       </Card>
     </Modal>

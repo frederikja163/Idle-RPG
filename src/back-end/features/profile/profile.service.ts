@@ -74,7 +74,7 @@ export class ProfileService implements SocketOpenEventListener {
 
     const oldProfileId = this.socketHub.getProfileId(socket.id);
     if (oldProfileId) {
-      this.profileEventDispatcher.emitProfileUnselected(socket.id, oldProfileId);
+      this.profileEventDispatcher.emitProfileDeselected(socket.id, oldProfileId);
     }
 
     const profile = profiles[index];
