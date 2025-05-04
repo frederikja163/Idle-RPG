@@ -1,5 +1,3 @@
-const t = {t: 'test'};
-
 export const items = new Map<string, Item>();
 
 ore('Talc');
@@ -27,12 +25,12 @@ function wood(name: string) {
 }
 
 function addItem(id: string, display: string, ...tags: ItemTag[]) {
-  items.set(id, {id, display, tags});
+  items.set(id, { id, display, tags });
 }
 
 export enum ItemTag {
   Resource,
-  Tool
+  Tool,
 }
 
 export const itemTagDisplayMap = new Map<ItemTag, string>([
@@ -45,5 +43,3 @@ export type Item = {
   display: string;
   tags: ItemTag[];
 };
-
-export type ItemType = keyof typeof items;

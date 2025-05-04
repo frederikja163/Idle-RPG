@@ -1,16 +1,16 @@
-import {useCallback} from 'react';
-import {Button} from './ui/button.tsx';
-import {useAuth} from '@/front-end/state/auth-provider.tsx';
-import {Row} from '@/front-end/components/layout/row.tsx';
-import {Typography} from '@/front-end/components/ui/typography.tsx';
-import {useNavigate} from 'react-router-dom';
-import {routes} from '@/front-end/router/routes.ts';
-import {useSocket} from '@/front-end/state/socket-provider.tsx';
+import { useCallback } from 'react';
+import { Button } from './ui/button.tsx';
+import { useAuth } from '@/front-end/state/auth-provider.tsx';
+import { Row } from '@/front-end/components/layout/row.tsx';
+import { Typography } from '@/front-end/components/ui/typography.tsx';
+import { useNavigate } from 'react-router-dom';
+import { routes } from '@/front-end/router/routes.ts';
+import { useSocket } from '@/front-end/state/socket-provider.tsx';
 
 export function NavBar() {
   const socket = useSocket();
   const navigate = useNavigate();
-  const {isLoggedIn} = useAuth();
+  const { isLoggedIn } = useAuth();
 
   const navigateToTest = useCallback(() => {
     navigate(routes.test);
@@ -30,31 +30,30 @@ export function NavBar() {
 
   return (
     <Row className="bg-green-100 justify-between p-4">
-      <Typography className="text-2xl">
-        Idle-RPG
-      </Typography>
+      <Typography className="text-2xl">Idle-RPG</Typography>
       <Row className="gap-4">
-        {import.meta.hot && <Button onClick={navigateToTest}>
+        {import.meta.hot && (
+          <Button onClick={navigateToTest}>
             <Typography>Test</Typography>
-        </Button>}
-        {isLoggedIn && <>
+          </Button>
+        )}
+        {isLoggedIn && (
+          <>
             <Button onClick={navigateToGame}>
-                <Typography>Game</Typography>
+              <Typography>Game</Typography>
             </Button>
             <Button onClick={navigateToProfiles}>
-                <Typography>Profiles</Typography>
+              <Typography>Profiles</Typography>
             </Button>
-        </>}
+          </>
+        )}
         {isLoggedIn ? (
-          <Button onClick={() => socket?.send('Authentication/Logout', {})}>
-            Log out
-          </Button>
+          <Button onClick={() => socket?.send('Auth/Logout', {})}>Log out</Button>
         ) : (
           <Button onClick={navigateToLogin}>
             <Typography>Login</Typography>
           </Button>
         )}
-
       </Row>
     </Row>
   );

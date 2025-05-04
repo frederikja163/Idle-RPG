@@ -8,9 +8,12 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "noEmit": true,
     "strict": true,
     "baseUrl": ".",
+    "lib": ["ESNext"],
     "paths": {
       "@/*": [
         "./src/*"

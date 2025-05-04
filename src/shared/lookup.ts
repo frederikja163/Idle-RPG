@@ -14,7 +14,9 @@ export class Lookup<TKey, TValue> {
     const set = this._map.get(key);
     if (set) {
       set.delete(value);
-      // For now we allow empty sets.
+      if (set.size === 0) {
+        this._map.delete(key);
+      }
     }
   }
 
@@ -23,7 +25,7 @@ export class Lookup<TKey, TValue> {
     return set && set.has(value);
   }
 
-  public getValues(key: TKey) {
+  public get(key: TKey) {
     return this._map.get(key);
   }
 }
