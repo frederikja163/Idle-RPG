@@ -36,7 +36,7 @@ export const InventoryItem: FC<Props> = React.memo((props) => {
     <BasicTooltip tooltipContent={tooltip}>
       <Column className="bg-gray-200 rounded w-16 h-16 p-1 select-none">
         <Row className="aspect-square overflow-hidden justify-center">
-          <img src={`/assets/${itemStack.item.id}.svg`} alt={itemStack.item.id} />
+          <img src={`/assets/items/${itemStack.item.id}.svg`} alt={itemStack.item.id} />
         </Row>
         <Typography className="row-start-2 col-span-2 text-center">{itemStack.count}</Typography>
       </Column>
