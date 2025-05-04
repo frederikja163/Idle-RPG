@@ -1,0 +1,43 @@
+export const items = new Map<string, Item>();
+
+ore('Talc');
+ore('Gypsum');
+ore('Calcite');
+ore('Flourite');
+ore('Apatite');
+
+wood('Balsa');
+wood('Pine');
+wood('Cedar');
+wood('Cherry');
+wood('Oak');
+
+function ore(name: string) {
+  const id = name.toLowerCase();
+  item(`${id}_ore`, `${name} ore`, ItemTag.Resource, ItemTag.Tool);
+}
+
+function wood(name: string) {
+  const id = name.toLowerCase();
+  item(`${id}_log`, `${name} log`, ItemTag.Resource);
+}
+
+function item(id: string, display: string, ...tags: ItemTag[]) {
+  items.set(id, { id, display, tags });
+}
+
+export enum ItemTag {
+  Resource,
+  Tool,
+}
+
+export const itemTagDisplayMap = new Map<ItemTag, string>([
+  [ItemTag.Resource, 'Resource'],
+  [ItemTag.Tool, 'Tool'],
+]);
+
+export type Item = {
+  id: string;
+  display: string;
+  tags: ItemTag[];
+};
