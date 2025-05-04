@@ -54,8 +54,12 @@ export const ProfileCreator: FC = React.memo(() => {
     </Form.Root>), [createProfile]);
 
   return (
-    <Modal content={modalContent} title="Create profile" description="Enter profile details" isOpen={isOpen}
-           onClose={closeModal}>
+    <Modal
+      content={modalContent}
+      title="Create profile"
+      description="Enter profile details"
+      isOpen={isOpen}
+      onClose={closeModal}>
       <Card onClick={openModal} className="bg-green-200 w-64 h-96 p-4 flex items-center justify-center">
         <Plus size={100}/>
       </Card>
