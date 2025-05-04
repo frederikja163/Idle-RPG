@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
 
 @injectableSingleton()
-export class InventoryRepository {
+export class InventoryRepositoryr {
   public constructor(@injectDB() private readonly db: Database) {}
 
   public async getByProfileId(profileId: ProfileId) {

@@ -21,7 +21,6 @@ export function Test() {
 
   useEffect(() => {
     socket?.on('Auth/LoginSuccess', () => setLoggedIn(true));
-    socket?.send('Ping', {});
   }, [socket]);
 
   const handleSuccess = (r: CredentialResponse) => {

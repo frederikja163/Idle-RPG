@@ -25,7 +25,7 @@ export class ProfileService implements SocketOpenEventListener {
 
   private getDto(profile: ProfileType): ProfileDto {
     return {
-      ...profile,
+      name: profile.name,
     };
   }
 
