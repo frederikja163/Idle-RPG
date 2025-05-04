@@ -1,17 +1,17 @@
-﻿import React, { type FC, useCallback } from 'react';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
-import type { ItemTags } from '@/shared/socket/socket-types';
-import { selectedInventoryTabAtom } from '@/front-end/state/atoms.tsx';
-import { useAtom } from 'jotai';
-import { Row } from '@/front-end/components/layout/row.tsx';
+﻿import React, {type FC, useCallback} from 'react';
+import {Typography} from '@/front-end/components/ui/typography.tsx';
+import {selectedInventoryTabAtom} from '@/front-end/state/atoms.tsx';
+import {useAtom} from 'jotai';
+import {Row} from '@/front-end/components/layout/row.tsx';
+import type {ItemTag} from '@/shared/features/items.ts';
 
 interface Props {
   label: string;
-  itemCategory: ItemTags;
+  itemCategory: ItemTag;
 }
 
 export const InventoryTab: FC<Props> = React.memo((props) => {
-  const { label, itemCategory } = props;
+  const {label, itemCategory} = props;
 
   const [selectedTab, setSelectedTab] = useAtom(selectedInventoryTabAtom);
 
@@ -19,7 +19,7 @@ export const InventoryTab: FC<Props> = React.memo((props) => {
     setSelectedTab(itemCategory);
   }, [setSelectedTab, itemCategory]);
 
-  const background = itemCategory === selectedTab ? 'bg-green-100' : '';
+  const background = itemCategory === selectedTab ? 'bg-primary' : '';
 
   return (
     <Row onClick={handleClick} className={`p-2 cursor-pointer ${background}`}>
