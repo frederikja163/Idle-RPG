@@ -1,4 +1,4 @@
-﻿import type {Item} from '@/shared/items.ts';
+﻿import type { Item } from '@/shared/features/items';
 
 export interface ItemStack {
   item: Item;

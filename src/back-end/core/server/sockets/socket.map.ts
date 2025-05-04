@@ -1,6 +1,6 @@
 import type { ProfileId, UserId } from '../../db/db.types';
 import type { SocketId } from './sockets.types';
-import { Lookup } from '@/shared/lookup';
+import { Lookup } from '@/shared/lib/lookup';
 import {
   UserLoginEventToken,
   UserLogoutEventToken,

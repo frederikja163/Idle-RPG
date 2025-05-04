@@ -1,4 +1,4 @@
-﻿import {atom} from 'jotai';
-import {ItemTag} from '@/shared/items.ts';
+﻿import { atom } from 'jotai';
+import { ItemTag } from '@/shared/features/items';
 
 export const selectedInventoryTabAtom = atom(ItemTag.Resource);

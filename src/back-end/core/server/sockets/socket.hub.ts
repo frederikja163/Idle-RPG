@@ -4,7 +4,7 @@ import { SocketSessionStore } from './socket.session.store';
 import type { ClientEvent, SocketId } from './sockets.types';
 import type { ProfileId, UserId } from '../../db/db.types';
 import type { DataType } from '@/shared/socket';
-import type { ServerClientEvent } from '@/shared/socket-events';
+import type { ServerClientEvent } from '@/shared/socket/socket-events';
 import { injectableSingleton } from '../../lib/lib.tsyringe';
 
 @injectableSingleton()

@@ -1,5 +1,5 @@
 import type { Static } from '@sinclair/typebox';
-import { type ServerClientEvent, type ClientServerEvent } from './socket-events';
+import { type ServerClientEvent, type ClientServerEvent } from './socket/socket-events';
 import { TypeCheck } from '@sinclair/typebox/compiler';
 
 export type AllEvents = ClientServerEvent | ServerClientEvent;

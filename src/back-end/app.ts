@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import './container';
 import { container } from 'tsyringe';
 import { Server } from './core/server/server';
-import { Socket } from '@/shared/socket';
+import { Socket } from '@/shared/socket/socket';
 import { CleanupEventDispatcher } from './core/events/cleanup.dispatcher';
 
 function main() {
