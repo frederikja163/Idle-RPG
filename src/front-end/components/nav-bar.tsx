@@ -1,14 +1,14 @@
-import { useCallback, useContext } from 'react';
-import { SocketContext } from '../App';
+import { useCallback } from 'react';
 import { Button } from './ui/button.tsx';
-import { useAuth } from '@/front-end/providers/auth-provider.tsx';
+import { useAuth } from '@/front-end/state/auth-provider.tsx';
 import { Row } from '@/front-end/components/layout/row.tsx';
-import { Text } from '@/front-end/components/ui/text.tsx';
+import { Typography } from '@/front-end/components/ui/typography.tsx';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/front-end/router/routes.ts';
+import { useSocket } from '@/front-end/state/socket-provider.tsx';
 
 export function NavBar() {
-  const socket = useContext(SocketContext);
+  const socket = useSocket();
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
 
@@ -30,20 +30,20 @@ export function NavBar() {
 
   return (
     <Row className="bg-green-100 justify-between p-4">
-      <Text className="text-2xl">Idle-RPG</Text>
+      <Typography className="text-2xl">Idle-RPG</Typography>
       <Row className="gap-4">
         {import.meta.hot && (
           <Button onClick={navigateToTest}>
-            <Text>Test</Text>
+            <Typography>Test</Typography>
           </Button>
         )}
         {isLoggedIn && (
           <>
             <Button onClick={navigateToGame}>
-              <Text>Game</Text>
+              <Typography>Game</Typography>
             </Button>
             <Button onClick={navigateToProfiles}>
-              <Text>Profiles</Text>
+              <Typography>Profiles</Typography>
             </Button>
           </>
         )}
@@ -51,7 +51,7 @@ export function NavBar() {
           <Button onClick={() => socket?.send('Auth/Logout', {})}>Log out</Button>
         ) : (
           <Button onClick={navigateToLogin}>
-            <Text>Login</Text>
+            <Typography>Login</Typography>
           </Button>
         )}
       </Row>

@@ -1,23 +1,23 @@
-﻿import React, { type FC, type FormEvent, useCallback, useContext, useMemo } from 'react';
+﻿import React, { type FC, type FormEvent, useCallback, useMemo } from 'react';
 import { Card } from '@/front-end/components/ui/card.tsx';
 import { Plus } from 'lucide-react';
-import { SocketContext } from '@/front-end/App.tsx';
 import { Form } from 'radix-ui';
 import { Input } from '@/front-end/components/ui/input.tsx';
-import { Text } from '@/front-end/components/ui/text.tsx';
+import { Typography } from '@/front-end/components/ui/typography.tsx';
 import { Modal } from '@/front-end/components/ui/modal.tsx';
 import { Button } from '@/front-end/components/ui/button.tsx';
 import { Column } from '@/front-end/components/layout/column.tsx';
 import { getFormData } from '@/front-end/lib/utils.ts';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/front-end/router/routes.ts';
+import { useSocket } from '@/front-end/state/socket-provider.tsx';
 
 interface ProfileForm {
   name: string;
 }
 
 export const ProfileCreator: FC = React.memo(() => {
-  const socket = useContext(SocketContext);
+  const socket = useSocket();
   const navigate = useNavigate();
 
   const createProfile = useCallback(
@@ -25,7 +25,6 @@ export const ProfileCreator: FC = React.memo(() => {
       event.preventDefault();
 
       const formData = getFormData<ProfileForm>(event);
-      console.log(formData);
       socket?.send('Profile/CreateProfile', { name: formData.name });
 
       navigate(routes.game);
@@ -45,7 +44,7 @@ export const ProfileCreator: FC = React.memo(() => {
           <Form.Submit>
             <Button>
               <Plus />
-              <Text>Create profile</Text>
+              <Typography>Create profile</Typography>
             </Button>
           </Form.Submit>
         </Column>

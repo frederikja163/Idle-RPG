@@ -1,9 +1,6 @@
-import { SocketContext } from '@/front-end/App';
-import type { EventType } from '@/shared/socket';
-import { clientServerEvent, type ClientServerEvent } from '@/shared/socket-events';
-import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
+import { clientServerEvent } from '@/shared/socket-events';
+import { type CredentialResponse, GoogleLogin } from '@react-oauth/google';
 import {
-  TypeGuard,
   type TEnum,
   type TLiteral,
   type TNumber,
@@ -12,12 +9,14 @@ import {
   type TSchema,
   type TString,
   type TUnion,
+  TypeGuard,
 } from '@sinclair/typebox';
-import { useContext, useEffect, useState, type ChangeEvent, type ReactNode } from 'react';
+import { type ChangeEvent, type ReactNode, useEffect, useState } from 'react';
 import { Row } from '../layout/row';
+import { useSocket } from '@/front-end/state/socket-provider.tsx';
 
 export function Test() {
-  const socket = useContext(SocketContext);
+  const socket = useSocket();
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -52,6 +51,7 @@ interface InputProps<T extends TSchema> {
 }
 
 type DiscriminatedUnionType = TUnion<TObject<{ type: TLiteral; data: TObject }>[]>;
+
 function DiscriminatedUnionInput({ path, object: union }: InputProps<DiscriminatedUnionType>) {
   const [options, setOptions] = useState<ReactNode>([]);
   const [data, setData] = useState<ReactNode | null>(null);

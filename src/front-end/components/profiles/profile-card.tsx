@@ -1,13 +1,13 @@
-﻿import React, { type FC, useCallback, useContext } from 'react';
+﻿import React, { type FC, useCallback } from 'react';
 import { Column } from '@/front-end/components/layout/column.tsx';
-import { Text } from '@radix-ui/themes';
 import { Card } from '@/front-end/components/ui/card.tsx';
-import type { ProfileDto } from '@/shared/socket-events.ts';
 import { Trash2 } from 'lucide-react';
-import { SocketContext } from '@/front-end/App.tsx';
 import { Row } from '../layout/row';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/front-end/router/routes.ts';
+import { useSocket } from '@/front-end/state/socket-provider.tsx';
+import type { ProfileDto } from '@/shared/socket-types.ts';
+import { Typography } from '@/front-end/components/ui/typography.tsx';
 
 interface Props {
   profileIndex: number;
@@ -17,7 +17,7 @@ interface Props {
 export const ProfileCard: FC<Props> = React.memo((props) => {
   const { profileIndex, profile } = props;
 
-  const socket = useContext(SocketContext);
+  const socket = useSocket();
   const navigate = useNavigate();
 
   const selectProfile = useCallback(
@@ -40,7 +40,7 @@ export const ProfileCard: FC<Props> = React.memo((props) => {
   return (
     <Card className="bg-green-200 w-64 h-96 p-4" onClick={selectProfile}>
       <Column className="h-full items-center justify-between">
-        <Text className="text-center text-lg">{profile?.name}</Text>
+        <Typography className="text-center text-lg">{profile?.name}</Typography>
         <Row className="w-full justify-end">
           <div className="flex p-2">
             <Trash2 onClick={deleteProfile} />

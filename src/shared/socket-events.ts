@@ -21,12 +21,12 @@ export const profileDto = Type.Object({
 });
 export type ProfileDto = Static<typeof profileDto>;
 
-export const item = Type.Object({
+export const itemDto = Type.Object({
   itemId: Type.String(),
   count: Type.Number(),
 });
-export type ItemDto = Static<typeof item>;
-export const inventoryDto = Type.Array(item);
+export type ItemDto = Static<typeof itemDto>;
+export const inventoryDto = Type.Array(itemDto);
 export type InventoryDto = Static<typeof inventoryDto>;
 
 export const clientServerEvent = Type.Union([
