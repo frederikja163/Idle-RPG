@@ -9,7 +9,7 @@ import { useAtomValue } from 'jotai';
 import { selectedInventoryTabAtom } from '@/front-end/state/atoms.tsx';
 import type { ItemStack } from '@/front-end/lib/types.ts';
 import { getItemStacksFromInventory } from '@/front-end/lib/utils.ts';
-import { ItemTag } from '@/shared/features/items';
+import { ItemTag } from '@/shared/definition/definition.items';
 
 export const Inventory: FC = React.memo(() => {
   const socket = useSocket();

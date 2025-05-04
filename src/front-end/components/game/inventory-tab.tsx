@@ -1,6 +1,6 @@
 ﻿import React, { type FC, useCallback } from 'react';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
-import type { ItemTags } from '@/shared/socket/socket-types';
+import type { ItemTags } from '@/shared/socket/socket.types';
 import { selectedInventoryTabAtom } from '@/front-end/state/atoms.tsx';
 import { useAtom } from 'jotai';
 import { Row } from '@/front-end/components/layout/row.tsx';

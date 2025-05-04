@@ -4,7 +4,7 @@ import {
   ErrorType,
   type ClientServerEvent,
   type ServerClientEvent,
-} from '@/shared/socket/socket-events';
+} from '@/shared/socket/socket.events';
 import type { ServerWebSocket } from 'bun';
 import { TypeCompiler } from '@sinclair/typebox/compiler';
 import type { SocketId } from './sockets/sockets.types';
