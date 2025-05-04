@@ -6,6 +6,8 @@ import { SocketRegistry } from './sockets/socket.registry';
 import type { SocketId } from './sockets/sockets.types';
 import { injectableSingleton } from '../lib/lib.tsyringe';
 
+const forbiddenPathStrings = ['\\', '..', ':'];
+
 @injectableSingleton()
 export class Server {
   private readonly sockets = new Map<ServerWebSocket, SocketId>();
@@ -22,6 +24,7 @@ export class Server {
     this.server = serve({
       port: process.env.PORT,
       routes: {
+        '/assets/*.svg': this.hostAssets.bind(this),
         '/*': index,
       },
       fetch: this.fetch,
@@ -37,6 +40,20 @@ export class Server {
       },
     });
     console.log(`Server running at: ${this.server.url}`);
+  }
+
+  private hostAssets(request: Bun.BunRequest<'/assets/*.svg'>) {
+    const url = request.url;
+    const fileName = url.split('/assets/')[1];
+    const path = `./src/front-end/assets/${fileName}`;
+
+    for (const str of forbiddenPathStrings) {
+      if (fileName.includes(str)) {
+        return new Response('Bad request', { status: 400 });
+      }
+    }
+
+    return new Response(file(path), { headers: { 'Content-Type': 'image/svg+xml' } });
   }
 
   private fetch(request: Request, server: Bun.Server) {
