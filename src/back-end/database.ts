@@ -44,17 +44,6 @@ export class Database {
       .where(inArray(userTable.id, userIds));
   }
 
-  public async getProfiles(userId: UserId) {
-    const profiles = await this._db
-      .select()
-      .from(userTable)
-      .innerJoin(userProfileTable, eq(userTable.id, userProfileTable.user))
-      .innerJoin(profileTable, eq(userProfileTable.profile, profileTable.id))
-      .where(eq(userTable.id, userId));
-
-    return profiles.map((p) => p.profiles);
-  }
-
   public async createProfile(userId: UserId, name: string) {
     return await this._db.transaction(async (tx) => {
       const profiles = await tx
@@ -73,6 +62,17 @@ export class Database {
     });
   }
 
+  public async getProfiles(userId: UserId) {
+    const profiles = await this._db
+      .select()
+      .from(userTable)
+      .innerJoin(userProfileTable, eq(userTable.id, userProfileTable.user))
+      .innerJoin(profileTable, eq(userProfileTable.profile, profileTable.id))
+      .where(eq(userTable.id, userId));
+
+    return profiles.map((p) => p.profiles);
+  }
+
   public async deleteProfile(profileId: ProfileId) {
     await this._db.delete(profileTable).where(eq(profileTable.id, profileId));
   }
@@ -85,6 +85,22 @@ export class Database {
       .update(profileTable)
       .set(data)
       .where(eq(profileTable.id, profileId));
+  }
+
+  public async updateProfiles(profiles: typeof profileTable.$inferSelect[]) {
+    await this._db.transaction(async (tx) => {
+      for (const profile of profiles) {
+        await tx.update(profileTable)
+        .set(profile)
+        .where(eq(profileTable.id, profile.id));
+      }
+    })
+  }
+
+  public async updateProfileTimes(profileIds: ProfileId[]){
+    await this._db.update(profileTable).set({
+      lastLogin: sql`CURRENT_TIMESTAMP`,
+    }).where(inArray(profileTable.id, profileIds));
   }
 
   public async getInventory(profileId: ProfileId) {

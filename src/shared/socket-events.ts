@@ -21,11 +21,10 @@ export enum ErrorType {
 
 export const profileDto = Type.Object({
   name: Type.String(),
-  mining: Type.Number(),
-  smithery: Type.Number(),
-  lumberjacking: Type.Number(),
-  carpentry: Type.Number(),
-  crafting: Type.Number(),
+  miningXp: Type.Number(),
+  smitheryXp: Type.Number(),
+  lumberjackingXp: Type.Number(),
+  carpentryXp: Type.Number(),
 });
 
 export const itemDto = Type.Object({
