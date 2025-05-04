@@ -1,4 +1,4 @@
-import { ErrorType } from '@/shared/socket/socket-events';
+import { ErrorType } from '@/shared/socket/socket.events';
 import { OAuth2Client } from 'google-auth-library';
 import { UserCache } from '../user/user.cache';
 import type { ServerSocket } from '@/back-end/core/server/server.socket';

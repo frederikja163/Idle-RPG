@@ -1,4 +1,4 @@
-﻿import { inventoryDto, itemDto, profileDto } from '@/shared/socket/socket-events';
+﻿import { inventoryDto, itemDto, profileDto } from '@/shared/socket/socket.events';
 import type { Static } from '@sinclair/typebox';
 
 export type ProfileDto = Static<typeof profileDto>;

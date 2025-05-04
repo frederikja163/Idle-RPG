@@ -5,7 +5,7 @@ import { Row } from '@/front-end/components/layout/row.tsx';
 import type { ItemStack } from '@/front-end/lib/types.ts';
 import { BasicTooltip } from '@/front-end/components/ui/basic-tooltip.tsx';
 import { Card } from '@/front-end/components/ui/card.tsx';
-import { itemTagDisplayMap } from '@/shared/features/items';
+import { itemTagDisplayMap } from '@/shared/definition/definition.items';
 
 interface Props {
   itemStack: ItemStack;
