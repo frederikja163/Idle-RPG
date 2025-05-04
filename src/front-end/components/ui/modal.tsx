@@ -8,13 +8,17 @@ import {Typography} from '@/front-end/components/ui/typography.tsx';
 interface Props {
   children: ReactNode | ReactNode[];
   content: ReactNode | ReactNode[];
+  title: string;
   description?: ReactNode | ReactNode[];
+  isOpen?: boolean;
+
+  onClose?(): void;
 }
 
 export const Modal: FC<Props> = React.memo((props) => {
-  const {children, content, description} = props;
+  const {children, content, title, description, isOpen, onClose} = props;
 
-  return (<Dialog.Root>
+  return (<Dialog.Root open={isOpen}>
     <Dialog.Trigger>
       {children}
     </Dialog.Trigger>
@@ -24,9 +28,9 @@ export const Modal: FC<Props> = React.memo((props) => {
         <Card className="flex flex-col p-6 gap-6" style={{transform: 'translate(-50%, -50%)'}}>
           <Row>
             <Dialog.Title className="grow">
-              <Typography className="text-xl">Create profile</Typography>
+              <Typography className="text-xl">{title}</Typography>
             </Dialog.Title>
-            <Dialog.Close>
+            <Dialog.Close onClick={onClose}>
               <X/>
             </Dialog.Close>
           </Row>
