@@ -3,10 +3,11 @@ import React, {type CSSProperties, type FC, useMemo} from 'react';
 
 interface Props {
   orientation?: "vertical" | "horizontal";
+  className?: string;
 }
 
 export const Divider: FC<Props> = React.memo((props) => {
-  const {orientation = "horizontal"} = props;
+  const {orientation = "horizontal", className} = props;
 
   const dividerStyle = useMemo(() => {
     return {
@@ -18,6 +19,7 @@ export const Divider: FC<Props> = React.memo((props) => {
   return <Separator.Root
     decorative
     orientation={orientation}
+    className={className}
     style={dividerStyle}/>
 });
 

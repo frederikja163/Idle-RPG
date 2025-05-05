@@ -1,15 +1,15 @@
 ﻿import React, {type CSSProperties, type FC, useEffect, useMemo, useState} from 'react';
 import {useSocket} from '@/front-end/state/socket-provider.tsx';
 import {Column} from '@/front-end/components/layout/column.tsx';
-import {Row} from '../layout/row';
-import {InventoryItem} from '@/front-end/components/game/inventory-item.tsx';
+import {Row} from '../../layout/row.tsx';
+import {InventoryItem} from '@/front-end/components/game/inventory/inventory-item.tsx';
 import {Card} from '@/front-end/components/ui/card.tsx';
-import {InventoryTab} from '@/front-end/components/game/inventory-tab.tsx';
+import {InventoryTab} from '@/front-end/components/game/inventory/inventory-tab.tsx';
 import {useAtomValue} from 'jotai';
 import {selectedInventoryTabAtom} from '@/front-end/state/atoms.tsx';
 import type {ItemStack} from '@/front-end/lib/types.ts';
 import {getItemStacksFromInventory} from '@/front-end/lib/utils.ts';
-import {ItemTag} from '@/shared/definition/definition.items';
+import {ItemTag} from '@/shared/definition/definition.items.ts';
 
 export const Inventory: FC = React.memo(() => {
   const socket = useSocket();

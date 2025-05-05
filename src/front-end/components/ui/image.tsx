@@ -2,6 +2,7 @@
 import {Typography} from '@/front-end/components/ui/typography.tsx';
 
 interface Props extends ImgHTMLAttributes<HTMLImageElement> {
+  src: string;
   alt: string;
 }
 
