@@ -9,7 +9,7 @@ import {useAtomValue} from 'jotai';
 import {selectedInventoryTabAtom} from '@/front-end/state/atoms.tsx';
 import type {ItemStack} from '@/front-end/lib/types.ts';
 import {getItemStacksFromInventory} from '@/front-end/lib/utils.ts';
-import { ItemTag } from '@/shared/definition/definition.items';
+import {ItemTag} from '@/shared/definition/definition.items';
 
 export const Inventory: FC = React.memo(() => {
   const socket = useSocket();
@@ -28,13 +28,13 @@ export const Inventory: FC = React.memo(() => {
   const shownItems = useMemo(
     () =>
       itemStacks
-        ?.filter((itemStack) => itemStack.item.tags.includes(selectedTab))
-        .map((itemStack, i) => <InventoryItem key={i} itemStack={itemStack}/>),
+      ?.filter((itemStack) => itemStack.item.tags.includes(selectedTab))
+      .map((itemStack, i) => <InventoryItem key={i} itemStack={itemStack}/>),
     [selectedTab, itemStacks],
   );
 
   return (
-    <Card className="bg-primary overflow-hidden">
+    <Card className="bg-card w-full overflow-hidden">
       <Column>
         <Row className="h-12" style={styles.itemContainer}>
           <InventoryTab itemCategory={ItemTag.Resource} label="Items"/>
