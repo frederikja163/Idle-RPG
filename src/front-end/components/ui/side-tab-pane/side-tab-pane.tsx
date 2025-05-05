@@ -21,12 +21,11 @@ export const SideTabPane: FC<Props> = React.memo((props) => {
 
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
-  // https://ant.design/components/tabs
-
   return (
     <Card className="flex p-6 bg-card">
-      <Column className="h-full gap-6">
+      <Column className="h-full w-full gap-6">
         <Typography className="text-2xl">{title}</Typography>
+        <Divider/>
         <Row className="h-full">
           <Column className="gap-2">
             {tabs.map((tab, i) => <SideTabButton key={i} index={i} selectedIndex={selectedTabIndex} tab={tab}

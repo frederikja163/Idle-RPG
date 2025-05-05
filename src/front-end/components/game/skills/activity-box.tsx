@@ -1,4 +1,4 @@
-﻿import React, {type FC, useMemo} from 'react';
+﻿import React, {type FC, useCallback, useMemo} from 'react';
 import {Column} from '@/front-end/components/layout/column.tsx';
 import {activity as allActivities} from '@/shared/definition/definition.activity.ts';
 import {Image} from '@/front-end/components/ui/image.tsx';
@@ -6,10 +6,11 @@ import {Typography} from '@/front-end/components/ui/typography.tsx';
 import {Card} from '@/front-end/components/ui/card.tsx';
 import {Divider} from "@/front-end/components/ui/divider.tsx";
 import {Row} from "@/front-end/components/layout/row.tsx";
-import {Clock} from "lucide-react";
+import {CirclePlay, Clock} from "lucide-react";
 import {ActivityDetail} from "@/front-end/components/game/skills/activity-detail.tsx";
-import {BasicTooltip} from "@/front-end/components/ui/basic-tooltip.tsx";
-import {ItemTooltip} from "@/front-end/components/game/item-tooltip.tsx";
+import {useSocket} from "@/front-end/state/socket-provider.tsx";
+import {useAtomValue} from "jotai";
+import {activeActivityAtom} from "@/front-end/state/atoms.tsx";
 
 interface Props {
   activityId: string;
@@ -18,12 +19,25 @@ interface Props {
 export const ActivityBox: FC<Props> = React.memo((props) => {
   const {activityId} = props;
 
+  const socket = useSocket();
+  const activeActivity = useAtomValue(activeActivityAtom);
+
+  const isActive = activeActivity?.activityId === activityId;
+
   const activity = useMemo(() => allActivities.get(activityId), [activityId]);
 
+  const startActivity = useCallback(() => {
+    socket?.send("Activity/StartActivity", {activityId})
+  }, [socket, activityId]);
+
   return (
-    <Card className="p-2 bg-background w-40 h-60">
-      <Column>
-        <Image src={`/ass ets/${activityId}.svg`} alt={activityId}/>
+    <Card
+      className={`p-2 w-40 cursor-pointer ${isActive ? "bg-primary" : "bg-background"}`}
+      onClick={startActivity}>
+      <Column className="gap-2 relative">
+        {isActive && <CirclePlay size={30} className="absolute right-0"/>}
+        <Image src={`/assets/items/${activity?.resultId}.svg`} alt={activity?.resultId ?? "Not found"}
+               className="p-2 aspect-square"/>
         <Typography className="text-lg">{activity?.display}</Typography>
         <Divider/>
         <Row>
@@ -31,12 +45,6 @@ export const ActivityBox: FC<Props> = React.memo((props) => {
                           bottom={<Clock className="stroke-muted-foreground"/>}/>
           <Divider orientation="vertical" className="my-2"/>
           <ActivityDetail top={activity?.xpAmount.toString()} bottom="XP"/>
-          <Divider orientation="vertical" className="my-2"/>
-          {activity?.resultId && <ActivityDetail top="1" bottom={
-            <BasicTooltip tooltipContent={<ItemTooltip itemId={activity?.resultId}/>}>
-              <Image src={`/assets/items/${activity?.resultId}.svg`} alt={activity?.resultId ?? "Activity not found"}/>
-            </BasicTooltip>
-          }/>}
         </Row>
       </Column>
     </Card>
