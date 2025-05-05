@@ -1,29 +1,23 @@
-import type { UserId } from '../../db/db.types';
 import { injectableSingleton } from '../../lib/lib.tsyringe';
-import type { SocketSessionStore } from '../../server/sockets/socket.session.store';
-import type { SocketId } from '../../server/sockets/sockets.types';
-import type { ProfileEventDispatcher } from '../profile.dispatcher';
-import { SocketCloseEventToken, type SocketCloseEventListener } from '../socket.event';
-import type { UserEventDispatcher } from '../user.dispatcher';
-import { UserLogoutEventToken, type UserLogoutEventListener } from '../user.event';
+import { SocketSessionStore } from '../../server/sockets/socket.session.store';
+import { ProfileEventDispatcher } from '../profile.dispatcher';
+import { SocketCloseEventToken, type SocketCloseEventData, type SocketCloseEventListener } from '../socket.event';
+import { UserEventDispatcher } from '../user.dispatcher';
 
-@injectableSingleton(SocketCloseEventToken, UserLogoutEventToken)
-export class SocketLifecycleOrchestrator implements SocketCloseEventListener, UserLogoutEventListener {
+@injectableSingleton(SocketCloseEventToken)
+export class SocketLifecycleOrchestrator implements SocketCloseEventListener {
   public constructor(
     private readonly socketSession: SocketSessionStore,
     private readonly userDispatcher: UserEventDispatcher,
     private readonly profileDispatcher: ProfileEventDispatcher,
   ) {}
 
-  public onSocketClose(socketId: SocketId) {
-    const profile = this.socketSession.getProfileId(socketId);
-    if (profile) this.profileDispatcher.emitProfileDeselected(socketId, profile);
-    const user = this.socketSession.getUserId(socketId);
-    if (user) this.userDispatcher.emitUserLoggedOut(socketId, user);
-  }
+  public onSocketClose({ socketId }: SocketCloseEventData): void | Promise<void> {
+    const userId = this.socketSession.getUserId(socketId);
+    if (!userId) return;
 
-  public onUserLoggedOut(socketId: SocketId, userId: UserId) {
-    const profile = this.socketSession.getProfileId(socketId);
-    if (profile) this.profileDispatcher.emitProfileDeselected(socketId, profile);
+    const profileId = this.socketSession.getProfileId(socketId);
+    if (profileId) this.profileDispatcher.emitProfileDeselected({ userId, profileId });
+    this.userDispatcher.emitUserLoggedOut({ userId });
   }
 }

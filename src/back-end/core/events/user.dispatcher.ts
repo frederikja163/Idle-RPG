@@ -1,37 +1,31 @@
-import { injectAll } from 'tsyringe';
-import type { SocketId } from '../server/sockets/sockets.types';
+import { container, injectAll } from 'tsyringe';
+import type { SocketId } from '../server/sockets/socket.types';
 import type { UserId } from '../db/db.types';
 import {
   UserLoginEventToken,
   UserLogoutEventToken,
+  type UserLoginEventData,
   type UserLoginEventListener,
+  type UserLogoutEventData,
   type UserLogoutEventListener,
 } from './user.event';
 import { injectableSingleton } from '../lib/lib.tsyringe';
 
 @injectableSingleton()
 export class UserEventDispatcher {
-  public constructor(
-    @injectAll(UserLoginEventToken, { isOptional: true })
-    private readonly loginListeners: UserLoginEventListener[],
-    @injectAll(UserLogoutEventToken, { isOptional: true })
-    private readonly logoutListeners: UserLogoutEventListener[],
-  ) {
-    this.loginListeners = this.loginListeners.filter((l) => l.onUserLoggedIn);
-    console.log('Login listeners: ', this.loginListeners.length);
-    this.logoutListeners = this.logoutListeners.filter((l) => l.onUserLoggedOut);
-    console.log('Logout listeners: ', this.logoutListeners.length);
-  }
-
-  public emitUserLoggedIn(socketId: SocketId, userId: UserId) {
-    for (const listener of this.loginListeners) {
-      listener.onUserLoggedIn(socketId, userId);
+  public emitUserLoggedIn(event: UserLoginEventData) {
+    const listeners = container.resolveAll<UserLoginEventListener>(UserLoginEventToken).filter((l) => l.onUserLoggedIn);
+    for (const listener of listeners) {
+      listener.onUserLoggedIn(event);
     }
   }
 
-  public emitUserLoggedOut(socketId: SocketId, userId: UserId) {
-    for (const listener of this.logoutListeners) {
-      listener.onUserLoggedOut(socketId, userId);
+  public emitUserLoggedOut(event: UserLogoutEventData) {
+    const listeners = container
+      .resolveAll<UserLogoutEventListener>(UserLogoutEventToken)
+      .filter((l) => l.onUserLoggedOut);
+    for (const listener of listeners) {
+      listener.onUserLoggedOut(event);
     }
   }
 }

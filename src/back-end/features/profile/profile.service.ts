@@ -1,84 +1,62 @@
-import type { ProfileType } from '@/back-end/core/db/db.types';
-import { ServerSocket } from '@/back-end/core/server/server.socket';
-import type { ServerData, SocketId } from '@/back-end/core/server/sockets/sockets.types';
-import { type ProfileDto, ErrorType } from '@/shared/socket/socket.events';
-import { ProfileEventDispatcher } from '@/back-end/core/events/profile.dispatcher';
-import { SocketOpenEventToken, type SocketOpenEventListener } from '@/back-end/core/events/socket.event';
-import { SocketHub } from '@/back-end/core/server/sockets/socket.hub';
-import { ProfileCache } from './profile.cache';
 import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
+import { ProfileCache } from './profile.cache';
+import { ProfileRepository } from './profile.repository';
+import { ProfileEventDispatcher } from '@/back-end/core/events/profile.dispatcher';
+import type { OmitAutoFields, ProfileId, ProfileType, UserId } from '@/back-end/core/db/db.types';
+import { injectDB, type Database } from '@/back-end/core/db/db';
 
-@injectableSingleton(SocketOpenEventToken)
-export class ProfileService implements SocketOpenEventListener {
+@injectableSingleton()
+export class ProfileService {
   public constructor(
-    private readonly socketHub: SocketHub,
+    @injectDB() private readonly db: Database,
     private readonly profileCache: ProfileCache,
-    private readonly profileEventDispatcher: ProfileEventDispatcher,
+    private readonly profileRepo: ProfileRepository,
+    private readonly profileDispatcher: ProfileEventDispatcher,
   ) {}
-  onSocketOpen(socketId: SocketId): void | Promise<void> {
-    const socket = this.socketHub.getSocket(socketId)!;
-    socket.on('Profile/GetProfiles', this.handleGetProfiles.bind(this));
-    socket.on('Profile/DeleteProfile', this.handleDeleteProfile.bind(this));
-    socket.on('Profile/CreateProfile', this.handleCreateProfile.bind(this));
-    socket.on('Profile/SelectProfile', this.handleSelectProfile.bind(this));
-  }
 
-  private getDto(profile: ProfileType): ProfileDto {
-    return {
-      name: profile.name,
-    };
-  }
-
-  private async handleGetProfiles(socket: ServerSocket, {}: ServerData<'Profile/GetProfiles'>) {
-    const userId = this.socketHub.getUserId(socket.id);
-    if (!userId) return socket.error(ErrorType.RequiresLogin);
-    const profiles = await this.profileCache.findByUserId(userId);
-
-    socket.send('Profile/UpdateProfiles', {
-      profiles: profiles.map(this.getDto),
-    });
-  }
-
-  private async handleCreateProfile(socket: ServerSocket, { name }: ServerData<'Profile/CreateProfile'>) {
-    const userId = this.socketHub.getUserId(socket.id);
-    if (!userId) return socket.error(ErrorType.RequiresLogin);
-
-    const profile = await this.profileCache.createByName(userId, name);
-    if (!profile) return socket.error(ErrorType.NameTaken);
-
-    const profiles = await this.profileCache.findByUserId(userId);
-    this.socketHub.broadcastToUser(userId, 'Profile/UpdateProfiles', { profiles: profiles.map(this.getDto) });
-  }
-
-  private async handleDeleteProfile(socket: ServerSocket, { index }: ServerData<'Profile/DeleteProfile'>) {
-    const userId = this.socketHub.getUserId(socket.id);
-    if (!userId) return socket.error(ErrorType.RequiresLogin);
-
-    const profiles = await this.profileCache.findByUserId(userId);
-    if (index < 0 || index >= profiles.length) return socket.error(ErrorType.ArgumentOutOfRange);
-
-    const profile = profiles[index];
-    if (this.socketHub.anySocketsForProfile(profile.id)) return socket.error(ErrorType.ProfileInUse);
-
-    await this.profileCache.deleteProfile(profile.id);
-    profiles.splice(index, 1);
-    this.socketHub.broadcastToUser(userId, 'Profile/UpdateProfiles', { profiles: profiles.map(this.getDto) });
-  }
-
-  private async handleSelectProfile(socket: ServerSocket, { index }: ServerData<'Profile/SelectProfile'>) {
-    const userId = this.socketHub.getUserId(socket.id);
-    if (!userId) return socket.error(ErrorType.RequiresLogin);
-
-    const profiles = await this.profileCache.findByUserId(userId);
-    if (index < 0 || index >= profiles.length) return socket.error(ErrorType.ArgumentOutOfRange);
-
-    const oldProfileId = this.socketHub.getProfileId(socket.id);
-    if (oldProfileId) {
-      this.profileEventDispatcher.emitProfileDeselected(socket.id, oldProfileId);
+  public async getProfilesByUserId(userId: UserId) {
+    try {
+      return this.profileCache.getProfilesByUserId(userId);
+    } catch (error) {
+      console.error(`Failed to get profiles for user ${userId}`, error);
+      return [];
     }
+  }
 
-    const profile = profiles[index];
-    this.profileEventDispatcher.emitProfileSelected(socket.id, profile.id);
-    socket.send('Profile/SelectProfileSuccess', {});
+  public async getProfileById(profileId: ProfileId) {
+    try {
+      return this.profileCache.getProfilesById(profileId);
+    } catch (error) {
+      console.error(`Failed to to get profile ${profileId}`, error);
+      return null;
+    }
+  }
+
+  public async create(userId: UserId, data: OmitAutoFields<ProfileType>) {
+    try {
+      const profile = await this.db.transaction(async (tx) => await this.profileRepo.create(userId, data, tx));
+      if (profile) this.profileDispatcher.emitProfileCreated({ userId, profile });
+      return profile;
+    } catch (error) {
+      console.error(`Failed to created profile for ${userId}`, error);
+      return null;
+    }
+  }
+
+  public async update(profileId: ProfileId, data: OmitAutoFields<ProfileType>) {
+    try {
+      await this.db.transaction(async (tx) => await this.profileRepo.update(profileId, data, tx));
+    } catch (error) {
+      console.error(`Failed to update user ${profileId}`, error);
+    }
+  }
+
+  public async delete(userId: UserId, profileId: ProfileId) {
+    try {
+      await this.db.transaction(async (tx) => await this.profileRepo.delete(profileId, tx));
+      this.profileDispatcher.emitProfileDeleted({ userId, profileId });
+    } catch (error) {
+      console.error(`Failed to delete profile ${profileId}`, error);
+    }
   }
 }

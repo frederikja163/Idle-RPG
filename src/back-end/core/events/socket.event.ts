@@ -1,13 +1,14 @@
-import type { constructor } from 'tsyringe/dist/typings/types';
-import type { SocketId } from '../server/sockets/sockets.types';
-import { container } from 'tsyringe';
+import type { InjectionToken } from 'tsyringe';
+import type { SocketId } from '../server/sockets/socket.types';
 
+export type SocketOpenEventData = { socketId: SocketId };
 export interface SocketOpenEventListener {
-  onSocketOpen(socketId: SocketId): void | Promise<void>;
+  onSocketOpen(event: SocketOpenEventData): void | Promise<void>;
 }
-export class SocketOpenEventToken {}
+export const SocketOpenEventToken: InjectionToken<SocketOpenEventListener> = Symbol('SocketOpen');
 
+export type SocketCloseEventData = { socketId: SocketId };
 export interface SocketCloseEventListener {
-  onSocketClose(socketId: SocketId): void | Promise<void>;
+  onSocketClose(event: SocketCloseEventData): void | Promise<void>;
 }
-export class SocketCloseEventToken {}
+export const SocketCloseEventToken: InjectionToken<SocketCloseEventListener> = Symbol('SocketClose');

@@ -1,32 +1,51 @@
-import type { UserType } from '@/back-end/core/db/db.types';
-import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup.event';
+import type { UserId, UserType } from '@/back-end/core/db/db.types';
 import { UserRepository } from './user.repository';
 import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
+import {
+  UserLoginEventToken,
+  UserLogoutEventToken,
+  type UserLoginEventData,
+  type UserLoginEventListener,
+  type UserLogoutEventData,
+  type UserLogoutEventListener,
+} from '@/back-end/core/events/user.event';
+import { SocketSessionStore } from '@/back-end/core/server/sockets/socket.session.store';
 
-@injectableSingleton(CleanupEventToken)
-export class UserCache implements CleanupEventListener {
-  private readonly usersByGoogleId = new Map<string, WeakRef<UserType>>();
+@injectableSingleton(UserLoginEventToken, UserLogoutEventToken)
+export class UserCache implements UserLoginEventListener, UserLogoutEventListener {
+  private readonly userIdCache = new Map<UserId, UserType>();
 
-  public constructor(private readonly userRepo: UserRepository) {}
+  public constructor(
+    private readonly sessionStore: SocketSessionStore,
+    private readonly userRepository: UserRepository,
+  ) {}
 
-  public async findByGoogleId(googleId: string, email: string, profilePicture: string) {
-    const cached = this.usersByGoogleId.get(googleId)?.deref();
-    if (cached) return cached;
+  public async getByUserId(userId: UserId) {
+    const cache = this.userIdCache.get(userId);
+    if (cache) return cache;
 
-    const user =
-      (await this.userRepo.findByGoogleId(googleId)) ??
-      (await this.userRepo.create({ googleId, email, profilePicture }));
-    if (!user) throw Error('Something went wrong trying to create profile.');
-
-    this.usersByGoogleId.set(user.googleId, new WeakRef(user));
+    const user = await this.userRepository.findById(userId);
+    if (user) {
+      this.userIdCache.set(user.id, user);
+    }
     return user;
   }
 
-  public async cleanup() {
-    for (const [googleId, userRef] of this.usersByGoogleId) {
-      const user = userRef.deref();
-      if (user) this.userRepo.update(user.id, user);
-      else this.usersByGoogleId.delete(googleId);
-    }
+  public getAllUsers() {
+    return this.userIdCache.entries().map(([_, u]) => u);
+  }
+
+  public invalidateUserCache(userId: UserId) {
+    const user = this.userIdCache.get(userId);
+    if (!user) return;
+    this.userIdCache.delete(userId);
+  }
+
+  onUserLoggedIn({ userId }: UserLoginEventData): void | Promise<void> {
+    this.userRepository.findById(userId);
+  }
+  public onUserLoggedOut({ userId }: UserLogoutEventData): void | Promise<void> {
+    if (this.sessionStore.anySocketsForUser(userId)) return;
+    this.invalidateUserCache(userId);
   }
 }

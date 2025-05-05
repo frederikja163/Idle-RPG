@@ -1,22 +1,26 @@
-import type { ProfileId } from '../db/db.types';
-import type { SocketId } from '../server/sockets/sockets.types';
+import type { InjectionToken } from 'tsyringe';
+import type { ProfileId, ProfileType, UserId } from '../db/db.types';
 
+export type ProfileSelectedEventData = { userId: UserId; profileId: ProfileId };
 export interface ProfileSelectedEventListener {
-  onProfileSelected(socketId: SocketId, profileId: ProfileId): void | Promise<void>;
+  onProfileSelected(event: ProfileSelectedEventData): void | Promise<void>;
 }
-export class ProfileSelectedEventToken {}
+export const ProfileSelectedEventToken: InjectionToken<ProfileSelectedEventListener> = Symbol('ProfileSelected');
 
+export type ProfileDeselectedEventData = { userId: UserId; profileId: ProfileId };
 export interface ProfileDeselectedEventListener {
-  onProfileDeselected(socketId: SocketId, profileId: ProfileId): void | Promise<void>;
+  onProfileDeselected(event: ProfileDeselectedEventData): void | Promise<void>;
 }
-export class ProfileDeselectedEventToken {}
+export const ProfileDeselectedEventToken: InjectionToken<ProfileDeselectedEventListener> = Symbol('ProfileDeselected');
 
+export type ProfileCreatedEventData = { userId: UserId; profile: ProfileType };
 export interface ProfileCreatedEventListener {
-  onProfileCreated(socketId: SocketId, profileId: ProfileId): void | Promise<void>;
+  onProfileCreated(event: ProfileCreatedEventData): void | Promise<void>;
 }
-export class ProfileCreatedEventToken {}
+export const ProfileCreatedEventToken: InjectionToken<ProfileCreatedEventListener> = Symbol('ProfileCreated');
 
+export type ProfileDeletedEventData = { userId: UserId; profileId: ProfileId };
 export interface ProfileDeletedEventListener {
-  onProfileDeleted(socketId: SocketId, profileId: ProfileId): void | Promise<void>;
+  onProfileDeleted(event: ProfileDeletedEventData): void | Promise<void>;
 }
-export class ProfileDeletedEventToken {}
+export const ProfileDeletedEventToken: InjectionToken<ProfileDeletedEventListener> = Symbol('ProfileDeleted');

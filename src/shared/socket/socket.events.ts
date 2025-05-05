@@ -42,6 +42,7 @@ export const clientServerEvent = Type.Union([
   // Error: EmailNotVerified
   event('Auth/GoogleLogin', { token: Type.String() }),
   // Auth/LogoutSuccess
+  // Error: RequiresLogin
   event('Auth/Logout', {}),
   // Profiles/UpdateProfiles
   // Error: RequiresLogin

@@ -1,36 +1,30 @@
-import { injectAll } from 'tsyringe';
+import { container, injectAll } from 'tsyringe';
 import {
   SocketCloseEventToken,
   SocketOpenEventToken,
+  type SocketCloseEventData,
   type SocketCloseEventListener,
+  type SocketOpenEventData,
   type SocketOpenEventListener,
 } from './socket.event';
-import type { SocketId } from '../server/sockets/sockets.types';
+import type { SocketId } from '../server/sockets/socket.types';
 import { injectableSingleton } from '../lib/lib.tsyringe';
 
 @injectableSingleton()
 export class SocketEventDispatcher {
-  public constructor(
-    @injectAll(SocketOpenEventToken, { isOptional: true })
-    private readonly openListeners: SocketOpenEventListener[] = [],
-    @injectAll(SocketCloseEventToken, { isOptional: true })
-    private readonly closeListeners: SocketCloseEventListener[],
-  ) {
-    this.openListeners = this.openListeners.filter((l) => l.onSocketOpen);
-    console.log('Socket open listeners: ', this.openListeners.length);
-    this.closeListeners = this.closeListeners.filter((l) => l.onSocketClose);
-    console.log('Socket close listeners: ', this.closeListeners.length);
-  }
-
-  public emitSocketOpen(socketId: SocketId) {
-    for (const listener of this.openListeners) {
-      listener.onSocketOpen(socketId);
+  public emitSocketOpen(event: SocketOpenEventData) {
+    const listeners = container.resolveAll<SocketOpenEventListener>(SocketOpenEventToken).filter((l) => l.onSocketOpen);
+    for (const listener of listeners) {
+      listener.onSocketOpen(event);
     }
   }
 
-  public emitSocketClose(socketId: SocketId) {
-    for (const listener of this.closeListeners) {
-      listener.onSocketClose(socketId);
+  public emitSocketClose(event: SocketCloseEventData) {
+    const listeners = container
+      .resolveAll<SocketCloseEventListener>(SocketCloseEventToken)
+      .filter((l) => l.onSocketClose);
+    for (const listener of listeners) {
+      listener.onSocketClose(event);
     }
   }
 }

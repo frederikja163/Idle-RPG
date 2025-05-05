@@ -1,60 +1,107 @@
 import type { ProfileId, ProfileType, UserId } from '@/back-end/core/db/db.types';
 import { ProfileRepository } from './profile.repository';
-import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup.event';
 import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
+import {
+  ProfileCreatedEventToken,
+  ProfileDeletedEventToken,
+  ProfileDeselectedEventToken,
+  ProfileSelectedEventToken,
+  type ProfileCreatedEventData,
+  type ProfileCreatedEventListener,
+  type ProfileDeletedEventData,
+  type ProfileDeletedEventListener,
+  type ProfileDeselectedEventData,
+  type ProfileDeselectedEventListener,
+  type ProfileSelectedEventData,
+  type ProfileSelectedEventListener,
+} from '@/back-end/core/events/profile.event';
+import {
+  UserLoginEventToken,
+  UserLogoutEventToken,
+  type UserLoginEventData,
+  type UserLoginEventListener,
+  type UserLogoutEventData,
+  type UserLogoutEventListener,
+} from '@/back-end/core/events/user.event';
+import { SocketSessionStore } from '@/back-end/core/server/sockets/socket.session.store';
 
-@injectableSingleton(ProfileCache, CleanupEventToken)
-export class ProfileCache implements CleanupEventListener {
-  private readonly userToProfiles = new Map<UserId, WeakRef<ProfileType[]>>();
-  private readonly profileIdToProfile = new Map<ProfileId, WeakRef<ProfileType>>();
+@injectableSingleton(
+  UserLoginEventToken,
+  UserLogoutEventToken,
+  ProfileSelectedEventToken,
+  ProfileDeselectedEventToken,
+  ProfileCreatedEventToken,
+  ProfileDeletedEventToken,
+)
+export class ProfileCache
+  implements
+    UserLoginEventListener,
+    UserLogoutEventListener,
+    ProfileSelectedEventListener,
+    ProfileDeselectedEventListener,
+    ProfileCreatedEventListener,
+    ProfileDeletedEventListener
+{
+  private readonly userProfilesCache = new Map<UserId, ProfileType[]>();
+  private readonly profileCache = new Map<ProfileId, ProfileType>();
 
-  public constructor(private readonly profileRepo: ProfileRepository) {}
+  public constructor(
+    private readonly profileRepo: ProfileRepository,
+    private readonly socketSession: SocketSessionStore,
+  ) {}
 
-  public async findByUserId(userId: UserId) {
-    const cache = this.userToProfiles.get(userId)?.deref();
+  public async getProfilesByUserId(userId: UserId) {
+    const cache = this.userProfilesCache.get(userId);
     if (cache) return cache;
 
     const profiles = await this.profileRepo.findByUserId(userId);
-    this.userToProfiles.set(userId, new WeakRef(profiles));
+    this.userProfilesCache.set(userId, profiles);
     return profiles;
   }
 
-  public async findById(profileId: ProfileId) {
-    const cache = this.userToProfiles.get(profileId)?.deref();
+  public async getProfilesById(profileId: ProfileId) {
+    const cache = this.profileCache.get(profileId);
     if (cache) return cache;
 
     const profile = await this.profileRepo.findByProfileId(profileId);
-    if (!profile) return null;
-    this.profileIdToProfile.set(profile?.id, new WeakRef(profile));
+    if (profile) this.profileCache.set(profile?.id, profile);
     return profile;
   }
 
-  public async createByName(userId: UserId, name: string) {
-    const profile = await this.profileRepo.create(userId, { name });
-    if (!profile) return null;
-    const profiles = await this.findByUserId(userId);
-    profiles.push(profile);
-    this.profileIdToProfile.set(profile.id, new WeakRef(profile));
-    return profile;
+  public invalidateUser(userId: UserId) {
+    this.userProfilesCache.delete(userId);
   }
 
-  public async cleanup() {
-    for (const [profileId, profileRef] of this.profileIdToProfile) {
-      const profile = profileRef.deref();
-      if (!profile) this.profileIdToProfile.delete(profileId);
-    }
-    for (const [userId, profileRef] of this.userToProfiles) {
-      const profile = profileRef.deref();
-      if (!profile) this.userToProfiles.delete(userId);
+  public invalidateProfile(profileId: ProfileId) {
+    this.profileCache.delete(profileId);
+    for (const [userId, profiles] of this.userProfilesCache) {
+      if (profiles.find((p) => p.id === profileId)) this.userProfilesCache.delete(userId);
     }
   }
 
-  public async deleteProfile(profileId: number) {
-    await this.profileRepo.delete(profileId);
-
-    const users = await this.profileRepo.findUsersForProfile(profileId);
-    for (const userId of users) {
-      if (userId) this.userToProfiles.delete(userId);
+  public onUserLoggedIn({ userId }: UserLoginEventData): void | Promise<void> {
+    this.profileRepo.findByUserId(userId).then((p) => this.userProfilesCache.set(userId, p));
+  }
+  public onUserLoggedOut({ userId }: UserLogoutEventData): void | Promise<void> {
+    if (!this.socketSession.anySocketsForUser(userId)) {
+      this.userProfilesCache.delete(userId);
     }
+  }
+
+  public onProfileSelected({ userId, profileId }: ProfileSelectedEventData): void | Promise<void> {
+    this.profileRepo.findByProfileId(profileId).then((p) => this.profileCache.set(p.id, p));
+    this.invalidateUser(userId);
+  }
+  public onProfileDeselected({ profileId }: ProfileDeselectedEventData): void | Promise<void> {
+    if (!this.socketSession.anySocketsForProfile(profileId)) {
+      this.profileCache.delete(profileId);
+    }
+  }
+
+  public onProfileCreated({ userId }: ProfileCreatedEventData): void | Promise<void> {
+    this.invalidateUser(userId);
+  }
+  public onProfileDeleted({ userId }: ProfileDeletedEventData): void | Promise<void> {
+    this.invalidateUser(userId);
   }
 }

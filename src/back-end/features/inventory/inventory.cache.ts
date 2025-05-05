@@ -1,6 +1,6 @@
 import type { ItemType, ProfileId } from '@/back-end/core/db/db.types';
 import { InventoryRepository } from './inventory.repository';
-import type { SocketId } from '@/back-end/core/server/sockets/sockets.types';
+import type { SocketId } from '@/back-end/core/server/sockets/socket.types';
 import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup.event';
 import {
   ProfileDeselectedEventToken,

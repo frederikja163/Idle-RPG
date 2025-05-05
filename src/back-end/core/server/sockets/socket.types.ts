@@ -1,4 +1,4 @@
-import type { DataType, EventType } from '@/shared/socket';
+import type { DataType, EventType } from '@/shared/socket/socket';
 import type { ClientServerEvent, ServerClientEvent } from '@/shared/socket/socket.events';
 
 export type ClientEvent = EventType<ServerClientEvent>;

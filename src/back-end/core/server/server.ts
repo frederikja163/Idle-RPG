@@ -1,9 +1,9 @@
 import index from '@/front-end/index.html';
 import { file, serve, type ServerWebSocket } from 'bun';
-import { ServerSocket } from './server.socket';
+import { ServerSocket } from './sockets/server.socket';
 import { SocketEventDispatcher } from '../events/socket.dispatcher';
 import { SocketRegistry } from './sockets/socket.registry';
-import type { SocketId } from './sockets/sockets.types';
+import type { SocketId } from './sockets/socket.types';
 import { injectableSingleton } from '../lib/lib.tsyringe';
 
 const forbiddenPathStrings = ['\\', '..', ':'];
@@ -67,7 +67,7 @@ export class Server {
     const socket = new ServerSocket(ws);
     this.sockets.set(ws, socket.id);
     this.socketRegistry.addSocket(socket);
-    this.socketDispatcher.emitSocketOpen(socket.id);
+    this.socketDispatcher.emitSocketOpen({ socketId: socket.id });
   }
 
   private socketMessage(ws: ServerWebSocket, message: string | Buffer<ArrayBufferLike>) {
@@ -80,7 +80,7 @@ export class Server {
   private socketClose(ws: ServerWebSocket, code: number, reason: string) {
     const socketId = this.sockets.get(ws)!;
     this.sockets.delete(ws);
-    this.socketDispatcher.emitSocketClose(socketId);
+    this.socketDispatcher.emitSocketClose({ socketId });
     this.socketRegistry.removeSocket(socketId);
   }
 }

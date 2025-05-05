@@ -1,12 +1,16 @@
 import { ErrorType } from '@/shared/socket/socket.events';
 import { OAuth2Client } from 'google-auth-library';
-import { UserCache } from '../user/user.cache';
-import type { ServerSocket } from '@/back-end/core/server/server.socket';
-import type { ServerData, SocketId } from '@/back-end/core/server/sockets/sockets.types';
-import { SocketOpenEventToken, type SocketOpenEventListener } from '@/back-end/core/events/socket.event';
+import type { ServerSocket } from '@/back-end/core/server/sockets/server.socket';
+import type { ServerData } from '@/back-end/core/server/sockets/socket.types';
+import {
+  SocketOpenEventToken,
+  type SocketOpenEventData,
+  type SocketOpenEventListener,
+} from '@/back-end/core/events/socket.event';
 import { UserEventDispatcher } from '@/back-end/core/events/user.dispatcher';
 import { SocketHub } from '@/back-end/core/server/sockets/socket.hub';
 import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
+import { UserService } from '../user/user.service.ts';
 
 @injectableSingleton(SocketOpenEventToken)
 export class AuthGoogleSocketHandler implements SocketOpenEventListener {
@@ -16,11 +20,11 @@ export class AuthGoogleSocketHandler implements SocketOpenEventListener {
 
   constructor(
     private readonly socketHub: SocketHub,
+    private readonly userService: UserService,
     private readonly userDispatch: UserEventDispatcher,
-    private readonly userCache: UserCache,
   ) {}
 
-  public onSocketOpen(socketId: SocketId): void {
+  public onSocketOpen({ socketId }: SocketOpenEventData): void {
     const socket = this.socketHub.getSocket(socketId)!;
     socket.on('Auth/GoogleLogin', this.authenticateGoogle.bind(this));
   }
@@ -39,8 +43,18 @@ export class AuthGoogleSocketHandler implements SocketOpenEventListener {
     if (!email) return socket.error(ErrorType.InvalidInput);
     if (!emailVerified) return socket.error(ErrorType.EmailNotVerified);
 
-    const user = await this.userCache.findByGoogleId(googleId, email, profilePicture ?? '');
-    this.userDispatch.emitUserLoggedIn(socket.id, user.id);
+    const oldUserId = this.socketHub.getUserId(socket.id);
+    if (oldUserId) {
+      this.userDispatch.emitUserLoggedOut({ userId: oldUserId });
+      socket.send('Auth/LogoutSuccess', {});
+    }
+
+    const user =
+      (await this.userService.getByGoogleId(googleId)) ??
+      (await this.userService.createGoogleUser(googleId, email, profilePicture ?? ''));
+    if (!user) return socket.error(ErrorType.InternalError);
+    this.userDispatch.emitUserLoggedIn({ userId: user.id });
+    this.socketHub.setUserId(socket.id, user.id);
     socket.send('Auth/LoginSuccess', {});
   }
 }

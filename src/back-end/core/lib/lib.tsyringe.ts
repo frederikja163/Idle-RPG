@@ -1,7 +1,7 @@
 import { container, injectable, singleton, type InjectionToken } from 'tsyringe';
 import type { constructor } from 'tsyringe/dist/typings/types';
 
-export function injectableSingleton<T>(...tokens: InjectionToken<T>[]): (target: constructor<T>) => void {
+export function injectableSingleton<T>(...tokens: InjectionToken<any>[]): (target: constructor<T>) => void {
   return function (target: constructor<T>): void {
     injectable()(target);
     singleton()(target);
