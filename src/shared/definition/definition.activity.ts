@@ -14,12 +14,12 @@ lumberjacking('Oak', 5000, 5);
 
 function mining(name: string, time: number, xpAmount: number) {
   const id = name.toLowerCase();
-  gathering(`mine_${id}_ore`, `${name} ore`, 'mining', time, xpAmount, `${id}_ore`);
+  gathering(`mine_ore_${id}`, `${name} ore`, 'mining', time, xpAmount, `ore_${id}`);
 }
 
 function lumberjacking(name: string, time: number, xpAmount: number) {
   const id = name.toLowerCase();
-  gathering(`cut_${id}_wood`, `${name} wood`, 'lumberjacking', time, xpAmount, `${id}_wood`);
+  gathering(`cut_log_${id}`, `${name} wood`, 'lumberjacking', time, xpAmount, `log_${id}`);
 }
 
 function gathering(id: string, display: string, skill: string, time: number, xpAmount: number, resultId: string) {
