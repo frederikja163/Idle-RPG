@@ -6,7 +6,7 @@ import { items } from './schema.items';
 export const profiles = sqliteTable(
   'profiles',
   {
-    id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+    id: text('id').primaryKey().$defaultFn(crypto.randomUUID.bind(crypto)),
     name: text('name').notNull().unique(),
     firstLogin: int('first_login', { mode: 'timestamp_ms' })
       .notNull()

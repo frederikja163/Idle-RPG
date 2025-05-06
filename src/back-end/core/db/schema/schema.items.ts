@@ -5,7 +5,7 @@ import { profiles } from './schema.profiles';
 export const items = sqliteTable(
   'items',
   {
-    profileId: int('id', { mode: 'number' }).notNull(),
+    profileId: text('id').notNull(),
     itemId: text('item_id').notNull(),
     count: int('count', { mode: 'number' }).notNull().default(0),
     index: int('index', { mode: 'number' }).notNull(),

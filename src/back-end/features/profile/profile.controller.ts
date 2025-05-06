@@ -28,19 +28,13 @@ export class ProfileController implements SocketOpenEventListener {
     socket.on('Profile/SelectProfile', this.handleSelectProfile.bind(this));
   }
 
-  private getDto(profile: ProfileType): ProfileDto {
-    return {
-      name: profile.name,
-    };
-  }
-
   private async handleGetProfiles(socket: ServerSocket, {}: ServerData<'Profile/GetProfiles'>) {
     const userId = this.socketHub.getUserId(socket.id);
     if (!userId) return socket.error(ErrorType.RequiresLogin);
     const profiles = await this.profileService.getProfilesByUserId(userId);
 
     socket.send('Profile/UpdateProfiles', {
-      profiles: profiles.map(this.getDto),
+      profiles,
     });
   }
 
@@ -52,7 +46,7 @@ export class ProfileController implements SocketOpenEventListener {
     if (!profile) return socket.error(ErrorType.NameTaken);
 
     const profiles = await this.profileService.getProfilesByUserId(userId);
-    this.socketHub.broadcastToUser(userId, 'Profile/UpdateProfiles', { profiles: profiles.map(this.getDto) });
+    this.socketHub.broadcastToUser(userId, 'Profile/UpdateProfiles', { profiles: profiles });
   }
 
   private async handleDeleteProfile(socket: ServerSocket, { index }: ServerData<'Profile/DeleteProfile'>) {
@@ -67,7 +61,7 @@ export class ProfileController implements SocketOpenEventListener {
 
     await this.profileService.delete(userId, profile.id);
     profiles.splice(index, 1);
-    this.socketHub.broadcastToUser(userId, 'Profile/UpdateProfiles', { profiles: profiles.map(this.getDto) });
+    this.socketHub.broadcastToUser(userId, 'Profile/UpdateProfiles', { profiles: profiles });
   }
 
   private async handleSelectProfile(socket: ServerSocket, { index }: ServerData<'Profile/SelectProfile'>) {

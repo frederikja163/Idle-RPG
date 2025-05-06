@@ -1,48 +1,109 @@
-// import type { ServerSocket } from '@/back-end/core/server/sockets/server.socket';
-// import type { ServerData, SocketId } from '@/back-end/core/server/sockets/socket.types';
-// import { InventoryCache } from './inventory.cache';
-// import { ErrorType, type ItemDto } from '@/shared/socket/socket.events';
-// import type { ItemType } from '@/back-end/core/db/db.types';
-// import { SocketHub } from '@/back-end/core/server/sockets/socket.hub';
-// import { SocketOpenEventToken, type SocketOpenEventListener } from '@/back-end/core/events/socket.event';
-// import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
+import { injectDB, type Database } from '@/back-end/core/db/db';
+import { InventoryCache } from './inventory.cache';
+import { InventoryRepository } from './inventory.repository';
+import {
+  ProfileDeletedEventToken,
+  ProfileDeselectedEventToken,
+  ProfileSelectedEventToken,
+  type ProfileDeletedEventData,
+  type ProfileDeletedEventListener,
+  type ProfileDeselectedEventData,
+  type ProfileDeselectedEventListener,
+  type ProfileSelectedEventData,
+  type ProfileSelectedEventListener,
+} from '@/back-end/core/events/profile.event';
+import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
+import type { ItemType, ProfileId } from '@/back-end/core/db/db.types';
+import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup.event';
 
-// @injectableSingleton(SocketOpenEventToken)
-// export class InventoryService implements SocketOpenEventListener {
-//   public constructor(private readonly socketHub: SocketHub, private readonly inventoryCache: InventoryCache) {}
+@injectableSingleton(
+  ProfileSelectedEventToken,
+  ProfileDeselectedEventToken,
+  ProfileDeletedEventToken,
+  CleanupEventToken,
+)
+export class InventoryService
+  implements
+    ProfileSelectedEventListener,
+    ProfileDeselectedEventListener,
+    ProfileDeletedEventListener,
+    CleanupEventListener
+{
+  private readonly dirtyProfiles = new Map<ProfileId, { shouldRemove: boolean }>();
 
-//   public onSocketOpen(socketId: SocketId): void | Promise<void> {
-//     const socket = this.socketHub.getSocket(socketId)!;
-//     socket.on('Inventory/GetInventory', this.handleGetInventory.bind(this));
-//     socket.on('Inventory/SwapItems', this.handleSwapItems.bind(this));
-//   }
+  public constructor(
+    @injectDB() private readonly db: Database,
+    private readonly inventoryCache: InventoryCache,
+    private readonly inventoryRepo: InventoryRepository,
+  ) {}
 
-//   private getDto(inventory: ItemType[]): ItemDto[] {
-//     return inventory.map((i) => ({
-//       ...i,
-//     }));
-//   }
+  public async getByProfileId(profileId: ProfileId) {
+    try {
+      const cache = this.inventoryCache.getByProfileId(profileId);
+      if (cache) return cache;
 
-//   private async handleGetInventory(socket: ServerSocket, {}: ServerData<'Inventory/GetInventory'>) {
-//     const profileId = this.socketHub.getProfileId(socket.id);
-//     if (!profileId) return socket.error(ErrorType.RequiresProfile);
+      const inventory = await this.inventoryRepo.getByProfileId(profileId);
+      if (inventory) {
+        this.inventoryCache.storeInventory(profileId, inventory);
+      }
+      return inventory;
+    } catch (error) {
+      console.error(`Failed to get inventory for user ${profileId}`, error);
+      return [];
+    }
+  }
 
-//     const inventory = await this.inventoryCache.getByProfileId(profileId);
-//     socket.send('Inventory/UpdateInventory', { items: this.getDto(inventory) });
-//   }
+  public update(profileId: ProfileId, inventory: ItemType[]) {
+    try {
+      this.inventoryCache.storeInventory(profileId, inventory);
+      if (!this.dirtyProfiles.has(profileId)) this.dirtyProfiles.set(profileId, { shouldRemove: false });
+    } catch (error) {
+      console.error(`Failed marking inventory as dirty ${profileId}`);
+    }
+  }
 
-//   private async handleSwapItems(socket: ServerSocket, { index1, index2 }: ServerData<'Inventory/SwapItems'>) {
-//     const profileId = this.socketHub.getProfileId(socket.id);
-//     if (!profileId) return socket.error(ErrorType.RequiresProfile);
+  public async onProfileSelected({ profileId }: ProfileSelectedEventData): Promise<void> {
+    try {
+      if (this.inventoryCache.hasInventory(profileId)) return;
+      const inventory = await this.inventoryRepo.getByProfileId(profileId);
+      this.inventoryCache.storeInventory(profileId, inventory);
+    } catch (error) {
+      console.error(`Failed warming up inventory cache on profile select ${profileId}`, error);
+    }
+  }
+  public onProfileDeselected({ profileId }: ProfileDeselectedEventData): void | Promise<void> {
+    try {
+      this.dirtyProfiles.set(profileId, { shouldRemove: true });
+    } catch (error) {
+      console.error(`Failed invalidating cache on profile deselect ${profileId}`, error);
+    }
+  }
 
-//     const inventory = await this.inventoryCache.getByProfileId(profileId);
-//     if (index1 < 0 || index1 >= inventory.length || index2 < 0 || index2 >= inventory.length)
-//       return socket.error(ErrorType.ArgumentOutOfRange);
+  public async onProfileDeleted({ profileId }: ProfileDeletedEventData): Promise<void> {
+    try {
+      await this.db.transaction(async (tx) => this.inventoryRepo.deleteItems(profileId, tx));
+    } catch (error) {
+      console.error(`Failed deleting profile ${profileId}`, error);
+    }
+  }
 
-//     // temporary value of -1 so we maintain uniqueness.
-//     [inventory[index1], inventory[index2]] = [inventory[index2], inventory[index1]];
-//     this.inventoryCache.save(profileId, inventory);
+  public async cleanup(): Promise<void> {
+    const profilesToFlush = Array.from(this.dirtyProfiles);
+    this.dirtyProfiles.clear();
+    const shouldRemove: ProfileId[] = [];
+    try {
+      await this.db.transaction(async (tx) => {
+        for (const [profileId, options] of profilesToFlush) {
+          const inventory = this.inventoryCache.getByProfileId(profileId);
+          if (inventory) await this.inventoryRepo.updateItems(profileId, inventory, tx);
+          if (options.shouldRemove) shouldRemove.push(profileId);
+        }
+      });
 
-//     this.socketHub.broadcastToProfile(profileId, 'Inventory/UpdateInventory', { items: this.getDto(inventory) });
-//   }
-// }
+      shouldRemove.forEach(this.inventoryCache.invalidateInventory);
+    } catch (error) {
+      console.error(`Failed saving inventories`, error);
+      profilesToFlush.forEach(([pId, o]) => this.dirtyProfiles.set(pId, o));
+    }
+  }
+}

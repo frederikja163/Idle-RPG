@@ -1,5 +1,5 @@
 import { eq, inArray, sql } from 'drizzle-orm';
-import type { OmitAutoFields, UserType } from '@/back-end/core/db/db.types';
+import type { OmitAutoFields, UserId, UserType } from '@/back-end/core/db/db.types';
 import { users } from '@/back-end/core/db/schema/schema.users';
 import { injectDB, type Database, type Transaction } from '@/back-end/core/db/db';
 import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
@@ -23,7 +23,7 @@ export class UserRepository {
     return user;
   }
 
-  public async findById(userId: number): Promise<UserType | null> {
+  public async findById(userId: UserId): Promise<UserType | null> {
     try {
       const [user] = await this.db.select().from(users).where(eq(users.id, userId)).limit(1);
       return user ?? null;
@@ -43,7 +43,7 @@ export class UserRepository {
     }
   }
 
-  public async update(userId: number, data: Partial<OmitAutoFields<UserType>>, tx: Transaction) {
+  public async update(userId: UserId, data: Partial<OmitAutoFields<UserType>>, tx: Transaction) {
     await tx
       .update(users)
       .set({ ...data, lastLogin: sql`CURRENT_TIMESTAMP` })
@@ -51,7 +51,7 @@ export class UserRepository {
       .returning();
   }
 
-  public async updateTimes(userIds: number[], tx: Transaction) {
+  public async updateTimes(userIds: UserId[], tx: Transaction) {
     await tx
       .update(users)
       .set({
@@ -60,7 +60,7 @@ export class UserRepository {
       .where(inArray(users.id, userIds));
   }
 
-  public async delete(userId: number, tx: Transaction) {
+  public async delete(userId: UserId, tx: Transaction) {
     await tx.delete(users).where(eq(users.id, userId));
   }
 }

@@ -1,13 +1,13 @@
 import { relations } from 'drizzle-orm';
-import { foreignKey, int, primaryKey, sqliteTable } from 'drizzle-orm/sqlite-core';
+import { foreignKey, text, primaryKey, sqliteTable } from 'drizzle-orm/sqlite-core';
 import { users } from './schema.users';
 import { profiles } from './schema.profiles';
 
 export const userProfiles = sqliteTable(
   'user_profile_relation',
   {
-    userId: int('user_id', { mode: 'number' }).references(() => users.id),
-    profileId: int('profile_id', { mode: 'number' }).references(() => profiles.id),
+    userId: text('user_id').references(() => users.id),
+    profileId: text('profile_id').references(() => profiles.id),
   },
   (table) => [
     primaryKey({ name: 'idx', columns: [table.userId, table.profileId] }),

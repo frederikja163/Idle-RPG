@@ -4,7 +4,7 @@ import { profiles } from '@/back-end/core/db/schema/schema.profiles';
 import { userProfiles } from '@/back-end/core/db/schema/schema.userprofiles';
 import { users } from '@/back-end/core/db/schema/schema.users';
 import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
-import { count, eq, inArray, sql } from 'drizzle-orm';
+import { and, count, eq, inArray, sql } from 'drizzle-orm';
 
 @injectableSingleton()
 export class ProfileRepository {
@@ -12,7 +12,7 @@ export class ProfileRepository {
 
   public async create(userId: UserId, data: OmitAutoFields<ProfileType>, tx: Transaction): Promise<ProfileType | null> {
     const [profile] = await tx.insert(profiles).values(data).onConflictDoNothing({ target: profiles.name }).returning();
-    if (!profile) throw new Error('Failed to created profile.');
+    if (!profile) return null;
     await tx.insert(userProfiles).values({ userId: userId, profileId: profile.id });
     return profile;
   }
@@ -21,9 +21,8 @@ export class ProfileRepository {
     return (
       await this.db
         .select()
-        .from(users)
-        .where(eq(users.id, userId))
-        .innerJoin(userProfiles, eq(users.id, userProfiles.userId))
+        .from(userProfiles)
+        .where(eq(userProfiles.userId, userId))
         .innerJoin(profiles, eq(userProfiles.profileId, profiles.id))
         .orderBy(profiles.id)
     ).map((r) => r.profiles);
@@ -34,14 +33,12 @@ export class ProfileRepository {
     return profile;
   }
 
-  public async findUsersForProfile(profileId: ProfileId) {
-    return (
-      await this.db
-        .select({ id: userProfiles.userId })
-        .from(profiles)
-        .where(eq(profiles.id, profileId))
-        .innerJoin(userProfiles, eq(profiles.id, userProfiles.profileId))
-    ).map((r) => r.id);
+  public async userHasAccess(profileId: ProfileId, userId: UserId) {
+    return await this.db
+      .select({})
+      .from(userProfiles)
+      .where(and(eq(userProfiles.profileId, profileId), eq(userProfiles.userId, userId)))
+      .limit(1);
   }
 
   public async update(profileId: ProfileId, data: Partial<OmitAutoFields<ProfileType>>, tx: Transaction) {

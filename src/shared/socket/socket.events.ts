@@ -18,19 +18,25 @@ export enum ErrorType {
 }
 
 export const profileDto = Type.Object({
+  id: Type.String(),
   name: Type.String(),
+  firstLogin: Type.Date(),
+  lastLogin: Type.Date(),
 });
 export type ProfileDto = Static<typeof profileDto>;
 
 export const itemDto = Type.Object({
+  profileId: Type.String(),
   itemId: Type.String(),
   count: Type.Number(),
+  index: Type.Number(),
 });
 export type ItemDto = Static<typeof itemDto>;
 export const inventoryDto = Type.Array(itemDto);
 export type InventoryDto = Static<typeof inventoryDto>;
 
 export const skillDto = Type.Object({
+  profileId: Type.String(),
   skillId: Type.String(),
   level: Type.Number(),
   xp: Type.Number(),
@@ -50,12 +56,12 @@ export const clientServerEvent = Type.Union([
   // Profiles/UpdateProfiles
   // Error: RequiresLogin, NameTaken
   event('Profile/CreateProfile', { name: Type.String() }),
-  // Profiles/UpdateProfiles
-  // Error: RequiresLogin, ProfileInUse, ArgumentOutOfRange
-  event('Profile/DeleteProfile', { index: Type.Number() }),
   // Profiles/SelectProfileSuccess
   // Error: RequiresLogin, ArgumentOutOfRange
   event('Profile/SelectProfile', { index: Type.Number() }),
+  // Profiles/UpdateProfiles
+  // Error: RequiresLogin, ProfileInUse, ArgumentOutOfRange
+  event('Profile/DeleteProfile', { index: Type.Number() }),
   // Inventory/UpdateInventory
   // Error: RequiresProfile
   event('Inventory/GetInventory', {}),

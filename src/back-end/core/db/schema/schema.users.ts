@@ -5,7 +5,7 @@ import { userProfiles } from './schema.userprofiles';
 export const users = sqliteTable(
   'users',
   {
-    id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+    id: text('id').primaryKey().$defaultFn(crypto.randomUUID.bind(crypto)),
     googleId: text('google_id').notNull().unique(),
     email: text('email').notNull().unique(),
     profilePicture: text('profile_picture').notNull(),

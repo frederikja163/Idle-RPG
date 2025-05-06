@@ -5,7 +5,7 @@ import { profiles } from './schema.profiles';
 export const skills = sqliteTable(
   'skills',
   {
-    profileId: int('profile_id', { mode: 'number' }).notNull(),
+    profileId: text('profile_id').notNull(),
     skillId: text('skill_id').notNull(),
     xp: int('xp', { mode: 'number' }).notNull().default(0),
     level: int('level', { mode: 'number' }).notNull().default(0),

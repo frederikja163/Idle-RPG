@@ -1,6 +1,5 @@
-import { container, injectAll } from 'tsyringe';
-import { CleanupEventToken, type CleanupEventListener } from './cleanup.event';
-import { injectableSingleton } from '../lib/lib.tsyringe';
+import { CleanupEventToken } from './cleanup.event';
+import { injectableSingleton, resolveAll } from '../lib/lib.tsyringe';
 
 @injectableSingleton()
 export class CleanupEventDispatcher {
@@ -13,12 +12,9 @@ export class CleanupEventDispatcher {
   }
 
   private async cleanup() {
-    const listeners = container.resolveAll<CleanupEventListener>(CleanupEventToken).filter((l) => l.cleanup);
-    const results = await Promise.allSettled(listeners.map((c) => c.cleanup()));
-    for (const result of results) {
-      if (result.status === 'rejected') {
-        console.error('Cache cleanup failed: ', result.reason);
-      }
+    const listeners = resolveAll(CleanupEventToken).filter((l) => l.cleanup);
+    for (const listener of listeners) {
+      await listener.cleanup();
     }
   }
 }

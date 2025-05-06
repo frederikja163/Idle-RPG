@@ -12,3 +12,7 @@ export function injectableSingleton<T>(...tokens: InjectionToken<any>[]): (targe
     }
   };
 }
+
+export function resolveAll<T>(token: InjectionToken<T>) {
+  return container.isRegistered(token) ? container.resolveAll(token) : [];
+}

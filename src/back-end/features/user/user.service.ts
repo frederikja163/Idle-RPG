@@ -3,10 +3,18 @@ import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
 import { UserRepository } from './user.repository';
 import type { UserId } from '@/back-end/core/db/db.types';
 import { UserCache } from './user.cache';
+import {
+  UserLoginEventToken,
+  UserLogoutEventToken,
+  type UserLoginEventData,
+  type UserLoginEventListener,
+  type UserLogoutEventData,
+  type UserLogoutEventListener,
+} from '@/back-end/core/events/user.event';
 import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup.event';
 
-@injectableSingleton(CleanupEventToken)
-export class UserService implements CleanupEventListener {
+@injectableSingleton(UserLoginEventToken, UserLogoutEventToken, CleanupEventToken)
+export class UserService implements UserLoginEventListener, UserLogoutEventListener, CleanupEventListener {
   public constructor(
     @injectDB() private readonly db: Database,
     private readonly userRepo: UserRepository,
@@ -15,9 +23,13 @@ export class UserService implements CleanupEventListener {
 
   public async getByUserId(userId: UserId) {
     try {
-      const user = this.userCache.getByUserId(userId);
-      if (user) return user;
-      return await this.userRepo.findById(userId);
+      const cache = this.userCache.getByUserId(userId);
+      if (cache) return cache;
+
+      const user = await this.userRepo.findById(userId);
+      if (user) {
+        this.userCache.storeUser(user);
+      }
     } catch (error) {
       console.error(`Failed to find user by id ${userId}`, error);
     }
@@ -49,15 +61,32 @@ export class UserService implements CleanupEventListener {
     }
   }
 
+  public async onUserLoggedIn({ userId }: UserLoginEventData): Promise<void> {
+    try {
+      const user = await this.userRepo.findById(userId);
+      if (user) this.userCache.storeUser(user);
+    } catch (error) {
+      console.error(`Failed warming up cache for user ${userId}`, error);
+    }
+  }
+  public async onUserLoggedOut({ userId }: UserLogoutEventData): Promise<void> {
+    try {
+      const user = this.userCache.getByUserId(userId);
+      if (user) {
+        await this.db.transaction(async (tx) => this.userRepo.update(userId, user, tx));
+        this.userCache.invalidateUser(userId);
+      }
+    } catch (error) {
+      console.error(`Failed invalidating cache for user ${userId}`, error);
+    }
+  }
+
   public async cleanup(): Promise<void> {
     try {
-      const userIds = this.userCache
-        .getAllUsers()
-        .map((u) => u.id)
-        .toArray();
+      const userIds = this.userCache.getUserIds().toArray();
       await this.db.transaction(async (tx) => await this.userRepo.updateTimes(userIds, tx));
     } catch (error) {
-      console.error(`Failed saving users.`, error);
+      console.error(`Failed updating times for all users`, error);
     }
   }
 }
