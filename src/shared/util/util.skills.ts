@@ -6,3 +6,4 @@ export const xpAccum: number[] = [0, xpToReachNext(1)];
 for (let index = 2; index <= 100; index++) {
   xpAccum.push(xpAccum.at(-1)! + xpToReachNext(index));
 }
+

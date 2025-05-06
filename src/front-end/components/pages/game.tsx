@@ -1,10 +1,13 @@
 ﻿import React, {type FC} from 'react';
-import {Inventory} from '@/front-end/components/game/inventory.tsx';
+import {Inventory} from '@/front-end/components/game/inventory/inventory.tsx';
+import {SkillsPane} from '@/front-end/components/game/skills/skills-pane.tsx';
+import {Column} from '@/front-end/components/layout/column.tsx';
 
 export const Game: FC = React.memo(() => {
   return (
-    <div className="m-6">
+    <Column className="m-6 gap-6">
       <Inventory/>
-    </div>
+      <SkillsPane/>
+    </Column>
   );
 });
