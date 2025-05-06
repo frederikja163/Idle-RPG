@@ -1,7 +1,7 @@
-import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
-import { ProfileCache } from './profile.cache';
-import { ProfileRepository } from './profile.repository';
-import { ProfileEventDispatcher } from '@/back-end/core/events/profile.dispatcher';
+import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
+import { ProfileCache } from './profile-cache';
+import { ProfileRepository } from './profile-repository';
+import { ProfileEventDispatcher } from '@/back-end/core/events/profile-dispatcher';
 import type { OmitAutoFields, ProfileId, ProfileType, UserId } from '@/back-end/core/db/db.types';
 import { injectDB, type Database } from '@/back-end/core/db/db';
 import {
@@ -11,8 +11,8 @@ import {
   type ProfileDeselectedEventListener,
   type ProfileSelectedEventData,
   type ProfileSelectedEventListener,
-} from '@/back-end/core/events/profile.event';
-import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup.event';
+} from '@/back-end/core/events/profile-event';
+import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup-event';
 
 @injectableSingleton(ProfileSelectedEventToken, ProfileDeselectedEventToken, CleanupEventToken)
 export class ProfileService

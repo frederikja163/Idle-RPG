@@ -1,9 +1,9 @@
 import { drizzle } from 'drizzle-orm/libsql';
-import { items } from './schema/schema.items';
-import { profiles } from './schema/schema.profiles';
-import { skills } from './schema/schema.skills';
-import { userProfileRelations } from './schema/schema.userprofiles';
-import { users } from './schema/schema.users';
+import { items } from './schema/schema-items';
+import { profiles } from './schema/schema-profiles';
+import { skills } from './schema/schema-skills';
+import { userProfileRelations } from './schema/schema-userprofiles';
+import { users } from './schema/schema-users';
 import { container, inject } from 'tsyringe';
 import type { SQLiteTableWithColumns, SQLiteTransaction } from 'drizzle-orm/sqlite-core';
 

@@ -1,14 +1,13 @@
 import { relations, sql } from 'drizzle-orm';
 import { int, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
-import { userProfiles } from './schema.userprofiles';
+import { userProfiles } from './schema-userprofiles';
+import { items } from './schema-items';
 
-export const users = sqliteTable(
-  'users',
+export const profiles = sqliteTable(
+  'profiles',
   {
     id: text('id').primaryKey().$defaultFn(crypto.randomUUID.bind(crypto)),
-    googleId: text('google_id').notNull().unique(),
-    email: text('email').notNull().unique(),
-    profilePicture: text('profile_picture').notNull(),
+    name: text('name').notNull().unique(),
     firstLogin: int('first_login', { mode: 'timestamp_ms' })
       .notNull()
       .default(sql`(current_timestamp)`),
@@ -16,9 +15,10 @@ export const users = sqliteTable(
       .notNull()
       .default(sql`(current_timestamp)`),
   },
-  (table) => [uniqueIndex('google_idx').on(table.googleId), uniqueIndex('email__idx').on(table.email)],
+  (table) => [uniqueIndex('name_idx').on(table.name)],
 );
 
-export const userRelations = relations(users, ({ many }) => ({
+export const profileRelations = relations(profiles, ({ many }) => ({
   userProfileRelation: many(userProfiles),
+  inventoryRelation: many(items),
 }));

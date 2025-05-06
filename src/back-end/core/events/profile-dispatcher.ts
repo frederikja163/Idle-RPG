@@ -7,8 +7,8 @@ import {
   type ProfileDeletedEventData,
   type ProfileDeselectedEventData,
   type ProfileSelectedEventData,
-} from './profile.event';
-import { injectableSingleton, resolveAll } from '../lib/lib.tsyringe';
+} from './profile-event';
+import { injectableSingleton, resolveAll } from '../lib/lib-tsyringe';
 
 @injectableSingleton()
 export class ProfileEventDispatcher {

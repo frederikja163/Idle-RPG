@@ -1,19 +1,19 @@
 import { ErrorType } from '@/shared/socket/socket.events';
 import { OAuth2Client } from 'google-auth-library';
-import type { ServerSocket } from '@/back-end/core/server/sockets/server.socket';
-import type { ServerData } from '@/back-end/core/server/sockets/socket.types';
+import type { ServerSocket } from '@/back-end/core/server/sockets/server-socket.ts';
+import type { ServerData } from '@/back-end/core/server/sockets/socket-types.ts';
 import {
   SocketOpenEventToken,
   type SocketOpenEventData,
   type SocketOpenEventListener,
-} from '@/back-end/core/events/socket.event';
-import { UserEventDispatcher } from '@/back-end/core/events/user.dispatcher';
-import { SocketHub } from '@/back-end/core/server/sockets/socket.hub';
-import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
-import { UserService } from '../user/user.service.ts';
+} from '@/back-end/core/events/socket-event.ts';
+import { UserEventDispatcher } from '@/back-end/core/events/user-dispatcher.ts';
+import { SocketHub } from '@/back-end/core/server/sockets/socket-hub.ts';
+import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe.ts';
+import { UserService } from '../user/user-service.ts';
 
 @injectableSingleton(SocketOpenEventToken)
-export class AuthGoogleSocketHandler implements SocketOpenEventListener {
+export class AuthGoogleController implements SocketOpenEventListener {
   private readonly _googleOauthClient = new OAuth2Client(
     '758890044013-qq2amlba21ic2fb7drsjavpa16mmkons.apps.googleusercontent.com',
   );

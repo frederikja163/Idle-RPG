@@ -1,8 +1,8 @@
 import { injectDB, type Database } from '@/back-end/core/db/db';
-import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
-import { UserRepository } from './user.repository';
+import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
+import { UserRepository } from './user-repository';
 import type { UserId } from '@/back-end/core/db/db.types';
-import { UserCache } from './user.cache';
+import { UserCache } from './user-cache';
 import {
   UserLoginEventToken,
   UserLogoutEventToken,
@@ -10,8 +10,8 @@ import {
   type UserLoginEventListener,
   type UserLogoutEventData,
   type UserLogoutEventListener,
-} from '@/back-end/core/events/user.event';
-import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup.event';
+} from '@/back-end/core/events/user-event';
+import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup-event';
 
 @injectableSingleton(UserLoginEventToken, UserLogoutEventToken, CleanupEventToken)
 export class UserService implements UserLoginEventListener, UserLogoutEventListener, CleanupEventListener {

@@ -1,8 +1,8 @@
 import { injectDB, type Database, type Transaction } from '@/back-end/core/db/db';
 import type { ItemType, ProfileId } from '@/back-end/core/db/db.types';
-import { items } from '@/back-end/core/db/schema/schema.items';
+import { items } from '@/back-end/core/db/schema/schema-items';
 import { eq } from 'drizzle-orm';
-import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
+import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 
 @injectableSingleton()
 export class InventoryRepository {

@@ -1,10 +1,10 @@
 import index from '@/front-end/index.html';
 import { file, serve, type ServerWebSocket } from 'bun';
-import { ServerSocket } from './sockets/server.socket';
-import { SocketEventDispatcher } from '../events/socket.dispatcher';
-import { SocketRegistry } from './sockets/socket.registry';
-import type { SocketId } from './sockets/socket.types';
-import { injectableSingleton } from '../lib/lib.tsyringe';
+import { ServerSocket } from './sockets/server-socket';
+import { SocketEventDispatcher } from '../events/socket-dispatcher';
+import { SocketRegistry } from './sockets/socket-registry';
+import type { SocketId } from './sockets/socket-types';
+import { injectableSingleton } from '../lib/lib-tsyringe';
 
 const forbiddenPathStrings = ['\\', '..', ':'];
 

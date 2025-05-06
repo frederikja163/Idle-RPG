@@ -23,5 +23,5 @@
   "include": [
     "**/*.ts",
     "**/*.tsx"
-, "src/back-end/features/user/user.cache.ts"  ]
+, "src/back-end/features/user/user-cache.ts"  ]
 }

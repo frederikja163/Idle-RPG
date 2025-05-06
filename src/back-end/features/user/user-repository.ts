@@ -1,8 +1,8 @@
 import { eq, inArray, sql } from 'drizzle-orm';
 import type { OmitAutoFields, UserId, UserType } from '@/back-end/core/db/db.types';
-import { users } from '@/back-end/core/db/schema/schema.users';
+import { users } from '@/back-end/core/db/schema/schema-users';
 import { injectDB, type Database, type Transaction } from '@/back-end/core/db/db';
-import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
+import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 
 @injectableSingleton()
 export class UserRepository {

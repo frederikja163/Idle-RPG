@@ -1,6 +1,6 @@
 import { injectDB, type Database } from '@/back-end/core/db/db';
-import { InventoryCache } from './inventory.cache';
-import { InventoryRepository } from './inventory.repository';
+import { InventoryCache } from './inventory-cache';
+import { InventoryRepository } from './inventory-repository';
 import {
   ProfileDeletedEventToken,
   ProfileDeselectedEventToken,
@@ -11,10 +11,10 @@ import {
   type ProfileDeselectedEventListener,
   type ProfileSelectedEventData,
   type ProfileSelectedEventListener,
-} from '@/back-end/core/events/profile.event';
-import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
+} from '@/back-end/core/events/profile-event';
+import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 import type { ItemType, ProfileId } from '@/back-end/core/db/db.types';
-import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup.event';
+import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup-event';
 
 @injectableSingleton(
   ProfileSelectedEventToken,

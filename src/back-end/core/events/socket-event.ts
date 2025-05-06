@@ -1,5 +1,5 @@
 import type { InjectionToken } from 'tsyringe';
-import type { SocketId } from '../server/sockets/socket.types';
+import type { SocketId } from '../server/sockets/socket-types';
 
 export type SocketOpenEventData = { socketId: SocketId };
 export interface SocketOpenEventListener {

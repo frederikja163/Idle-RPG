@@ -1,9 +1,9 @@
-import { SocketRegistry } from './socket.registry';
-import { SocketSessionStore } from './socket.session.store';
-import type { ClientEvent, SocketId } from './socket.types';
+import { SocketRegistry } from './socket-registry';
+import { SocketSessionStore } from './socket-session-store';
+import type { ClientEvent, SocketId } from './socket-types';
 import type { ProfileId, UserId } from '../../db/db.types';
 import type { ServerClientEvent } from '@/shared/socket/socket.events';
-import { injectableSingleton } from '../../lib/lib.tsyringe';
+import { injectableSingleton } from '../../lib/lib-tsyringe';
 import type { DataType } from '@/shared/socket/socket';
 
 @injectableSingleton()

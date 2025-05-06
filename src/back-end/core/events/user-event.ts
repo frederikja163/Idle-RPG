@@ -1,6 +1,6 @@
 import type { InjectionToken } from 'tsyringe';
 import type { UserId } from '../db/db.types';
-import type { SocketId } from '../server/sockets/socket.types';
+import type { SocketId } from '../server/sockets/socket-types';
 
 export type UserLoginEventData = { userId: UserId };
 export interface UserLoginEventListener {

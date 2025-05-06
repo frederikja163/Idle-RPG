@@ -1,9 +1,9 @@
 import { injectDB, type Database, type Transaction } from '@/back-end/core/db/db';
 import type { OmitAutoFields, ProfileId, ProfileType, UserId } from '@/back-end/core/db/db.types';
-import { profiles } from '@/back-end/core/db/schema/schema.profiles';
-import { userProfiles } from '@/back-end/core/db/schema/schema.userprofiles';
-import { users } from '@/back-end/core/db/schema/schema.users';
-import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
+import { profiles } from '@/back-end/core/db/schema/schema-profiles';
+import { userProfiles } from '@/back-end/core/db/schema/schema-userprofiles';
+import { users } from '@/back-end/core/db/schema/schema-users';
+import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 import { and, count, eq, inArray, sql } from 'drizzle-orm';
 
 @injectableSingleton()

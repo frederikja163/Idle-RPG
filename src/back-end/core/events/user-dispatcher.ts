@@ -4,8 +4,8 @@ import {
   type UserLoginEventData,
   type UserLogoutEventData,
   type UserLogoutEventListener,
-} from './user.event';
-import { injectableSingleton, resolveAll } from '../lib/lib.tsyringe';
+} from './user-event';
+import { injectableSingleton, resolveAll } from '../lib/lib-tsyringe';
 
 @injectableSingleton()
 export class UserEventDispatcher {

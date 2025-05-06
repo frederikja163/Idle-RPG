@@ -1,16 +1,16 @@
 import type { ProfileType } from '@/back-end/core/db/db.types';
-import { ServerSocket } from '@/back-end/core/server/sockets/server.socket';
-import type { ServerData } from '@/back-end/core/server/sockets/socket.types';
+import { ServerSocket } from '@/back-end/core/server/sockets/server-socket';
+import type { ServerData } from '@/back-end/core/server/sockets/socket-types';
 import { type ProfileDto, ErrorType } from '@/shared/socket/socket.events';
-import { ProfileEventDispatcher } from '@/back-end/core/events/profile.dispatcher';
+import { ProfileEventDispatcher } from '@/back-end/core/events/profile-dispatcher';
 import {
   SocketOpenEventToken,
   type SocketOpenEventData,
   type SocketOpenEventListener,
-} from '@/back-end/core/events/socket.event';
-import { SocketHub } from '@/back-end/core/server/sockets/socket.hub';
-import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
-import { ProfileService } from './profile.service';
+} from '@/back-end/core/events/socket-event';
+import { SocketHub } from '@/back-end/core/server/sockets/socket-hub';
+import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
+import { ProfileService } from './profile-service';
 
 @injectableSingleton(SocketOpenEventToken)
 export class ProfileController implements SocketOpenEventListener {

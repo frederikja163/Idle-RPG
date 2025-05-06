@@ -1,5 +1,5 @@
 import type { UserId, UserType } from '@/back-end/core/db/db.types';
-import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
+import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 
 @injectableSingleton()
 export class UserCache {

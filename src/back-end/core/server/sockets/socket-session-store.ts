@@ -1,6 +1,6 @@
-import type { SocketId } from './socket.types';
+import type { SocketId } from './socket-types';
 import type { ProfileId, UserId } from '../../db/db.types';
-import { injectableSingleton } from '../../lib/lib.tsyringe';
+import { injectableSingleton } from '../../lib/lib-tsyringe';
 import {
   SocketCloseEventToken,
   SocketOpenEventToken,
@@ -8,7 +8,7 @@ import {
   type SocketCloseEventListener,
   type SocketOpenEventData,
   type SocketOpenEventListener,
-} from '../../events/socket.event';
+} from '../../events/socket-event';
 import { Lookup } from '@/shared/lib/lookup';
 
 @injectableSingleton(SocketOpenEventToken, SocketCloseEventToken)

@@ -3,8 +3,8 @@ import {
   SocketOpenEventToken,
   type SocketCloseEventData,
   type SocketOpenEventData,
-} from './socket.event';
-import { injectableSingleton, resolveAll } from '../lib/lib.tsyringe';
+} from './socket-event';
+import { injectableSingleton, resolveAll } from '../lib/lib-tsyringe';
 
 @injectableSingleton()
 export class SocketEventDispatcher {

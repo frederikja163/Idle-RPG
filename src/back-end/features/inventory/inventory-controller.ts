@@ -1,15 +1,15 @@
-import type { ServerSocket } from '@/back-end/core/server/sockets/server.socket';
-import type { ServerData } from '@/back-end/core/server/sockets/socket.types';
+import type { ServerSocket } from '@/back-end/core/server/sockets/server-socket';
+import type { ServerData } from '@/back-end/core/server/sockets/socket-types';
 import { ErrorType, type ItemDto } from '@/shared/socket/socket.events';
 import type { ItemType } from '@/back-end/core/db/db.types';
-import { SocketHub } from '@/back-end/core/server/sockets/socket.hub';
+import { SocketHub } from '@/back-end/core/server/sockets/socket-hub';
 import {
   SocketOpenEventToken,
   type SocketOpenEventData,
   type SocketOpenEventListener,
-} from '@/back-end/core/events/socket.event';
-import { injectableSingleton } from '@/back-end/core/lib/lib.tsyringe';
-import { InventoryService } from './inventory.service';
+} from '@/back-end/core/events/socket-event';
+import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
+import { InventoryService } from './inventory-service';
 
 @injectableSingleton(SocketOpenEventToken)
 export class InventoryController implements SocketOpenEventListener {
