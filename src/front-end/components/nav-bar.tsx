@@ -1,16 +1,16 @@
-import { useCallback } from 'react';
-import { Button } from './ui/button.tsx';
-import { useAuth } from '@/front-end/state/auth-provider.tsx';
-import { Row } from '@/front-end/components/layout/row.tsx';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { useNavigate } from 'react-router-dom';
-import { routes } from '@/front-end/router/routes.ts';
-import { useSocket } from '@/front-end/state/socket-provider.tsx';
+import {useCallback} from 'react';
+import {Button} from './ui/button.tsx';
+import {useAuth} from '@/front-end/state/auth-provider.tsx';
+import {Row} from '@/front-end/components/layout/row.tsx';
+import {Typography} from '@/front-end/components/ui/typography.tsx';
+import {useNavigate} from 'react-router-dom';
+import {routes} from '@/front-end/router/routes.ts';
+import {useSocket} from '@/front-end/state/socket-provider.tsx';
 
 export function NavBar() {
   const socket = useSocket();
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
+  const {isLoggedIn} = useAuth();
 
   const navigateToTest = useCallback(() => {
     navigate(routes.test);

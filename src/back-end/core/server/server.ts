@@ -1,10 +1,9 @@
-import index from '@/front-end/index.html';
-import { file, serve, type ServerWebSocket } from 'bun';
-import { ServerSocket } from './server.socket';
-import { SocketEventDispatcher } from '../events/socket.dispatcher';
-import { SocketRegistry } from './sockets/socket.registry';
-import type { SocketId } from './sockets/sockets.types';
-import { injectableSingleton } from '../lib/lib.tsyringe';
+import {file, serve, type ServerWebSocket} from 'bun';
+import {ServerSocket} from './server.socket';
+import {SocketEventDispatcher} from '../events/socket.dispatcher';
+import {SocketRegistry} from './sockets/socket.registry';
+import type {SocketId} from './sockets/sockets.types';
+import {injectableSingleton} from '../lib/lib.tsyringe';
 
 const forbiddenPathStrings = ['\\', '..', ':'];
 
@@ -16,7 +15,8 @@ export class Server {
   constructor(
     private readonly socketRegistry: SocketRegistry,
     private readonly socketDispatcher: SocketEventDispatcher,
-  ) {}
+  ) {
+  }
 
   public start() {
     if (this.server) this.server.stop();
@@ -25,7 +25,7 @@ export class Server {
       port: process.env.PORT,
       routes: {
         '/assets/*.svg': this.hostAssets.bind(this),
-        '/*': index,
+        // '/*': index,
       },
       fetch: this.fetch,
       websocket: {
@@ -49,18 +49,18 @@ export class Server {
 
     for (const str of forbiddenPathStrings) {
       if (fileName.includes(str)) {
-        return new Response('Bad request', { status: 400 });
+        return new Response('Bad request', {status: 400});
       }
     }
 
-    return new Response(file(path), { headers: { 'Content-Type': 'image/svg+xml' } });
+    return new Response(file(path), {headers: {'Content-Type': 'image/svg+xml'}});
   }
 
   private fetch(request: Request, server: Bun.Server) {
     if (server.upgrade(request)) {
       return;
     }
-    return new Response('Failed to upgrade websocket', { status: 400 });
+    return new Response('Failed to upgrade websocket', {status: 400});
   }
 
   private socketOpen(ws: ServerWebSocket) {
