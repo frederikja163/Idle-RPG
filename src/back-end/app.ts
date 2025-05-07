@@ -3,8 +3,8 @@ import './container';
 import { container } from 'tsyringe';
 import { Server } from './core/server/server';
 import { Socket } from '@/shared/socket/socket';
-import { CleanupEventDispatcher } from './core/events/cleanup.dispatcher';
-import { xpAccum, xpToReachNext } from '@/shared/util/util.skills';
+import { CleanupEventDispatcher } from './core/events/cleanup-dispatcher';
+import { UserEventDispatcher } from './core/events/user-dispatcher';
 
 function main() {
   const debug = process.env.NODE_ENV !== 'production';

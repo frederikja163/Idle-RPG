@@ -13,23 +13,30 @@ export enum ErrorType {
   ProfileInUse, // = "This profile is already in use, please make sure you log out on all devices before deleting a profile.",
   NameTaken, // = "A profile with this name already exists.",
   ArgumentOutOfRange, // = "Provided argument is out of range.",
-  RequiresProfile, // = "You must select a profile to do this."
+  RequiresProfile, // = "You must select a profile to do this.",
+  InsufficientLevel, // = "This activity requires a lever higher than yours.",
 }
 
 export const profileDto = Type.Object({
+  id: Type.String(),
   name: Type.String(),
+  firstLogin: Type.Date(),
+  lastLogin: Type.Date(),
 });
 export type ProfileDto = Static<typeof profileDto>;
 
 export const itemDto = Type.Object({
+  profileId: Type.String(),
   itemId: Type.String(),
   count: Type.Number(),
+  index: Type.Number(),
 });
 export type ItemDto = Static<typeof itemDto>;
 export const inventoryDto = Type.Array(itemDto);
 export type InventoryDto = Static<typeof inventoryDto>;
 
 export const skillDto = Type.Object({
+  profileId: Type.String(),
   skillId: Type.String(),
   level: Type.Number(),
   xp: Type.Number(),
@@ -37,12 +44,11 @@ export const skillDto = Type.Object({
 export const skillsDto = Type.Array(skillDto);
 
 export const clientServerEvent = Type.Union([
-  // Pong
-  event('Ping', {}),
   // Auth/LoginSuccess
   // Error: EmailNotVerified
   event('Auth/GoogleLogin', { token: Type.String() }),
   // Auth/LogoutSuccess
+  // Error: RequiresLogin
   event('Auth/Logout', {}),
   // Profiles/UpdateProfiles
   // Error: RequiresLogin
@@ -50,12 +56,12 @@ export const clientServerEvent = Type.Union([
   // Profiles/UpdateProfiles
   // Error: RequiresLogin, NameTaken
   event('Profile/CreateProfile', { name: Type.String() }),
-  // Profiles/UpdateProfiles
-  // Error: RequiresLogin, ProfileInUse, ArgumentOutOfRange
-  event('Profile/DeleteProfile', { index: Type.Number() }),
   // Profiles/SelectProfileSuccess
   // Error: RequiresLogin, ArgumentOutOfRange
   event('Profile/SelectProfile', { index: Type.Number() }),
+  // Profiles/UpdateProfiles
+  // Error: RequiresLogin, ProfileInUse, ArgumentOutOfRange
+  event('Profile/DeleteProfile', { index: Type.Number() }),
   // Inventory/UpdateInventory
   // Error: RequiresProfile
   event('Inventory/GetInventory', {}),
@@ -69,7 +75,7 @@ export const clientServerEvent = Type.Union([
   // Error: RequiresProfile
   event('Skill/GetSkills', {}),
   // Activity/ActivityStarted
-  // Error: RequiresProfile
+  // Error: RequiresProfile, InsufficientLevel
   event('Activity/StartActivity', { activityId: Type.String() }),
   // Activity/ActivityStarted
   // Error: RequiresProfile
@@ -78,7 +84,6 @@ export const clientServerEvent = Type.Union([
 export type ClientServerEvent = typeof clientServerEvent;
 
 export const serverClientEvent = Type.Union([
-  event('Pong', {}),
   event('Error', { error: Type.Enum(ErrorType) }),
   event('Auth/LoginSuccess', {}),
   event('Auth/LogoutSuccess', {}),
