@@ -1,11 +1,9 @@
-﻿import {activity} from '@/shared/definition/definition.activity.ts';
-import {skills} from '@/shared/definition/definition.skills.ts';
+﻿import { activity } from '@/shared/definition/definition.activities';
+import { skills } from '@/shared/definition/definition.skills.ts';
 
 export const activitySkillMap = new Map<string, string[]>();
 
-skills
-  .entries()
-  .forEach(([id]) => addActivitiesForSkill(id));
+skills.entries().forEach(([id]) => addActivitiesForSkill(id));
 
 function addActivitiesForSkill(skill: string) {
   const activities = activity

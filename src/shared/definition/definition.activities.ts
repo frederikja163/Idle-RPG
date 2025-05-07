@@ -23,7 +23,7 @@ function lumberjacking(name: string, time: number, xpAmount: number) {
 }
 
 function gathering(id: string, display: string, skill: string, time: number, xpAmount: number, resultId: string) {
-  activity.set(id, {type: 'gathering', id, skill, display, time, xpAmount, resultId});
+  activity.set(id, { type: 'gathering', id, skill, display, time, xpAmount, resultId });
 }
 
 export type Activity = GatheringActivity;
