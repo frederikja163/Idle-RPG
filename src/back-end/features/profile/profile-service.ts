@@ -22,7 +22,6 @@ export class ProfileService
 {
   public constructor(
     @injectDB() private readonly db: Database,
-    private readonly skillRepo: SkillRepository,
     private readonly profileCache: ProfileCache,
     private readonly profileRepo: ProfileRepository,
     private readonly profileDispatcher: ProfileEventDispatcher,
@@ -57,11 +56,7 @@ export class ProfileService
 
   public async create(userId: UserId, data: OmitAutoFields<ProfileType>) {
     try {
-      const profile = await this.db.transaction(async (tx) => {
-        const profile = await this.profileRepo.create(userId, data, tx);
-        if (profile) await this.skillRepo.create(profile.id, skills.keys().toArray(), tx);
-        return profile;
-      });
+      const profile = await this.db.transaction(async (tx) => await this.profileRepo.create(userId, data, tx));
       if (profile) this.profileDispatcher.emitProfileCreated({ userId, profile });
       return profile;
     } catch (error) {

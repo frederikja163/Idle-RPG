@@ -13,6 +13,13 @@ export class SkillRepository {
     return await this.db.select().from(skillsTable).where(eq(skillsTable.profileId, profileId));
   }
 
+  public async getSkillById(profileId: ProfileId, skillId: SkillId) {
+    return await this.db
+      .select()
+      .from(skillsTable)
+      .where(and(eq(skillsTable.profileId, profileId), eq(skillsTable.skillId, skillId)));
+  }
+
   public async create(profileId: ProfileId, skills: Partial<SkillId>[], tx: Transaction) {
     await tx.insert(skillsTable).values(skills.map((s) => ({ skillId: s, profileId })));
   }

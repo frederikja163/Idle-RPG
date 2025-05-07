@@ -14,7 +14,7 @@ function main() {
   server.start();
 
   const cleanup = container.resolve(CleanupEventDispatcher);
-  cleanup.start(debug ? 5 * 1000 : 5 * 60 * 1000);
+  cleanup.start(debug || true ? 5 * 1000 : 5 * 60 * 1000);
 }
 
 main();
