@@ -1,15 +1,15 @@
-﻿import React, { type CSSProperties, type FC, useEffect, useMemo, useState } from 'react';
-import { useSocket } from '@/front-end/state/socket-provider.tsx';
-import { Column } from '@/front-end/components/layout/column.tsx';
-import { Row } from '../layout/row';
-import { InventoryItem } from '@/front-end/components/game/inventory-item.tsx';
-import { Card } from '@/front-end/components/ui/card.tsx';
-import { InventoryTab } from '@/front-end/components/game/inventory-tab.tsx';
-import { useAtomValue } from 'jotai';
-import { selectedInventoryTabAtom } from '@/front-end/state/atoms.tsx';
-import type { ItemStack } from '@/front-end/lib/types.ts';
-import { getItemStacksFromInventory } from '@/front-end/lib/utils.ts';
-import { ItemTag } from '@/shared/definition/definition.items';
+﻿import React, {type CSSProperties, type FC, useEffect, useMemo, useState} from 'react';
+import {useSocket} from '@/front-end/state/socket-provider.tsx';
+import {Column} from '@/front-end/components/layout/column.tsx';
+import {Row} from '../../layout/row.tsx';
+import {InventoryItem} from '@/front-end/components/game/inventory/inventory-item.tsx';
+import {Card} from '@/front-end/components/ui/card.tsx';
+import {InventoryTab} from '@/front-end/components/game/inventory/inventory-tab.tsx';
+import {useAtomValue} from 'jotai';
+import {selectedInventoryTabAtom} from '@/front-end/state/atoms.tsx';
+import type {ItemStack} from '@/front-end/lib/types.ts';
+import {getItemStacksFromInventory} from '@/front-end/lib/utils.ts';
+import {ItemTag} from '@/shared/definition/definition.items.ts';
 
 export const Inventory: FC = React.memo(() => {
   const socket = useSocket();
@@ -28,17 +28,17 @@ export const Inventory: FC = React.memo(() => {
   const shownItems = useMemo(
     () =>
       itemStacks
-        ?.filter((itemStack) => itemStack.item.tags.includes(selectedTab))
-        .map((itemStack, i) => <InventoryItem key={i} itemStack={itemStack} />),
+      ?.filter((itemStack) => itemStack.item.tags.includes(selectedTab))
+      .map((itemStack, i) => <InventoryItem key={i} itemStack={itemStack}/>),
     [selectedTab, itemStacks],
   );
 
   return (
-    <Card className="bg-green-100 overflow-hidden">
+    <Card className="bg-card w-full overflow-hidden">
       <Column>
         <Row className="h-12" style={styles.itemContainer}>
-          <InventoryTab itemCategory={ItemTag.Resource} label="Items" />
-          <InventoryTab itemCategory={ItemTag.Tool} label="Tools" />
+          <InventoryTab itemCategory={ItemTag.Resource} label="Items"/>
+          <InventoryTab itemCategory={ItemTag.Tool} label="Tools"/>
         </Row>
         <Row className="gap-2 p-4 h-80 overflow-y-scroll flex-wrap">{shownItems}</Row>
       </Column>
