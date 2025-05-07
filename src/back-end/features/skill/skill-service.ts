@@ -11,7 +11,7 @@ import {
   type ProfileSelectedEventListener,
 } from '@/back-end/core/events/profile-event';
 import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup-event';
-import type { ProfileId } from '@/back-end/core/db/db.types';
+import type { ProfileId, SkillType } from '@/back-end/core/db/db.types';
 import type { SkillId } from '@/shared/definition/definition.skills';
 import { Lookup } from '@/shared/lib/lookup';
 
@@ -28,10 +28,10 @@ export class SkillService
     private readonly skillRepo: SkillRepository,
   ) {}
 
-  public async getSkillsByProfileId(profileId: ProfileId) {
+  public async getSkillsByProfileId(profileId: ProfileId): Promise<SkillType[] | undefined> {
     try {
       const cache = this.skillCache.getSkillsByProfileId(profileId);
-      if (cache) return cache;
+      if (cache) return cache.toArray();
 
       const skills = await this.skillRepo.getSkillsByProfileId(profileId);
       if (skills) {
@@ -58,6 +58,14 @@ export class SkillService
     }
   }
 
+  public update(profileId: ProfileId, skillId: SkillId) {
+    try {
+      this.dirtyProfiles.add(profileId, skillId);
+    } catch (error) {
+      console.error(`Failed making skill ${profileId} ${skillId} dirty`, error);
+    }
+  }
+
   public async onProfileSelected({ profileId }: ProfileSelectedEventData): Promise<void> {
     if (!this.skillCache.hasProfileId(profileId)) return;
     const skills = await this.skillRepo.getSkillsByProfileId(profileId);
@@ -78,7 +86,7 @@ export class SkillService
         for (const [profileId, skillId] of profileSkills) {
           const skill = this.skillCache.getSkillById(profileId, skillId);
           if (skill) {
-            this.skillRepo.update(profileId, skillId, skill, tx);
+            await this.skillRepo.update(profileId, skillId, skill, tx);
           }
         }
       });

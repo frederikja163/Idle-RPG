@@ -1,10 +1,9 @@
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "allowJs": true,
     // Bundler mode
     "moduleResolution": "bundler",
-    "module": "preserve",
+    "module": "ESNext",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "downlevelIteration": true,
@@ -21,7 +20,5 @@
     }
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx"
-, "src/back-end/features/user/user-cache.ts"  ]
+    "src",]
 }
