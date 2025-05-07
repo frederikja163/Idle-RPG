@@ -1,18 +1,18 @@
 import { drizzle } from 'drizzle-orm/libsql';
-import { items } from './schema/schema-items';
-import { profiles } from './schema/schema-profiles';
-import { skills } from './schema/schema-skills';
+import { itemsTable } from './schema/schema-items';
+import { profilesTable } from './schema/schema-profiles';
+import { skillsTable } from './schema/schema-skills';
 import { userProfileRelations } from './schema/schema-userprofiles';
-import { users } from './schema/schema-users';
+import { usersTable } from './schema/schema-users';
 import { container, inject } from 'tsyringe';
 import type { SQLiteTableWithColumns, SQLiteTransaction } from 'drizzle-orm/sqlite-core';
 
 const schema = {
-  usersTable: users,
-  profilesTable: profiles,
+  usersTable: usersTable,
+  profilesTable: profilesTable,
   userProfileRelations,
-  itemsTable: items,
-  skillsTable: skills,
+  itemsTable: itemsTable,
+  skillsTable: skillsTable,
 };
 export const db = drizzle(process.env.DB_FILE_NAME!);
 export type Database = typeof db;

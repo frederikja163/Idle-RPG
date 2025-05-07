@@ -1,9 +1,9 @@
 import { relations, sql } from 'drizzle-orm';
 import { int, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
-import { userProfiles } from './schema-userprofiles';
-import { items } from './schema-items';
+import { userProfilesTable } from './schema-userprofiles';
+import { itemsTable } from './schema-items';
 
-export const profiles = sqliteTable(
+export const profilesTable = sqliteTable(
   'profiles',
   {
     id: text('id').primaryKey().$defaultFn(crypto.randomUUID.bind(crypto)),
@@ -18,7 +18,7 @@ export const profiles = sqliteTable(
   (table) => [uniqueIndex('name_idx').on(table.name)],
 );
 
-export const profileRelations = relations(profiles, ({ many }) => ({
-  userProfileRelation: many(userProfiles),
-  inventoryRelation: many(items),
+export const profileRelations = relations(profilesTable, ({ many }) => ({
+  userProfileRelation: many(userProfilesTable),
+  inventoryRelation: many(itemsTable),
 }));
