@@ -1,4 +1,10 @@
-# bun-react-tailwind-shadcn-template
+# Idle-RPG
+
+Visit game:
+
+https://frederikja163.github.io/Idle-RPG/
+
+## Development
 
 To install dependencies and create .env files:
 
