@@ -3,7 +3,8 @@
     "jsx": "react-jsx",
     // Bundler mode
     "moduleResolution": "bundler",
-    "module": "ESNext",
+    "module": "preserve",
+    "target": "ESNext",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "downlevelIteration": true,
@@ -12,7 +13,10 @@
     "noEmit": true,
     "strict": true,
     "baseUrl": ".",
-    "lib": ["ESNext"],
+    "lib": [
+      "ESNext",
+      "dom"
+    ],
     "paths": {
       "@/*": [
         "./src/*"
@@ -20,5 +24,7 @@
     }
   },
   "include": [
-    "src",]
+    "**/*.ts",
+    "**/*.tsx",
+  ]
 }
