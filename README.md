@@ -1,15 +1,9 @@
 # bun-react-tailwind-shadcn-template
 
-To install dependencies:
+To install dependencies and create .env files:
 
 ```bash
 bun prestart
-```
-
-To create .env-file:
-
-```bash
-bun env
 ```
 
 To start a frontend development server:

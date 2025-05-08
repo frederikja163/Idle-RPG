@@ -6,10 +6,9 @@
   "main": "src/back-end/app.ts",
   "module": "src/back-end/app.ts",
   "scripts": {
-    "prestart": "bun install",
-    "env": "cp .env.example .env",
+    "prestart": "bun scripts/prestart.ts",
     "fe": "vite",
-    "fe:start": "vite preview",
+    "fe:start": "vite preview --mode production --port 3000",
     "be": "bun --dev --expose-gc src/back-end/app.ts",
     "be:start": "NODE_ENV=production bun --expose-gc src/back-end/app.ts",
     "db:generate": "npx drizzle-kit generate",
