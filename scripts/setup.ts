@@ -1,11 +1,20 @@
 ﻿import {existsSync, readFileSync, writeFileSync} from "fs";
 import {$} from "bun";
 
-const envPath = ".env";
-const frontEndEnvPath = "src/front-end/.env";
-const examplePath = ".env.example";
+const envPaths = [{
+  target: ".env",
+  example: ".env.example"
+}, {
+  target: "src/front-end/.env",
+  example: "src/front-end/.env.example"
+}
+]
 
-function copyEnvIfNotExists(targetPath: string) {
+for (const {target, example} of envPaths) {
+  copyEnvIfNotExists(target, example);
+}
+
+function copyEnvIfNotExists(targetPath: string, examplePath: string) {
   if (existsSync(targetPath)) {
     console.log(`${targetPath} already exists, skipping copy.`);
   } else {
@@ -19,8 +28,8 @@ function copyEnvIfNotExists(targetPath: string) {
   }
 }
 
-copyEnvIfNotExists(envPath);
-copyEnvIfNotExists(frontEndEnvPath);
-
-console.log("Running bun install...");
+console.log("Installing dependencies with bun install...");
 await $`bun install`;
+
+console.log("Migrating database with bun db:push...");
+await $`bun db:push`;
