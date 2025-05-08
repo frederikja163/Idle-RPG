@@ -9,6 +9,7 @@ import {Divider} from "@/front-end/components/ui/divider.tsx";
 export interface Tab {
   label: string;
   content: ReactNode;
+  buttonContent?: ReactNode;
 }
 
 interface Props {
@@ -28,8 +29,17 @@ export const SideTabPane: FC<Props> = React.memo((props) => {
         <Divider/>
         <Row className="h-full">
           <Column className="gap-2">
-            {tabs.map((tab, i) => <SideTabButton key={i} index={i} selectedIndex={selectedTabIndex} tab={tab}
-                                                 onClick={setSelectedTabIndex}/>)}
+            {tabs.map((tab, i) =>
+              <SideTabButton
+                key={i}
+                index={i}
+                selectedIndex={selectedTabIndex}
+                label={tab.label}
+                onClick={setSelectedTabIndex}
+              >
+                {tab.buttonContent}
+              </SideTabButton>
+            )}
           </Column>
           <Divider orientation="vertical"/>
           {tabs.at(selectedTabIndex)?.content}

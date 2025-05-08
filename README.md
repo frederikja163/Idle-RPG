@@ -9,7 +9,7 @@ https://frederikja163.github.io/Idle-RPG/
 To install dependencies and create .env files:
 
 ```bash
-bun prestart
+bun setup
 ```
 
 To start a frontend development server:

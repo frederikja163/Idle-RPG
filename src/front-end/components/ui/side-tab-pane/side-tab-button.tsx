@@ -1,17 +1,18 @@
-﻿import React, {type FC, useCallback} from 'react';
-import type {Tab} from '@/front-end/components/ui/side-tab-pane/side-tab-pane.tsx';
+﻿import React, {type FC, type ReactNode, useCallback} from 'react';
 import {Typography} from "@/front-end/components/ui/typography.tsx";
+import {Column} from "@/front-end/components/layout/column.tsx";
 
 interface Props {
   index: number;
   selectedIndex: number;
-  tab: Tab;
+  label: string;
+  children?: ReactNode;
 
   onClick(index: number): void;
 }
 
 export const SideTabButton: FC<Props> = React.memo((props) => {
-  const {index, selectedIndex, tab, onClick} = props;
+  const {index, selectedIndex, label, children, onClick} = props;
 
   const handleClick = useCallback(() => {
     onClick(index);
@@ -25,9 +26,12 @@ export const SideTabButton: FC<Props> = React.memo((props) => {
         `p-2 cursor-pointer border-2 border-solid border-transparent hover:text-secondary ${selectedIndex === index && "text-primary border-r-primary"}`
       }
     >
-      <Typography>
-        {tab.label}
-      </Typography>
+      <Column>
+        <Typography>
+          {label}
+        </Typography>
+        {children}
+      </Column>
     </button>
   );
 });
