@@ -50,7 +50,7 @@ export class SkillService
       if (skills) {
         this.skillCache.store(profileId, skills);
       }
-      return this.skillCache.getSkillById(profileId, skillId);
+      return this.skillCache.getSkillById(profileId, skillId) ?? { profileId, skillId, xp: 0, level: 0 };
     } catch (error) {
       console.error(`Failed getting skill by id ${profileId} ${skillId}`, error);
     }
@@ -79,7 +79,6 @@ export class SkillService
 
   public async cleanup(): Promise<void> {
     const profileSkills = this.dirtyProfiles.entries().toArray();
-    console.log(profileSkills);
     const profilesToRemove = Array.from(this.profilesToRemove);
 
     try {

@@ -42,7 +42,7 @@ export class ProfileController implements SocketOpenEventListener {
     const userId = this.socketHub.getUserId(socket.id);
     if (!userId) return socket.error(ErrorType.RequiresLogin);
 
-    const profile = await this.profileService.create(userId, { name });
+    const profile = await this.profileService.create(userId, { name, activityId: null, activityStart: null });
     if (!profile) return socket.error(ErrorType.NameTaken);
 
     const profiles = await this.profileService.getProfilesByUserId(userId);

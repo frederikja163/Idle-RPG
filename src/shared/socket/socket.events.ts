@@ -77,6 +77,9 @@ export const clientServerEvent = Type.Union([
   // Activity/ActivityStarted
   // Error: RequiresProfile, InsufficientLevel
   event('Activity/StartActivity', { activityId: Type.String() }),
+  // Activity/ActivityStopped
+  // Error: RequiresProfile
+  event('Activity/StopActivity', {}),
   // Activity/ActivityStarted
   // Error: RequiresProfile
   event('Activity/GetActivity', {}),
@@ -91,6 +94,7 @@ export const serverClientEvent = Type.Union([
   event('Profile/SelectProfileSuccess', {}),
   event('Inventory/UpdateInventory', { items: inventoryDto }),
   event('Skill/UpdateSkills', { skills: skillsDto }),
-  event('Activity/ActivityStarted', { activityId: Type.String(), time: Type.Number() }),
+  event('Activity/ActivityStarted', { activityId: Type.String(), activityStart: Type.Date() }),
+  event('Activity/ActivityStopped', { activityId: Type.String(), activityStop: Type.Date() }),
 ]);
 export type ServerClientEvent = typeof serverClientEvent;

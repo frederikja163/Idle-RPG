@@ -37,7 +37,9 @@ export const itemTagDisplayMap = new Map<ItemTag, string>([
 ]);
 
 export type Item = {
-  id: string;
+  id: ItemId;
   display: string;
   tags: ItemTag[];
 };
+
+export type ItemId = string;
