@@ -1,21 +1,39 @@
-# bun-react-tailwind-shadcn-template
+# Idle-RPG
 
-To install dependencies:
+Visit game:
+
+https://frederikja163.github.io/Idle-RPG/
+
+## Development
+
+To install dependencies and create .env files:
 
 ```bash
-bun install
+bun prestart
 ```
 
-To start a development server:
+To start a frontend development server:
 
 ```bash
-bun dev
+bun fe
 ```
 
-To run for production:
+To start a backend development server:
 
 ```bash
-bun start
+bun be
+```
+
+To run frontend for production:
+
+```bash
+bun fe:start
+```
+
+To run backend for production:
+
+```bash
+bun be:start
 ```
 
 If you update commands you should restart the server.

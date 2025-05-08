@@ -5,6 +5,7 @@
     // Bundler mode
     "moduleResolution": "bundler",
     "module": "preserve",
+    "target": "ESNext",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "downlevelIteration": true,
@@ -13,7 +14,10 @@
     "noEmit": true,
     "strict": true,
     "baseUrl": ".",
-    "lib": ["ESNext"],
+    "lib": [
+      "ESNext",
+      "dom"
+    ],
     "paths": {
       "@/*": [
         "./src/*"
@@ -22,6 +26,7 @@
   },
   "include": [
     "**/*.ts",
-    "**/*.tsx"
-, "src/back-end/features/user/user-cache.ts"  ]
+    "**/*.tsx",
+    "src/back-end/features/user/user-cache.ts"
+  ]
 }
