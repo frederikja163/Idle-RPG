@@ -13,6 +13,8 @@ import {
   type ProfileSelectedEventListener,
 } from '@/back-end/core/events/profile-event';
 import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup-event';
+import { SkillRepository } from '../skill/skill-repository';
+import { skills } from '@/shared/definition/definition.skills';
 
 @injectableSingleton(ProfileSelectedEventToken, ProfileDeselectedEventToken, CleanupEventToken)
 export class ProfileService

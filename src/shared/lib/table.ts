@@ -18,6 +18,10 @@ export class Table<TCol, TRow, TValue> {
     if (column.size === 0) this.map.delete(col);
   }
 
+  public deleteColumn(col: TCol) {
+    this.map.delete(col);
+  }
+
   public hasColumn(col: TCol) {
     return this.map.has(col);
   }
@@ -40,6 +44,9 @@ export class Table<TCol, TRow, TValue> {
   }
 
   public getColumn(col: TCol) {
-    return this.map.get(col)?.entries();
+    return this.map
+      .get(col)
+      ?.entries()
+      .map(([_, c]) => c);
   }
 }

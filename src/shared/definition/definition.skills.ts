@@ -5,11 +5,13 @@ addSkill('smithing', 'Smithing');
 addSkill('lumberjacking', 'Lumberjacking');
 addSkill('carpentry', 'Carpentry');
 
-function addSkill(id: string, display: string) {
+function addSkill(id: SkillId, display: string) {
   skills.set(id, { id, display });
 }
 
 export type Skill = {
-  id: string;
+  id: SkillId;
   display: string;
 };
+
+export type SkillId = string;

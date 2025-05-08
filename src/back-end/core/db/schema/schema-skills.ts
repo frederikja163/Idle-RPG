@@ -1,8 +1,8 @@
 import { relations } from 'drizzle-orm';
 import { foreignKey, int, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core';
-import { profiles } from './schema-profiles';
+import { profilesTable } from './schema-profiles';
 
-export const skills = sqliteTable(
+export const skillsTable = sqliteTable(
   'skills',
   {
     profileId: text('profile_id').notNull(),
@@ -14,14 +14,14 @@ export const skills = sqliteTable(
     primaryKey({ name: 'idx', columns: [table.profileId, table.skillId] }),
     foreignKey({
       columns: [table.profileId],
-      foreignColumns: [profiles.id],
-    }),
+      foreignColumns: [profilesTable.id],
+    }).onDelete('cascade'),
   ],
 );
 
-export const skillRelations = relations(skills, ({ one }) => ({
-  profile: one(profiles, {
-    fields: [skills.profileId],
-    references: [profiles.id],
+export const skillRelations = relations(skillsTable, ({ one }) => ({
+  profile: one(profilesTable, {
+    fields: [skillsTable.profileId],
+    references: [profilesTable.id],
   }),
 }));

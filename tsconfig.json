@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "allowJs": true,
     // Bundler mode
     "moduleResolution": "bundler",
     "module": "preserve",
@@ -27,6 +26,5 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "src/back-end/features/user/user-cache.ts"
   ]
 }

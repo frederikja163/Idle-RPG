@@ -16,18 +16,9 @@ import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 import type { ItemType, ProfileId } from '@/back-end/core/db/db.types';
 import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup-event';
 
-@injectableSingleton(
-  ProfileSelectedEventToken,
-  ProfileDeselectedEventToken,
-  ProfileDeletedEventToken,
-  CleanupEventToken,
-)
+@injectableSingleton(ProfileSelectedEventToken, ProfileDeselectedEventToken, CleanupEventToken)
 export class InventoryService
-  implements
-    ProfileSelectedEventListener,
-    ProfileDeselectedEventListener,
-    ProfileDeletedEventListener,
-    CleanupEventListener
+  implements ProfileSelectedEventListener, ProfileDeselectedEventListener, CleanupEventListener
 {
   private readonly dirtyProfiles = new Map<ProfileId, { shouldRemove: boolean }>();
 
@@ -76,14 +67,6 @@ export class InventoryService
       this.dirtyProfiles.set(profileId, { shouldRemove: true });
     } catch (error) {
       console.error(`Failed invalidating cache on profile deselect ${profileId}`, error);
-    }
-  }
-
-  public async onProfileDeleted({ profileId }: ProfileDeletedEventData): Promise<void> {
-    try {
-      await this.db.transaction(async (tx) => this.inventoryRepo.deleteItems(profileId, tx));
-    } catch (error) {
-      console.error(`Failed deleting profile ${profileId}`, error);
     }
   }
 

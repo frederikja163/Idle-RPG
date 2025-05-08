@@ -1,6 +1,14 @@
 export class Lookup<TKey, TValue> {
   private readonly _map = new Map<TKey, Set<TValue>>();
 
+  public *entries() {
+    for (const [k, vs] of this._map) {
+      for (const v of vs) {
+        yield [k, v];
+      }
+    }
+  }
+
   public add(key: TKey, value: TValue) {
     let set = this._map.get(key);
     if (!set) {
@@ -27,5 +35,9 @@ export class Lookup<TKey, TValue> {
 
   public get(key: TKey) {
     return this._map.get(key);
+  }
+
+  public clear() {
+    this._map.clear();
   }
 }
