@@ -23,6 +23,6 @@ export default defineConfig(({mode}) => {
       emptyOutDir:
         true,
     },
-    base: "/Idle-RPG/"
+    // base: "/Idle-RPG/" // May be needed when deployed to GitHub pages
   }
 });
