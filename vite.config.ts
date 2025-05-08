@@ -9,24 +9,20 @@ export default defineConfig(({mode}) => {
     plugins: [react()],
     root:
       'src/front-end',
-    resolve:
-      {
-        alias: {
-          '@':
-            path.resolve(__dirname, 'src/'),
-        }
-        ,
-      }
-    ,
+    resolve: {
+      alias: {
+        '@':
+          path.resolve(__dirname, 'src/'),
+      },
+    },
     server: {
       port: Number(env.VITE_FRONTEND_PORT ?? 3000),
-    }
-    ,
+    },
     build: {
       outDir: '../../dist',
       emptyOutDir:
         true,
-    }
-    ,
+    },
+    base: "/Idle-RPG/"
   }
 });
