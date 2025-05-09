@@ -105,16 +105,15 @@ export class ProfileService
   public async cleanup(): Promise<void> {
     try {
       const profileIds = this.profileCache.getProfileIds().toArray();
-      const dirtyProfiles = this.dirtyProfiles.values().toArray();
       await this.db.transaction(async (tx) => {
         await this.profileRepo.updateTimes(profileIds, tx);
-        for (const profileId of dirtyProfiles) {
+        for (const profileId of this.dirtyProfiles) {
           const profile = this.profileCache.getProfileById(profileId);
           if (profile) this.profileRepo.update(profileId, profile, tx);
         }
+        this.dirtyProfiles.clear();
       });
     } catch (error) {
-      this.dirtyProfiles.forEach(this.dirtyProfiles.add);
       console.error(`Failed updating times for all profiles`, error);
     }
   }

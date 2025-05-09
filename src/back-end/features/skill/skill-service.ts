@@ -83,8 +83,6 @@ export class SkillService
     const profilesToRemove = Array.from(this.profilesToRemove);
 
     try {
-      this.dirtyProfiles.clear();
-      this.profilesToRemove.clear();
       await this.db.transaction(async (tx) => {
         for (const [profileId, skillId] of profileSkills) {
           const skill = this.skillCache.getSkillById(profileId, skillId);
@@ -94,6 +92,8 @@ export class SkillService
         }
       });
       profilesToRemove.forEach(this.skillCache.invalidateCache);
+      this.dirtyProfiles.clear();
+      this.profilesToRemove.clear();
     } catch (error) {
       profileSkills.forEach(([p, s]) => this.dirtyProfiles.add(p, s));
       profilesToRemove.forEach(this.profilesToRemove.add);

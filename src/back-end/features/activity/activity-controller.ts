@@ -49,7 +49,8 @@ export class ActivityController implements SocketOpenEventListener {
     if (!activity) return socket.error(ErrorType.InternalError);
 
     if (profile.activityId && profile.activityStart)
-      if (!this.stopActivity(profile, activity, profile.activityStart)) return socket.error(ErrorType.InternalError);
+      if (!this.stopActivity(profile, activities.get(activityId)!, profile.activityStart))
+        return socket.error(ErrorType.InternalError);
 
     let success = false;
     switch (activity.type) {
