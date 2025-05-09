@@ -1,3 +1,5 @@
+import type { ItemType } from '@/back-end/core/db/db.types';
+
 export const items = new Map<string, Item>();
 
 ore('Talc');

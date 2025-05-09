@@ -13,13 +13,13 @@ import {
   type ProfileSelectedEventListener,
 } from '@/back-end/core/events/profile-event';
 import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup-event';
-import { SkillRepository } from '../skill/skill-repository';
-import { skills } from '@/shared/definition/definition.skills';
 
 @injectableSingleton(ProfileSelectedEventToken, ProfileDeselectedEventToken, CleanupEventToken)
 export class ProfileService
   implements ProfileSelectedEventListener, ProfileDeselectedEventListener, CleanupEventListener
 {
+  private readonly dirtyProfiles = new Set<ProfileId>();
+
   public constructor(
     @injectDB() private readonly db: Database,
     private readonly profileCache: ProfileCache,
@@ -74,6 +74,14 @@ export class ProfileService
     }
   }
 
+  public update(profileId: ProfileId) {
+    try {
+      this.dirtyProfiles.add(profileId);
+    } catch (error) {
+      console.error(`Failed marking profile as dirt ${profileId}`);
+    }
+  }
+
   public async onProfileSelected({ profileId }: ProfileSelectedEventData): Promise<void> {
     try {
       const profile = await this.profileRepo.findByProfileId(profileId);
@@ -97,8 +105,16 @@ export class ProfileService
   public async cleanup(): Promise<void> {
     try {
       const profileIds = this.profileCache.getProfileIds().toArray();
-      await this.db.transaction(async (tx) => await this.profileRepo.updateTimes(profileIds, tx));
+      const dirtyProfiles = this.dirtyProfiles.values().toArray();
+      await this.db.transaction(async (tx) => {
+        await this.profileRepo.updateTimes(profileIds, tx);
+        for (const profileId of dirtyProfiles) {
+          const profile = this.profileCache.getProfileById(profileId);
+          if (profile) this.profileRepo.update(profileId, profile, tx);
+        }
+      });
     } catch (error) {
+      this.dirtyProfiles.forEach(this.dirtyProfiles.add);
       console.error(`Failed updating times for all profiles`, error);
     }
   }

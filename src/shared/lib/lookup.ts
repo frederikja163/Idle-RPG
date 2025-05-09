@@ -3,6 +3,12 @@ export class Lookup<TKey, TValue> {
 
   public *entries() {
     for (const [k, vs] of this._map) {
+      yield [k, vs.entries().map(([s, _]) => s)];
+    }
+  }
+
+  public *values() {
+    for (const [k, vs] of this._map) {
       for (const v of vs) {
         yield [k, v];
       }
@@ -28,9 +34,17 @@ export class Lookup<TKey, TValue> {
     }
   }
 
+  public removeKey(key: TKey) {
+    this._map.delete(key);
+  }
+
   public has(key: TKey, value: TValue) {
     const set = this._map.get(key);
     return set && set.has(value);
+  }
+
+  public hasKey(key: TKey) {
+    return this._map.has(key);
   }
 
   public get(key: TKey) {

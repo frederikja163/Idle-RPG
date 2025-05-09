@@ -15,6 +15,7 @@ export enum ErrorType {
   ArgumentOutOfRange, // = "Provided argument is out of range.",
   RequiresProfile, // = "You must select a profile to do this.",
   InsufficientLevel, // = "This activity requires a lever higher than yours.",
+  NoActivity, // = "No activity in progress.",
 }
 
 export const profileDto = Type.Object({
@@ -78,10 +79,10 @@ export const clientServerEvent = Type.Union([
   // Error: RequiresProfile, InsufficientLevel
   event('Activity/StartActivity', { activityId: Type.String() }),
   // Activity/ActivityStopped
-  // Error: RequiresProfile
+  // Error: RequiresProfile, NoActivity
   event('Activity/StopActivity', {}),
   // Activity/ActivityStarted
-  // Error: RequiresProfile
+  // Error: RequiresProfile, NoActivity
   event('Activity/GetActivity', {}),
 ]);
 export type ClientServerEvent = typeof clientServerEvent;
