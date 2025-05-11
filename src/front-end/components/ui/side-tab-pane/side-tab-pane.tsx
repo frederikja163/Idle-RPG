@@ -7,8 +7,8 @@ import {SideTabButton} from '@/front-end/components/ui/side-tab-pane/side-tab-bu
 import {Divider} from "@/front-end/components/ui/divider.tsx";
 
 export interface Tab {
-  label: string;
   content: ReactNode;
+  label?: string;
   buttonContent?: ReactNode;
 }
 

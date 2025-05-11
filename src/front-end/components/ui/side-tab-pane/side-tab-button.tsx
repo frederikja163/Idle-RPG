@@ -5,7 +5,7 @@ import {Column} from "@/front-end/components/layout/column.tsx";
 interface Props {
   index: number;
   selectedIndex: number;
-  label: string;
+  label?: string;
   children?: ReactNode;
 
   onClick(index: number): void;
@@ -27,9 +27,9 @@ export const SideTabButton: FC<Props> = React.memo((props) => {
       }
     >
       <Column>
-        <Typography>
+        {label && <Typography>
           {label}
-        </Typography>
+        </Typography>}
         {children}
       </Column>
     </button>
