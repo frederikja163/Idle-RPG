@@ -1,33 +1,23 @@
-# use the official Bun image
-# see all versions at https://hub.docker.com/r/oven/bun/tags
-FROM oven/bun:1 AS base
-WORKDIR /usr/src/app
+# Use official Bun image
+FROM oven/bun:1.1.0
 
-# install dependencies into temp directory
-# this will cache them and speed up future builds
-FROM base AS install
-RUN mkdir -p /temp/dev
-COPY package.json bun.lock /temp/dev/
-RUN cd /temp/dev && bun install --frozen-lockfile
+# Set working directory
+WORKDIR /app
 
-# install with --production (exclude devDependencies)
-RUN mkdir -p /temp/prod
-COPY package.json bun.lock /temp/prod/
-RUN cd /temp/prod && bun install --frozen-lockfile --production
+# Install dependencies
+COPY bun.lock package.json ./
+RUN bun install
 
-# copy node_modules from temp directory
-# then copy all (non-ignored) project files into the image
-FROM base AS prerelease
-COPY --from=install /temp/dev/node_modules node_modules
+# Copy source files
 COPY . .
 
-# copy production dependencies and source code into final image
-FROM base AS release
-COPY --from=install /temp/prod/node_modules node_modules
-COPY --from=prerelease /usr/src/app/src/back-end/app.ts .
-COPY --from=prerelease /usr/src/app/package.json .
+# Optional: build if you're using TypeScript and have a build script
+# RUN bun run build
 
-# run the app
+# Set the user and port
 USER bun
-EXPOSE 4000/tcp
-ENTRYPOINT [ "bun", "be:start" ]
+EXPOSE 4000
+
+# Adjust this to your actual start script from package.json
+CMD ["bun", "run", "be:start"]
+
