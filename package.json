@@ -14,7 +14,7 @@
     "be:start": "NODE_ENV=production bun src/back-end/app.ts",
     "db:generate": "npx drizzle-kit generate",
     "db:migrate": "npx drizzle-kit migrate",
-    "db:push": "npx drizzle-kit push",
+    "db:push": "npx drizzle-kit push --force",
     "db": "npx drizzle-kit studio --verbose"
   },
   "dependencies": {
@@ -27,6 +27,7 @@
     "@react-oauth/google": "^0.12.1",
     "@sinclair/typebox": "^0.34.33",
     "@tailwindcss/postcss": "^4.1.5",
+    "bun": "1.2.10",
     "bun-plugin-tailwind": "^0.0.14",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
