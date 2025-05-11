@@ -17,11 +17,12 @@ export const SkillsPane: FC = React.memo(() => {
     return {
       label: skill.display,
       content: <ActivitiesGrid key={i} skillId={skill.id}/>,
-      buttonContent: <SkillButton key={i} skillId={skill.id}/>
+      buttonContent: <SkillButton key={i} skill={skill.id}/>
     } as Tab;
   })
   .toArray();
 
+  
   useEffect(() => {
     socket?.send('Activity/GetActivity', {});
 

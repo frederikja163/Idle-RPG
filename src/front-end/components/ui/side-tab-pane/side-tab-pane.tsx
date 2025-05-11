@@ -28,7 +28,7 @@ export const SideTabPane: FC<Props> = React.memo((props) => {
         <Typography className="text-2xl">{title}</Typography>
         <Divider/>
         <Row className="h-full">
-          <Column className="gap-2">
+          <Column className="gap-4">
             {tabs.map((tab, i) =>
               <SideTabButton
                 key={i}
