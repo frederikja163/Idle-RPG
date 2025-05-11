@@ -3,12 +3,13 @@ import React, {type FC, useMemo} from "react";
 
 interface Props {
   value: number;
+  max: number;
   width?: string;
   height?: string;
 }
 
 export const ProgressBar: FC<Props> = React.memo((props) => {
-  const {value, width, height} = props;
+  const {value, max, width, height} = props;
 
   const rootStyle = useMemo(() => {
     return {
@@ -20,13 +21,14 @@ export const ProgressBar: FC<Props> = React.memo((props) => {
   const indicatorStyle = useMemo(() => {
     return {
       transition: "transform 660ms cubic-bezier(0.65, 0, 0.35, 1)",
-      transform: `translateX(-${100 - value}%)`,
+      transform: `translateX(-${max - value}%)`,
     };
-  }, [value]);
+  }, [value, max]);
 
   return (
     <Progress.Root
       value={value}
+      max={max}
       className="overflow-hidden rounded-full translate-z-0 bg-white h-6"
       style={rootStyle}
     >
