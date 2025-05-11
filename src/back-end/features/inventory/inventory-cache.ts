@@ -1,11 +1,11 @@
-import type { ItemType, ProfileId } from '@/back-end/core/db/db.types';
 import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
-import type { ItemId } from '@/shared/definition/definition.items';
+import type { Item, ItemId } from '@/shared/definition/schema/types/types-items';
+import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
 import { Table } from '@/shared/lib/table';
 
 @injectableSingleton()
 export class InventoryCache {
-  private readonly profileToItems = new Table<ProfileId, ItemId, ItemType>();
+  private readonly profileToItems = new Table<ProfileId, ItemId, Item>();
 
   public getByProfileId(profileId: ProfileId) {
     return this.profileToItems.getColumn(profileId);
@@ -27,11 +27,11 @@ export class InventoryCache {
     this.profileToItems.deleteColumn(profileId);
   }
 
-  public storeInventory(profileId: ProfileId, inventory: ItemType[]) {
+  public storeInventory(profileId: ProfileId, inventory: Item[]) {
     inventory.forEach((i) => this.profileToItems.add(profileId, i.itemId, i));
   }
 
-  public storeItem(profileId: ProfileId, item: ItemType) {
+  public storeItem(profileId: ProfileId, item: Item) {
     this.profileToItems.add(profileId, item.itemId, item);
   }
 }

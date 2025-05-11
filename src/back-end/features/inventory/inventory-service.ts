@@ -10,10 +10,10 @@ import {
   type ProfileSelectedEventListener,
 } from '@/back-end/core/events/profile-event';
 import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
-import type { ItemType, ProfileId } from '@/back-end/core/db/db.types';
 import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup-event';
 import { Lookup } from '@/shared/lib/lookup';
-import type { ItemId } from '@/shared/definition/definition.items';
+import type { ItemId } from '@/shared/definition/schema/types/types-items';
+import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
 
 @injectableSingleton(ProfileSelectedEventToken, ProfileDeselectedEventToken, CleanupEventToken)
 export class InventoryService

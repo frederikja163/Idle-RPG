@@ -1,7 +1,6 @@
-import { ErrorType } from '@/shared/socket/socket.events';
+import { ErrorType } from '@/shared/socket/socket-events.ts';
 import { OAuth2Client } from 'google-auth-library';
 import type { ServerSocket } from '@/back-end/core/server/sockets/server-socket.ts';
-import type { ServerData } from '@/back-end/core/server/sockets/socket-types.ts';
 import {
   SocketOpenEventToken,
   type SocketOpenEventData,
@@ -11,6 +10,7 @@ import { UserEventDispatcher } from '@/back-end/core/events/user-dispatcher.ts';
 import { SocketHub } from '@/back-end/core/server/sockets/socket-hub.ts';
 import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe.ts';
 import { UserService } from '../user/user-service.ts';
+import type { ServerData } from '@/shared/socket/socket-types.ts';
 
 @injectableSingleton(SocketOpenEventToken)
 export class AuthGoogleController implements SocketOpenEventListener {

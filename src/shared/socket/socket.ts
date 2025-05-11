@@ -1,10 +1,5 @@
-import type { Static } from '@sinclair/typebox';
-import { type ServerClientEvent, type ClientServerEvent } from './socket.events';
 import { TypeCheck } from '@sinclair/typebox/compiler';
-
-export type AllEvents = ClientServerEvent | ServerClientEvent;
-export type EventType<T extends AllEvents> = Static<T>['type'];
-export type DataType<T extends AllEvents, TEvent extends EventType<T>> = Extract<Static<T>, { type: TEvent }>['data'];
+import type { AllEvents, DataType, EventType } from './socket-types';
 
 const dateFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
 function reviver(key: any, value: any) {

@@ -1,6 +1,6 @@
+import type { SocketId } from '@/shared/socket/socket-types';
 import { injectableSingleton } from '../../lib/lib-tsyringe';
 import type { ServerSocket } from './server-socket';
-import type { SocketId } from './socket-types';
 
 @injectableSingleton()
 export class SocketRegistry {

@@ -1,11 +1,10 @@
 import { drizzle } from 'drizzle-orm/libsql';
-import { itemsTable } from './schema/schema-items';
-import { profilesTable } from './schema/schema-profiles';
-import { skillsTable } from './schema/schema-skills';
-import { userProfileRelations } from './schema/schema-userprofiles';
-import { usersTable } from './schema/schema-users';
+import { itemsTable } from '../../../shared/definition/schema/db/db-items';
+import { profilesTable } from '../../../shared/definition/schema/db/db-profiles';
+import { skillsTable } from '../../../shared/definition/schema/db/db-skills';
+import { userProfileRelations } from '../../../shared/definition/schema/db/db-userprofiles';
+import { usersTable } from '../../../shared/definition/schema/db/db-users';
 import { container, inject } from 'tsyringe';
-import type { SQLiteTableWithColumns, SQLiteTransaction } from 'drizzle-orm/sqlite-core';
 
 const schema = {
   usersTable: usersTable,

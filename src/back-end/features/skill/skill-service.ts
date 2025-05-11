@@ -11,10 +11,9 @@ import {
   type ProfileSelectedEventListener,
 } from '@/back-end/core/events/profile-event';
 import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup-event';
-import type { ProfileId, SkillType } from '@/back-end/core/db/db.types';
-import type { SkillId } from '@/shared/definition/definition.skills';
 import { Lookup } from '@/shared/lib/lookup';
-import { skills as allSkills } from '@/shared/definition/definition.skills';
+import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
+import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skills';
 
 @injectableSingleton(ProfileSelectedEventToken, ProfileDeselectedEventToken, CleanupEventToken)
 export class SkillService
@@ -29,7 +28,7 @@ export class SkillService
     private readonly skillRepo: SkillRepository,
   ) {}
 
-  public async getSkillsByProfileId(profileId: ProfileId): Promise<SkillType[] | undefined> {
+  public async getSkillsByProfileId(profileId: ProfileId): Promise<Skill[] | undefined> {
     try {
       const cache = this.skillCache.getSkillsByProfileId(profileId);
       if (cache) return cache.values().toArray();

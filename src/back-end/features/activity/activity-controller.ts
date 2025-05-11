@@ -7,19 +7,19 @@ import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 import { SocketHub } from '@/back-end/core/server/sockets/socket-hub';
 import { ProfileService } from '../profile/profile-service';
 import type { ServerSocket } from '@/back-end/core/server/sockets/server-socket';
-import type { ServerData } from '@/back-end/core/server/sockets/socket-types';
-import { ErrorType } from '@/shared/socket/socket.events';
-import type { ProfileId, ProfileType } from '@/back-end/core/db/db.types';
+import { ErrorType } from '@/shared/socket/socket-events';
 import { SkillService } from '../skill/skill-service';
 import { InventoryService } from '../inventory/inventory-service';
 import {
   activities,
-  type Activity,
+  type ActivityDef,
   type ActivityId,
-  type GatheringActivity,
-} from '@/shared/definition/definition.activities';
-import { getActionCount } from '@/shared/util/util.activities';
-import { addXp } from '@/shared/util/util.skills';
+  type GatheringActivityDef,
+} from '@/shared/definition/definition-activities';
+import { getActionCount } from '@/shared/util/util-activities';
+import { addXp } from '@/shared/util/util-skills';
+import type { ServerData } from '@/shared/socket/socket-types';
+import type { Profile } from '@/shared/definition/schema/types/types-profiles';
 
 @injectableSingleton(SocketOpenEventToken)
 export class ActivityController implements SocketOpenEventListener {
@@ -55,7 +55,7 @@ export class ActivityController implements SocketOpenEventListener {
     let success = false;
     switch (activity.type) {
       case 'gathering':
-        success = await this.startGathering(profile, activity as GatheringActivity);
+        success = await this.startGathering(profile, activity as GatheringActivityDef);
         break;
       default:
         return socket.error(ErrorType.InternalError);
@@ -102,7 +102,7 @@ export class ActivityController implements SocketOpenEventListener {
     }
   }
 
-  private async stopActivity(profile: ProfileType, activity: Activity, activityStart: Date) {
+  private async stopActivity(profile: Profile, activity: ActivityDef, activityStart: Date) {
     const activityStop = new Date();
     const actionCount = getActionCount(activityStart, activity.time, activityStop);
 
@@ -129,7 +129,7 @@ export class ActivityController implements SocketOpenEventListener {
     return true;
   }
 
-  private async startGathering(profile: ProfileType, activity: GatheringActivity) {
+  private async startGathering(profile: Profile, activity: GatheringActivityDef) {
     const skill = await this.skillService.getSkillById(profile.id, activity.skill);
     if (!skill) return false;
 

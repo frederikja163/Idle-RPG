@@ -1,7 +1,7 @@
 import { relations } from 'drizzle-orm';
 import { foreignKey, text, primaryKey, sqliteTable } from 'drizzle-orm/sqlite-core';
-import { usersTable } from './schema-users';
-import { profilesTable } from './schema-profiles';
+import { profilesTable } from './db-profiles';
+import { usersTable } from './db-users';
 
 export const userProfilesTable = sqliteTable(
   'user_profile_relation',

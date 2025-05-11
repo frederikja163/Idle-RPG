@@ -1,6 +1,6 @@
-import type { ItemType } from '@/back-end/core/db/db.types';
+import type { ItemId } from './schema/types/types-items';
 
-export const items = new Map<string, Item>();
+export const items = new Map<string, ItemDef>();
 
 ore('Talc');
 ore('Gypsum');
@@ -38,10 +38,8 @@ export const itemTagDisplayMap = new Map<ItemTag, string>([
   [ItemTag.Tool, 'Tool'],
 ]);
 
-export type Item = {
+export type ItemDef = {
   id: ItemId;
   display: string;
   tags: ItemTag[];
 };
-
-export type ItemId = string;
