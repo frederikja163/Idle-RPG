@@ -2,11 +2,11 @@ import React, {type FC, useMemo} from "react";
 import {ProgressBar} from "@/front-end/components/ui/progress-bar.tsx";
 import {Column} from "@/front-end/components/layout/column.tsx";
 import {Typography} from "@/front-end/components/ui/typography.tsx";
-import type {SkillDto} from "@/shared/socket/socket.types.ts";
-import {xpToReachNext} from "@/shared/util/util.skills.ts";
+import type {Skill} from "@/shared/definition/schema/types/types-skills.ts";
+import {xpToReachNext} from "@/shared/util/util-skills.ts";
 
 interface Props {
-  skill: SkillDto;
+  skill: Skill;
 }
 
 export const SkillButton: FC<Props> = React.memo((props) => {
