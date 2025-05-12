@@ -3,7 +3,7 @@ import { Row } from '@/front-end/components/layout/row.tsx';
 import { ProfileCard } from '@/front-end/components/profiles/profile-card.tsx';
 import { ProfileCreator } from '@/front-end/components/profiles/profile-creator.tsx';
 import { useSocket } from '@/front-end/state/socket-provider.tsx';
-import type { ProfileDto } from '@/shared/socket/socket.types';
+import type { ProfileDto } from '@/shared/socket/socket-types';
 
 export const Profiles: FC = React.memo(() => {
   const socket = useSocket();

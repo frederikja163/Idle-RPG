@@ -1,5 +1,4 @@
 import type { ServerSocket } from '@/back-end/core/server/sockets/server-socket';
-import type { ServerData } from '@/back-end/core/server/sockets/socket-types';
 import {
   SocketOpenEventToken,
   type SocketOpenEventData,
@@ -8,7 +7,8 @@ import {
 import { UserEventDispatcher } from '@/back-end/core/events/user-dispatcher';
 import { SocketHub } from '@/back-end/core/server/sockets/socket-hub';
 import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
-import { ErrorType } from '@/shared/socket/socket.events';
+import { ErrorType } from '@/shared/socket/socket-events';
+import type { ServerData } from '@/shared/socket/socket-types';
 
 @injectableSingleton(SocketOpenEventToken)
 export class AuthLogoutController implements SocketOpenEventListener {

@@ -1,4 +1,4 @@
-export const activities = new Map<string, Activity>();
+export const activities = new Map<string, ActivityDef>();
 
 mining('Talc', 5000, 1, 0);
 mining('Gypsum', 5000, 2, 10);
@@ -34,9 +34,9 @@ function gathering(
   activities.set(id, { type: 'gathering', id, skill, display, time, xpAmount, resultId, levelRequirement });
 }
 
-export type Activity = GatheringActivity;
+export type ActivityDef = GatheringActivityDef;
 
-export type GatheringActivity = {
+export type GatheringActivityDef = {
   type: 'gathering';
   id: ActivityId;
   skill: string;

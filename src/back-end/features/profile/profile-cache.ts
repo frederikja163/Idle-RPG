@@ -1,9 +1,9 @@
-import type { ProfileId, ProfileType } from '@/back-end/core/db/db.types';
 import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
+import type { Profile, ProfileId } from '@/shared/definition/schema/types/types-profiles';
 
 @injectableSingleton()
 export class ProfileCache {
-  private readonly profileCache = new Map<ProfileId, ProfileType>();
+  private readonly profileCache = new Map<ProfileId, Profile>();
 
   public getProfileIds() {
     return this.profileCache.keys();
@@ -21,7 +21,7 @@ export class ProfileCache {
     this.profileCache.delete(profileId);
   }
 
-  public storeProfile(profile: ProfileType) {
+  public storeProfile(profile: Profile) {
     this.profileCache.set(profile.id, profile);
   }
 }

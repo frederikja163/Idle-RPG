@@ -1,10 +1,9 @@
 import { SocketRegistry } from './socket-registry';
 import { SocketSessionStore } from './socket-session-store';
-import type { ClientEvent, SocketId } from './socket-types';
-import type { ProfileId, UserId } from '../../db/db.types';
-import type { ServerClientEvent } from '@/shared/socket/socket.events';
 import { injectableSingleton } from '../../lib/lib-tsyringe';
-import type { DataType } from '@/shared/socket/socket';
+import type { UserId } from '@/shared/definition/schema/types/types-user';
+import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
+import type { ClientEvent, DataType, ServerClientEvent, SocketId } from '@/shared/socket/socket-types';
 
 @injectableSingleton()
 export class SocketHub {

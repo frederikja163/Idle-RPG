@@ -1,6 +1,6 @@
 ﻿import React, { type FC, useCallback, useMemo } from 'react';
 import { Column } from '@/front-end/components/layout/column.tsx';
-import { activities as allActivities } from '@/shared/definition/definition.activities';
+import { activities as allActivities } from '@/shared/definition/definition-activities';
 import { Image } from '@/front-end/components/ui/image.tsx';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
 import { Card } from '@/front-end/components/ui/card.tsx';

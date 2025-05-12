@@ -1,16 +1,16 @@
 import { injectDB, type Database, type Transaction } from '@/back-end/core/db/db';
-import type { OmitAutoFields, ProfileId, ProfileType, UserId } from '@/back-end/core/db/db.types';
-import { profilesTable } from '@/back-end/core/db/schema/schema-profiles';
-import { userProfilesTable } from '@/back-end/core/db/schema/schema-userprofiles';
-import { usersTable } from '@/back-end/core/db/schema/schema-users';
+import { profilesTable } from '@/shared/definition/schema/db/db-profiles';
+import { userProfilesTable } from '@/shared/definition/schema/db/db-userprofiles';
 import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
-import { and, count, eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
+import type { UserId } from '@/shared/definition/schema/types/types-user';
+import type { Profile, ProfileId, ProfileInsert } from '@/shared/definition/schema/types/types-profiles';
 
 @injectableSingleton()
 export class ProfileRepository {
   public constructor(@injectDB() private readonly db: Database) {}
 
-  public async create(userId: UserId, data: OmitAutoFields<ProfileType>, tx: Transaction): Promise<ProfileType | null> {
+  public async create(userId: UserId, data: ProfileInsert, tx: Transaction): Promise<Profile | null> {
     const [profile] = await tx
       .insert(profilesTable)
       .values(data)
@@ -21,7 +21,7 @@ export class ProfileRepository {
     return profile;
   }
 
-  public async findByUserId(userId: UserId): Promise<ProfileType[]> {
+  public async findByUserId(userId: UserId): Promise<Profile[]> {
     return (
       await this.db
         .select()
@@ -45,7 +45,7 @@ export class ProfileRepository {
       .limit(1);
   }
 
-  public async update(profileId: ProfileId, data: Partial<OmitAutoFields<ProfileType>>, tx: Transaction) {
+  public async update(profileId: ProfileId, data: Partial<Profile>, tx: Transaction) {
     await tx.update(profilesTable).set(data).where(eq(profilesTable.id, profileId)).returning();
   }
 

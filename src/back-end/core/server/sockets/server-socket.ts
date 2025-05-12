@@ -1,13 +1,8 @@
 import { Socket } from '@/shared/socket/socket';
-import {
-  clientServerEvent,
-  ErrorType,
-  type ClientServerEvent,
-  type ServerClientEvent,
-} from '@/shared/socket/socket.events';
+import { clientServerEvent, ErrorType } from '@/shared/socket/socket-events';
 import type { ServerWebSocket } from 'bun';
 import { TypeCompiler } from '@sinclair/typebox/compiler';
-import type { SocketId } from './socket-types';
+import type { ClientServerEvent, ServerClientEvent, SocketId } from '@/shared/socket/socket-types';
 
 const typeCheck = TypeCompiler.Compile(clientServerEvent);
 

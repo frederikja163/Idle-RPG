@@ -2,7 +2,6 @@ import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 import { ProfileCache } from './profile-cache';
 import { ProfileRepository } from './profile-repository';
 import { ProfileEventDispatcher } from '@/back-end/core/events/profile-dispatcher';
-import type { OmitAutoFields, ProfileId, ProfileType, UserId } from '@/back-end/core/db/db.types';
 import { injectDB, type Database } from '@/back-end/core/db/db';
 import {
   ProfileDeselectedEventToken,
@@ -13,6 +12,8 @@ import {
   type ProfileSelectedEventListener,
 } from '@/back-end/core/events/profile-event';
 import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup-event';
+import type { ProfileId, ProfileInsert } from '@/shared/definition/schema/types/types-profiles';
+import type { UserId } from '@/shared/definition/schema/types/types-user';
 
 @injectableSingleton(ProfileSelectedEventToken, ProfileDeselectedEventToken, CleanupEventToken)
 export class ProfileService
@@ -54,7 +55,7 @@ export class ProfileService
     }
   }
 
-  public async create(userId: UserId, data: OmitAutoFields<ProfileType>) {
+  public async create(userId: UserId, data: ProfileInsert) {
     try {
       const profile = await this.db.transaction(async (tx) => await this.profileRepo.create(userId, data, tx));
       if (profile) this.profileDispatcher.emitProfileCreated({ userId, profile });

@@ -1,5 +1,3 @@
-import type { SocketId } from './socket-types';
-import type { ProfileId, UserId } from '../../db/db.types';
 import { injectableSingleton } from '../../lib/lib-tsyringe';
 import {
   SocketCloseEventToken,
@@ -10,6 +8,9 @@ import {
   type SocketOpenEventListener,
 } from '../../events/socket-event';
 import { Lookup } from '@/shared/lib/lookup';
+import type { UserId } from '@/shared/definition/schema/types/types-user';
+import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
+import type { SocketId } from '@/shared/socket/socket-types';
 
 @injectableSingleton(SocketOpenEventToken, SocketCloseEventToken)
 export class SocketSessionStore implements SocketOpenEventListener, SocketCloseEventListener {

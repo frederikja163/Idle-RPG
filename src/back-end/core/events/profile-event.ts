@@ -1,5 +1,6 @@
+import type { Profile, ProfileId } from '@/shared/definition/schema/types/types-profiles';
+import type { UserId } from '@/shared/definition/schema/types/types-user';
 import type { InjectionToken } from 'tsyringe';
-import type { ProfileId, ProfileType, UserId } from '../db/db.types';
 
 export type ProfileSelectedEventData = { userId: UserId; profileId: ProfileId };
 export interface ProfileSelectedEventListener {
@@ -13,7 +14,7 @@ export interface ProfileDeselectedEventListener {
 }
 export const ProfileDeselectedEventToken: InjectionToken<ProfileDeselectedEventListener> = Symbol('ProfileDeselected');
 
-export type ProfileCreatedEventData = { userId: UserId; profile: ProfileType };
+export type ProfileCreatedEventData = { userId: UserId; profile: Profile };
 export interface ProfileCreatedEventListener {
   onProfileCreated(event: ProfileCreatedEventData): void | Promise<void>;
 }

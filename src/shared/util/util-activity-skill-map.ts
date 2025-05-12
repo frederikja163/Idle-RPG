@@ -1,5 +1,5 @@
-﻿import { activities } from '@/shared/definition/definition.activities';
-import { skills } from '@/shared/definition/definition.skills.ts';
+﻿import { activities } from '@/shared/definition/definition-activities';
+import { skills } from '@/shared/definition/definition-skills';
 
 export const activitySkillMap = new Map<string, string[]>();
 
