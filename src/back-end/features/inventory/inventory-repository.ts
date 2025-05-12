@@ -9,20 +9,18 @@ export class InventoryRepository {
   public constructor(@injectDB() private readonly db: Database) {}
 
   public async getByProfileId(profileId: ProfileId) {
-    return (
-      (await this.db.select().from(itemsTable).where(eq(itemsTable.profileId, profileId)).orderBy(itemsTable.index)) ??
-      []
-    );
+    return await this.db.select().from(itemsTable).where(eq(itemsTable.profileId, profileId)).orderBy(itemsTable.index);
   }
 
-  public async updateItems(profileId: ProfileId, inventory: Omit<ItemType, 'profileId' | 'index'>[], tx: Transaction) {
+  public async updateItems(profileId: ProfileId, inventory: ItemType[], tx: Transaction) {
     await tx.delete(itemsTable).where(eq(itemsTable.profileId, profileId));
-    await tx.insert(itemsTable).values(
-      inventory.map((item, index) => ({
-        ...item,
-        profileId,
-        index,
-      })),
-    );
+    await tx.insert(itemsTable).values(inventory);
+  }
+
+  public async updateItem(item: ItemType, tx: Transaction) {
+    await tx
+      .insert(itemsTable)
+      .values(item)
+      .onConflictDoUpdate({ target: [itemsTable.profileId, itemsTable.itemId], set: item });
   }
 }

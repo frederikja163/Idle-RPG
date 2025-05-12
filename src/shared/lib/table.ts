@@ -44,9 +44,6 @@ export class Table<TCol, TRow, TValue> {
   }
 
   public getColumn(col: TCol) {
-    return this.map
-      .get(col)
-      ?.entries()
-      .map(([_, c]) => c);
+    return this.map.get(col);
   }
 }

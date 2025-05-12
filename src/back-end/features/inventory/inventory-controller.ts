@@ -21,18 +21,12 @@ export class InventoryController implements SocketOpenEventListener {
     socket.on('Inventory/SwapItems', this.handleSwapItems.bind(this));
   }
 
-  private getDto(inventory: ItemType[]): ItemDto[] {
-    return inventory.map((i) => ({
-      ...i,
-    }));
-  }
-
   private async handleGetInventory(socket: ServerSocket, {}: ServerData<'Inventory/GetInventory'>) {
     const profileId = this.socketHub.getProfileId(socket.id);
     if (!profileId) return socket.error(ErrorType.RequiresProfile);
 
     const inventory = await this.inventoryService.getByProfileId(profileId);
-    socket.send('Inventory/UpdateInventory', { items: this.getDto(inventory) });
+    socket.send('Inventory/UpdateInventory', { items: inventory });
   }
 
   private async handleSwapItems(socket: ServerSocket, { index1, index2 }: ServerData<'Inventory/SwapItems'>) {
@@ -43,9 +37,9 @@ export class InventoryController implements SocketOpenEventListener {
     if (index1 < 0 || index1 >= inventory.length || index2 < 0 || index2 >= inventory.length)
       return socket.error(ErrorType.ArgumentOutOfRange);
 
-    [inventory[index1], inventory[index2]] = [inventory[index2], inventory[index1]];
-    this.inventoryService.update(profileId, inventory);
+    [inventory[index1].index, inventory[index2].index] = [inventory[index2].index, inventory[index1].index];
+    this.inventoryService.updateInventory(profileId);
 
-    this.socketHub.broadcastToProfile(profileId, 'Inventory/UpdateInventory', { items: this.getDto(inventory) });
+    this.socketHub.broadcastToProfile(profileId, 'Inventory/UpdateInventory', { items: inventory });
   }
 }
