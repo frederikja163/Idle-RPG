@@ -1,9 +1,9 @@
-import type { UserId, UserType } from '@/back-end/core/db/db.types';
 import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
+import type { User, UserId } from '@/shared/definition/schema/types/types-user';
 
 @injectableSingleton()
 export class UserCache {
-  private readonly userIdCache = new Map<UserId, UserType>();
+  private readonly userIdCache = new Map<UserId, User>();
 
   public getUserIds() {
     return this.userIdCache.keys();
@@ -21,7 +21,7 @@ export class UserCache {
     this.userIdCache.delete(userId);
   }
 
-  public storeUser(user: UserType) {
+  public storeUser(user: User) {
     this.userIdCache.set(user.id, user);
   }
 }

@@ -2,7 +2,6 @@ import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 import { ProfileCache } from './profile-cache';
 import { ProfileRepository } from './profile-repository';
 import { ProfileEventDispatcher } from '@/back-end/core/events/profile-dispatcher';
-import type { OmitAutoFields, ProfileId, ProfileType, UserId } from '@/back-end/core/db/db.types';
 import { injectDB, type Database } from '@/back-end/core/db/db';
 import {
   ProfileDeselectedEventToken,
@@ -13,13 +12,15 @@ import {
   type ProfileSelectedEventListener,
 } from '@/back-end/core/events/profile-event';
 import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup-event';
-import { SkillRepository } from '../skill/skill-repository';
-import { skills } from '@/shared/definition/definition.skills';
+import type { ProfileId, ProfileInsert } from '@/shared/definition/schema/types/types-profiles';
+import type { UserId } from '@/shared/definition/schema/types/types-user';
 
 @injectableSingleton(ProfileSelectedEventToken, ProfileDeselectedEventToken, CleanupEventToken)
 export class ProfileService
   implements ProfileSelectedEventListener, ProfileDeselectedEventListener, CleanupEventListener
 {
+  private readonly dirtyProfiles = new Set<ProfileId>();
+
   public constructor(
     @injectDB() private readonly db: Database,
     private readonly profileCache: ProfileCache,
@@ -54,7 +55,7 @@ export class ProfileService
     }
   }
 
-  public async create(userId: UserId, data: OmitAutoFields<ProfileType>) {
+  public async create(userId: UserId, data: ProfileInsert) {
     try {
       const profile = await this.db.transaction(async (tx) => await this.profileRepo.create(userId, data, tx));
       if (profile) this.profileDispatcher.emitProfileCreated({ userId, profile });
@@ -71,6 +72,14 @@ export class ProfileService
       this.profileDispatcher.emitProfileDeleted({ userId, profileId });
     } catch (error) {
       console.error(`Failed to delete profile ${profileId}`, error);
+    }
+  }
+
+  public update(profileId: ProfileId) {
+    try {
+      this.dirtyProfiles.add(profileId);
+    } catch (error) {
+      console.error(`Failed marking profile as dirt ${profileId}`);
     }
   }
 
@@ -97,7 +106,14 @@ export class ProfileService
   public async cleanup(): Promise<void> {
     try {
       const profileIds = this.profileCache.getProfileIds().toArray();
-      await this.db.transaction(async (tx) => await this.profileRepo.updateTimes(profileIds, tx));
+      await this.db.transaction(async (tx) => {
+        await this.profileRepo.updateTimes(profileIds, tx);
+        for (const profileId of this.dirtyProfiles) {
+          const profile = this.profileCache.getProfileById(profileId);
+          if (profile) this.profileRepo.update(profileId, profile, tx);
+        }
+        this.dirtyProfiles.clear();
+      });
     } catch (error) {
       console.error(`Failed updating times for all profiles`, error);
     }

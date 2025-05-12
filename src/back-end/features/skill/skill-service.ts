@@ -11,10 +11,9 @@ import {
   type ProfileSelectedEventListener,
 } from '@/back-end/core/events/profile-event';
 import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup-event';
-import type { ProfileId, SkillType } from '@/back-end/core/db/db.types';
-import type { SkillId } from '@/shared/definition/definition.skills';
 import { Lookup } from '@/shared/lib/lookup';
-import { skills as allSkills } from '@/shared/definition/definition.skills';
+import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
+import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skills';
 
 @injectableSingleton(ProfileSelectedEventToken, ProfileDeselectedEventToken, CleanupEventToken)
 export class SkillService
@@ -29,13 +28,13 @@ export class SkillService
     private readonly skillRepo: SkillRepository,
   ) {}
 
-  public async getSkillsByProfileId(profileId: ProfileId): Promise<SkillType[] | undefined> {
+  public async getSkillsByProfileId(profileId: ProfileId): Promise<Skill[] | undefined> {
     try {
       const cache = this.skillCache.getSkillsByProfileId(profileId);
-      if (cache) return cache.toArray();
+      if (cache) return cache.values().toArray();
 
       await this.warmupCache(profileId);
-      return this.skillCache.getSkillsByProfileId(profileId)?.toArray();
+      return this.skillCache.getSkillsByProfileId(profileId)?.values().toArray();
     } catch (error) {
       console.error(`Failed getting skills for profile ${profileId}`, error);
     }
@@ -50,7 +49,8 @@ export class SkillService
       if (skills) {
         this.skillCache.store(profileId, skills);
       }
-      return this.skillCache.getSkillById(profileId, skillId);
+      // TODO: The new skill should be added to the cache.
+      return this.skillCache.getSkillById(profileId, skillId) ?? { profileId, skillId, xp: 0, level: 0 };
     } catch (error) {
       console.error(`Failed getting skill by id ${profileId} ${skillId}`, error);
     }
@@ -78,13 +78,10 @@ export class SkillService
   }
 
   public async cleanup(): Promise<void> {
-    const profileSkills = this.dirtyProfiles.entries().toArray();
-    console.log(profileSkills);
+    const profileSkills = this.dirtyProfiles.values().toArray();
     const profilesToRemove = Array.from(this.profilesToRemove);
 
     try {
-      this.dirtyProfiles.clear();
-      this.profilesToRemove.clear();
       await this.db.transaction(async (tx) => {
         for (const [profileId, skillId] of profileSkills) {
           const skill = this.skillCache.getSkillById(profileId, skillId);
@@ -94,6 +91,8 @@ export class SkillService
         }
       });
       profilesToRemove.forEach(this.skillCache.invalidateCache);
+      this.dirtyProfiles.clear();
+      this.profilesToRemove.clear();
     } catch (error) {
       profileSkills.forEach(([p, s]) => this.dirtyProfiles.add(p, s));
       profilesToRemove.forEach(this.profilesToRemove.add);

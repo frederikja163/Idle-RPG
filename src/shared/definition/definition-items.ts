@@ -1,4 +1,6 @@
-export const items = new Map<string, Item>();
+import type { ItemId } from './schema/types/types-items';
+
+export const items = new Map<string, ItemDef>();
 
 ore('Talc');
 ore('Gypsum');
@@ -36,8 +38,8 @@ export const itemTagDisplayMap = new Map<ItemTag, string>([
   [ItemTag.Tool, 'Tool'],
 ]);
 
-export type Item = {
-  id: string;
+export type ItemDef = {
+  id: ItemId;
   display: string;
   tags: ItemTag[];
 };

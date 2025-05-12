@@ -6,9 +6,9 @@ import {
 import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 import { SkillService } from './skill-service';
 import { SocketHub } from '@/back-end/core/server/sockets/socket-hub';
-import type { ServerData } from '@/back-end/core/server/sockets/socket-types';
 import type { ServerSocket } from '@/back-end/core/server/sockets/server-socket';
-import { ErrorType } from '@/shared/socket/socket.events';
+import { ErrorType } from '@/shared/socket/socket-events';
+import type { ServerData } from '@/shared/socket/socket-types';
 
 @injectableSingleton(SocketOpenEventToken)
 export class SkillController implements SocketOpenEventListener {

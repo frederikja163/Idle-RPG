@@ -1,9 +1,9 @@
 import { injectDB, type Database, type Transaction } from '@/back-end/core/db/db';
-import type { ProfileId, SkillType } from '@/back-end/core/db/db.types';
-import { skillsTable } from '@/back-end/core/db/schema/schema-skills';
+import { skillsTable } from '@/shared/definition/schema/db/db-skills';
 import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
-import type { SkillId } from '@/shared/definition/definition.skills';
-import { type InferInsertModel, eq, and } from 'drizzle-orm';
+import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
+import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skills';
+import { and, eq } from 'drizzle-orm';
 
 @injectableSingleton()
 export class SkillRepository {
@@ -24,7 +24,7 @@ export class SkillRepository {
     await tx.insert(skillsTable).values(skills.map((s) => ({ skillId: s, profileId })));
   }
 
-  public async update(profileId: ProfileId, skillId: SkillId, skill: SkillType, tx: Transaction) {
+  public async update(profileId: ProfileId, skillId: SkillId, skill: Skill, tx: Transaction) {
     await tx
       .update(skillsTable)
       .set({ ...skill, profileId, skillId })

@@ -1,8 +1,8 @@
 import { Type, type Static, type TLiteralValue, type TProperties } from '@sinclair/typebox';
-
-function event<T1 extends TLiteralValue, T2 extends TProperties>(type: T1, data: T2) {
-  return Type.Object({ type: Type.Literal(type), data: Type.Object(data) });
-}
+import { createSelectSchema } from 'drizzle-typebox';
+import { profilesTable } from '../definition/schema/db/db-profiles';
+import { itemsTable } from '../definition/schema/db/db-items';
+import { skillsTable } from '../definition/schema/db/db-skills';
 
 export enum ErrorType {
   NotImplemented, // = "This is not implemented yet.",
@@ -15,33 +15,12 @@ export enum ErrorType {
   ArgumentOutOfRange, // = "Provided argument is out of range.",
   RequiresProfile, // = "You must select a profile to do this.",
   InsufficientLevel, // = "This activity requires a lever higher than yours.",
+  NoActivity, // = "No activity in progress.",
 }
 
-export const profileDto = Type.Object({
-  id: Type.String(),
-  name: Type.String(),
-  firstLogin: Type.Date(),
-  lastLogin: Type.Date(),
-});
-export type ProfileDto = Static<typeof profileDto>;
-
-export const itemDto = Type.Object({
-  profileId: Type.String(),
-  itemId: Type.String(),
-  count: Type.Number(),
-  index: Type.Number(),
-});
-export type ItemDto = Static<typeof itemDto>;
-export const inventoryDto = Type.Array(itemDto);
-export type InventoryDto = Static<typeof inventoryDto>;
-
-export const skillDto = Type.Object({
-  profileId: Type.String(),
-  skillId: Type.String(),
-  level: Type.Number(),
-  xp: Type.Number(),
-});
-export const skillsDto = Type.Array(skillDto);
+const profileDto = createSelectSchema(profilesTable);
+const itemDto = createSelectSchema(itemsTable);
+const skillDto = createSelectSchema(skillsTable);
 
 export const clientServerEvent = Type.Union([
   // Auth/LoginSuccess
@@ -77,11 +56,13 @@ export const clientServerEvent = Type.Union([
   // Activity/ActivityStarted
   // Error: RequiresProfile, InsufficientLevel
   event('Activity/StartActivity', { activityId: Type.String() }),
+  // Activity/ActivityStopped
+  // Error: RequiresProfile, NoActivity
+  event('Activity/StopActivity', {}),
   // Activity/ActivityStarted
-  // Error: RequiresProfile
+  // Error: RequiresProfile, NoActivity
   event('Activity/GetActivity', {}),
 ]);
-export type ClientServerEvent = typeof clientServerEvent;
 
 export const serverClientEvent = Type.Union([
   event('Error', { error: Type.Enum(ErrorType) }),
@@ -89,8 +70,12 @@ export const serverClientEvent = Type.Union([
   event('Auth/LogoutSuccess', {}),
   event('Profile/UpdateProfiles', { profiles: Type.Array(profileDto) }),
   event('Profile/SelectProfileSuccess', {}),
-  event('Inventory/UpdateInventory', { items: inventoryDto }),
-  event('Skill/UpdateSkills', { skills: skillsDto }),
-  event('Activity/ActivityStarted', { activityId: Type.String(), time: Type.Number() }),
+  event('Inventory/UpdateInventory', { items: Type.Array(itemDto) }),
+  event('Skill/UpdateSkills', { skills: Type.Array(skillDto) }),
+  event('Activity/ActivityStarted', { activityId: Type.String(), activityStart: Type.Date() }),
+  event('Activity/ActivityStopped', { activityId: Type.String(), activityStop: Type.Date() }),
 ]);
-export type ServerClientEvent = typeof serverClientEvent;
+
+function event<T1 extends TLiteralValue, T2 extends TProperties>(type: T1, data: T2) {
+  return Type.Object({ type: Type.Literal(type), data: Type.Object(data) });
+}

@@ -1,6 +1,6 @@
-﻿import type { Item } from '@/shared/definition/definition.items';
+﻿import type { ItemDef } from '@/shared/definition/definition-items';
 
 export interface ItemStack {
-  item: Item;
+  item: ItemDef;
   count: number;
 }

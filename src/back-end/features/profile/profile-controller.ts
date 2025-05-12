@@ -1,7 +1,4 @@
-import type { ProfileType } from '@/back-end/core/db/db.types';
 import { ServerSocket } from '@/back-end/core/server/sockets/server-socket';
-import type { ServerData } from '@/back-end/core/server/sockets/socket-types';
-import { type ProfileDto, ErrorType } from '@/shared/socket/socket.events';
 import { ProfileEventDispatcher } from '@/back-end/core/events/profile-dispatcher';
 import {
   SocketOpenEventToken,
@@ -11,6 +8,8 @@ import {
 import { SocketHub } from '@/back-end/core/server/sockets/socket-hub';
 import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 import { ProfileService } from './profile-service';
+import type { ServerData } from '@/shared/socket/socket-types';
+import { ErrorType } from '@/shared/socket/socket-events';
 
 @injectableSingleton(SocketOpenEventToken)
 export class ProfileController implements SocketOpenEventListener {
@@ -42,7 +41,7 @@ export class ProfileController implements SocketOpenEventListener {
     const userId = this.socketHub.getUserId(socket.id);
     if (!userId) return socket.error(ErrorType.RequiresLogin);
 
-    const profile = await this.profileService.create(userId, { name });
+    const profile = await this.profileService.create(userId, { name, activityId: null, activityStart: null });
     if (!profile) return socket.error(ErrorType.NameTaken);
 
     const profiles = await this.profileService.getProfilesByUserId(userId);
