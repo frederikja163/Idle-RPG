@@ -13,7 +13,7 @@ const schema = {
   itemsTable: itemsTable,
   skillsTable: skillsTable,
 };
-export const db = drizzle(process.env.DB_FILE_NAME!);
+export const db = drizzle(process.env.DB_FILE_NAME!, { schema });
 export type Database = typeof db;
 export type Transaction = Parameters<Parameters<Database['transaction']>[0]>[0];
 export class DatabaseToken {}

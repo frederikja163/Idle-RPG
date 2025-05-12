@@ -1,11 +1,11 @@
-import { file, serve, type ServerWebSocket } from 'bun';
-import { ServerSocket } from './sockets/server-socket';
-import { SocketEventDispatcher } from '../events/socket-dispatcher';
-import { SocketRegistry } from './sockets/socket-registry';
-import { injectableSingleton } from '../lib/lib-tsyringe';
-import type { SocketId } from '@/shared/socket/socket-types';
+import { file, serve, type ServerWebSocket } from "bun";
+import { ServerSocket } from "./sockets/server-socket";
+import { SocketEventDispatcher } from "../events/socket-dispatcher";
+import { SocketRegistry } from "./sockets/socket-registry";
+import { injectableSingleton } from "../lib/lib-tsyringe";
+import type { SocketId } from "@/shared/socket/socket-types";
 
-const forbiddenPathStrings = ['\\', '..', ':'];
+const forbiddenPathStrings = ["\\", "..", ":"];
 
 @injectableSingleton()
 export class Server {
@@ -14,7 +14,7 @@ export class Server {
 
   constructor(
     private readonly socketRegistry: SocketRegistry,
-    private readonly socketDispatcher: SocketEventDispatcher,
+    private readonly socketDispatcher: SocketEventDispatcher
   ) {}
 
   public start() {
@@ -28,34 +28,40 @@ export class Server {
         message: this.socketMessage.bind(this),
         close: this.socketClose.bind(this),
       },
-      development: process.env.NODE_ENV !== 'production',
+      development: process.env.NODE_ENV !== "production",
       tls: {
-        cert: process.env.TLS_CERT_PATH ? file(process.env.TLS_CERT_PATH) : undefined,
-        key: process.env.TLS_KEY_PATH ? file(process.env.TLS_KEY_PATH) : undefined,
+        cert: process.env.TLS_CERT_PATH
+          ? file(process.env.TLS_CERT_PATH)
+          : undefined,
+        key: process.env.TLS_KEY_PATH
+          ? file(process.env.TLS_KEY_PATH)
+          : undefined,
       },
     });
     console.log(`Server running at: ${this.server.url}`);
   }
 
-  private hostAssets(request: Bun.BunRequest<'/assets/*.svg'>) {
+  private hostAssets(request: Bun.BunRequest<"/assets/*.svg">) {
     const url = request.url;
-    const fileName = url.split('/assets/')[1];
+    const fileName = url.split("/assets/")[1];
     const path = `./src/front-end/assets/${fileName}`;
 
     for (const str of forbiddenPathStrings) {
       if (fileName.includes(str)) {
-        return new Response('Bad request', { status: 400 });
+        return new Response("Bad request", { status: 400 });
       }
     }
 
-    return new Response(file(path), { headers: { 'Content-Type': 'image/svg+xml' } });
+    return new Response(file(path), {
+      headers: { "Content-Type": "image/svg+xml" },
+    });
   }
 
   private fetch(request: Request, server: Bun.Server) {
     if (server.upgrade(request)) {
       return;
     }
-    return new Response('Failed to upgrade websocket', { status: 400 });
+    return new Response("Failed to upgrade websocket", { status: 400 });
   }
 
   private socketOpen(ws: ServerWebSocket) {
@@ -65,7 +71,10 @@ export class Server {
     this.socketDispatcher.emitSocketOpen({ socketId: socket.id });
   }
 
-  private socketMessage(ws: ServerWebSocket, message: string | Buffer<ArrayBufferLike>) {
+  private socketMessage(
+    ws: ServerWebSocket,
+    message: string | Buffer<ArrayBufferLike>
+  ) {
     const socketId = this.sockets.get(ws)!;
     const socket = this.socketRegistry.getSocket(socketId);
     const string = String(message);
@@ -75,7 +84,7 @@ export class Server {
   private socketClose(ws: ServerWebSocket, code: number, reason: string) {
     const socketId = this.sockets.get(ws)!;
     this.sockets.delete(ws);
-    this.socketDispatcher.emitSocketClose({ socketId });
+    this.socketDispatcher.emitSocketClose({ socketId, code, reason });
     this.socketRegistry.removeSocket(socketId);
   }
 }
