@@ -12,18 +12,28 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
   const socket = useSocket();
   const setActiveActivity = useSetAtom(activeActivityAtom);
 
-  const [skills, setSkills] = useState<Skill[]>();
+  const [profileSkills, setProfileSkills] = useState<Skill[]>();
 
   const skillTabs = useMemo(
     () =>
-      skills?.map((skill, i) => {
-        return {
-          label: skillDefinitions.get(skill.skillId),
-          content: <ActivitiesGrid key={i} skillId={skill.skillId} />,
-          buttonContent: <SkillButton key={i} skill={skill} />,
-        } as Tab;
-      }),
-    [skills],
+      skillDefinitions
+        .entries()
+        .map(([id, skillDef], i) => {
+          const profileSkill: Skill = profileSkills?.find((skill) => skill.skillId === id) ?? {
+            profileId: '',
+            skillId: id,
+            xp: 0,
+            level: 0,
+          };
+
+          return {
+            label: skillDef.display,
+            content: <ActivitiesGrid key={i} skill={profileSkill} />,
+            buttonContent: <SkillButton key={i} skill={profileSkill} />,
+          } as Tab;
+        })
+        .toArray(),
+    [],
   );
 
   useEffect(() => {
@@ -31,7 +41,7 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
     socket?.send('Activity/GetActivity', {});
 
     socket?.on('Activity/ActivityStarted', (_, data) => setActiveActivity(data));
-    socket?.on('Skill/UpdateSkills', (_, data) => setSkills(data.skills));
+    socket?.on('Skill/UpdateSkills', (_, data) => setProfileSkills(data.skills));
   }, []);
 
   if (!skillTabs) return;
