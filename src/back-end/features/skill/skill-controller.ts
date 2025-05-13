@@ -26,8 +26,7 @@ export class SkillController implements SocketOpenEventListener {
     socket: ServerSocket,
     _: ServerData<"Skill/GetSkills">
   ) {
-    const profileId = this.socketHub.getProfileId(socket.id);
-    if (!profileId) return socket.error(ErrorType.RequiresProfile);
+    const profileId = this.socketHub.requireProfileId(socket.id);
 
     const skills = await this.skillService.getSkillsByProfileId(profileId);
     if (!skills) return socket.error(ErrorType.InternalError);

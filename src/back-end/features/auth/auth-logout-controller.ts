@@ -23,10 +23,7 @@ export class AuthLogoutController implements SocketOpenEventListener {
   }
 
   private handleLogout(socket: ServerSocket, _: ServerData<"Auth/Logout">) {
-    const userId = this.socketHub.getUserId(socket.id);
-    if (!userId) {
-      return socket.error(ErrorType.RequiresLogin);
-    }
+    const userId = this.socketHub.requiresUserId(socket.id);
     this.userDispatch.emitUserLoggedOut({ userId });
     this.socketHub.setUserId(socket.id);
     socket.send("Auth/LogoutSuccess", {});

@@ -27,8 +27,7 @@ export class InventoryController implements SocketOpenEventListener {
     socket: ServerSocket,
     _: ServerData<"Inventory/GetInventory">
   ) {
-    const profileId = this.socketHub.getProfileId(socket.id);
-    if (!profileId) return socket.error(ErrorType.RequiresProfile);
+    const profileId = this.socketHub.requireProfileId(socket.id);
 
     const inventory = await this.inventoryService.getByProfileId(profileId);
     socket.send("Inventory/UpdateInventory", { items: inventory });
@@ -38,8 +37,7 @@ export class InventoryController implements SocketOpenEventListener {
     socket: ServerSocket,
     { index1, index2 }: ServerData<"Inventory/SwapItems">
   ) {
-    const profileId = this.socketHub.getProfileId(socket.id);
-    if (!profileId) return socket.error(ErrorType.RequiresProfile);
+    const profileId = this.socketHub.requireProfileId(socket.id);
 
     const inventory = await this.inventoryService.getByProfileId(profileId);
     if (

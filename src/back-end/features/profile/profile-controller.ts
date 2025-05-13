@@ -31,8 +31,7 @@ export class ProfileController implements SocketOpenEventListener {
     socket: ServerSocket,
     _: ServerData<"Profile/GetProfiles">
   ) {
-    const userId = this.socketHub.getUserId(socket.id);
-    if (!userId) return socket.error(ErrorType.RequiresLogin);
+    const userId = this.socketHub.requiresUserId(socket.id);
     const profiles = await this.profileService.getProfilesByUserId(userId);
 
     socket.send("Profile/UpdateProfiles", {
@@ -44,8 +43,7 @@ export class ProfileController implements SocketOpenEventListener {
     socket: ServerSocket,
     { name }: ServerData<"Profile/CreateProfile">
   ) {
-    const userId = this.socketHub.getUserId(socket.id);
-    if (!userId) return socket.error(ErrorType.RequiresLogin);
+    const userId = this.socketHub.requiresUserId(socket.id);
 
     const profile = await this.profileService.create(userId, {
       name,
@@ -64,8 +62,7 @@ export class ProfileController implements SocketOpenEventListener {
     socket: ServerSocket,
     { index }: ServerData<"Profile/DeleteProfile">
   ) {
-    const userId = this.socketHub.getUserId(socket.id);
-    if (!userId) return socket.error(ErrorType.RequiresLogin);
+    const userId = this.socketHub.requiresUserId(socket.id);
 
     const profiles = await this.profileService.getProfilesByUserId(userId);
     if (index < 0 || index >= profiles.length)
@@ -86,14 +83,13 @@ export class ProfileController implements SocketOpenEventListener {
     socket: ServerSocket,
     { index }: ServerData<"Profile/SelectProfile">
   ) {
-    const userId = this.socketHub.getUserId(socket.id);
-    if (!userId) return socket.error(ErrorType.RequiresLogin);
+    const userId = this.socketHub.requiresUserId(socket.id);
 
     const profiles = await this.profileService.getProfilesByUserId(userId);
     if (index < 0 || index >= profiles.length)
       return socket.error(ErrorType.ArgumentOutOfRange);
 
-    const oldProfileId = this.socketHub.getProfileId(socket.id);
+    const oldProfileId = this.socketHub.requireProfileId(socket.id);
     if (oldProfileId) {
       this.profileEventDispatcher.emitProfileDeselected({
         userId,

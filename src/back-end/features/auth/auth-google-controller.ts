@@ -52,11 +52,9 @@ export class AuthGoogleController implements SocketOpenEventListener {
     if (!email) return socket.error(ErrorType.InvalidInput);
     if (!emailVerified) return socket.error(ErrorType.EmailNotVerified);
 
-    const oldUserId = this.socketHub.getUserId(socket.id);
-    if (oldUserId) {
-      this.userDispatch.emitUserLoggedOut({ userId: oldUserId });
-      socket.send("Auth/LogoutSuccess", {});
-    }
+    const oldUserId = this.socketHub.requiresUserId(socket.id);
+    this.userDispatch.emitUserLoggedOut({ userId: oldUserId });
+    socket.send("Auth/LogoutSuccess", {});
 
     const user =
       (await this.userService.getByGoogleId(googleId)) ??
