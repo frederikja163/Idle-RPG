@@ -8,7 +8,7 @@ import {
 import { injectableSingleton } from "@/back-end/core/lib/lib-tsyringe";
 import { InventoryService } from "./inventory-service";
 import type { ServerData } from "@/shared/socket/socket-types";
-import { ErrorType } from "@/shared/socket/socket-events";
+import { ErrorType } from "@/shared/socket/socket-errors";
 
 @injectableSingleton(SocketOpenEventToken)
 export class InventoryController implements SocketOpenEventListener {

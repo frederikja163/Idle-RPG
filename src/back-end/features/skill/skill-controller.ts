@@ -7,7 +7,7 @@ import { injectableSingleton } from "@/back-end/core/lib/lib-tsyringe";
 import { SkillService } from "./skill-service";
 import { SocketHub } from "@/back-end/core/server/sockets/socket-hub";
 import type { ServerSocket } from "@/back-end/core/server/sockets/server-socket";
-import { ErrorType } from "@/shared/socket/socket-events";
+import { ErrorType } from "@/shared/socket/socket-errors";
 import type { ServerData } from "@/shared/socket/socket-types";
 
 @injectableSingleton(SocketOpenEventToken)

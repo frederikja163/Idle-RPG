@@ -7,7 +7,6 @@ import { injectableSingleton } from "@/back-end/core/lib/lib-tsyringe";
 import { SocketHub } from "@/back-end/core/server/sockets/socket-hub";
 import { ProfileService } from "../profile/profile-service";
 import type { ServerSocket } from "@/back-end/core/server/sockets/server-socket";
-import { ErrorType } from "@/shared/socket/socket-events";
 import { SkillService } from "../skill/skill-service";
 import { InventoryService } from "../inventory/inventory-service";
 import {
@@ -19,6 +18,7 @@ import { getActionCount } from "@/shared/util/util-activities";
 import { addXp } from "@/shared/util/util-skills";
 import type { ServerData } from "@/shared/socket/socket-types";
 import type { Profile } from "@/shared/definition/schema/types/types-profiles";
+import { ErrorType } from "@/shared/socket/socket-errors";
 
 @injectableSingleton(SocketOpenEventToken)
 export class ActivityController implements SocketOpenEventListener {

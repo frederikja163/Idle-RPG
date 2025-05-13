@@ -9,7 +9,7 @@ import { SocketHub } from "@/back-end/core/server/sockets/socket-hub";
 import { injectableSingleton } from "@/back-end/core/lib/lib-tsyringe";
 import { ProfileService } from "./profile-service";
 import type { ServerData } from "@/shared/socket/socket-types";
-import { ErrorType } from "@/shared/socket/socket-events";
+import { ErrorType } from "@/shared/socket/socket-errors";
 
 @injectableSingleton(SocketOpenEventToken)
 export class ProfileController implements SocketOpenEventListener {
