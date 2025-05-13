@@ -56,14 +56,11 @@ export class AuthGoogleController implements SocketOpenEventListener {
     this.userDispatch.emitUserLoggedOut({ userId: oldUserId });
     socket.send("Auth/LogoutSuccess", {});
 
-    const user =
-      (await this.userService.getByGoogleId(googleId)) ??
-      (await this.userService.createGoogleUser(
-        googleId,
-        email,
-        profilePicture ?? ""
-      ));
-    if (!user) return socket.error(ErrorType.InternalError);
+    const user = await this.userService.getOrCreateByGoogle(
+      googleId,
+      email,
+      profilePicture ?? ""
+    );
     this.userDispatch.emitUserLoggedIn({ userId: user.id });
     this.socketHub.setUserId(socket.id, user.id);
     socket.send("Auth/LoginSuccess", {});
