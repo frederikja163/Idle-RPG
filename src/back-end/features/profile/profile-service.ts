@@ -1,8 +1,8 @@
-import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
-import { ProfileCache } from './profile-cache';
-import { ProfileRepository } from './profile-repository';
-import { ProfileEventDispatcher } from '@/back-end/core/events/profile-dispatcher';
-import { injectDB, type Database } from '@/back-end/core/db/db';
+import { injectableSingleton } from "@/back-end/core/lib/lib-tsyringe";
+import { ProfileCache } from "./profile-cache";
+import { ProfileRepository } from "./profile-repository";
+import { ProfileEventDispatcher } from "@/back-end/core/events/profile-dispatcher";
+import { injectDB, type Database } from "@/back-end/core/db/db";
 import {
   ProfileDeselectedEventToken,
   ProfileSelectedEventToken,
@@ -10,14 +10,27 @@ import {
   type ProfileDeselectedEventListener,
   type ProfileSelectedEventData,
   type ProfileSelectedEventListener,
-} from '@/back-end/core/events/profile-event';
-import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup-event';
-import type { ProfileId, ProfileInsert } from '@/shared/definition/schema/types/types-profiles';
-import type { UserId } from '@/shared/definition/schema/types/types-user';
+} from "@/back-end/core/events/profile-event";
+import {
+  CleanupEventToken,
+  type CleanupEventListener,
+} from "@/back-end/core/events/cleanup-event";
+import type {
+  ProfileId,
+  ProfileInsert,
+} from "@/shared/definition/schema/types/types-profiles";
+import type { UserId } from "@/shared/definition/schema/types/types-user";
 
-@injectableSingleton(ProfileSelectedEventToken, ProfileDeselectedEventToken, CleanupEventToken)
+@injectableSingleton(
+  ProfileSelectedEventToken,
+  ProfileDeselectedEventToken,
+  CleanupEventToken
+)
 export class ProfileService
-  implements ProfileSelectedEventListener, ProfileDeselectedEventListener, CleanupEventListener
+  implements
+    ProfileSelectedEventListener,
+    ProfileDeselectedEventListener,
+    CleanupEventListener
 {
   private readonly dirtyProfiles = new Set<ProfileId>();
 
@@ -25,7 +38,7 @@ export class ProfileService
     @injectDB() private readonly db: Database,
     private readonly profileCache: ProfileCache,
     private readonly profileRepo: ProfileRepository,
-    private readonly profileDispatcher: ProfileEventDispatcher,
+    private readonly profileDispatcher: ProfileEventDispatcher
   ) {}
 
   public async getProfilesByUserId(userId: UserId) {
@@ -57,8 +70,11 @@ export class ProfileService
 
   public async create(userId: UserId, data: ProfileInsert) {
     try {
-      const profile = await this.db.transaction(async (tx) => await this.profileRepo.create(userId, data, tx));
-      if (profile) this.profileDispatcher.emitProfileCreated({ userId, profile });
+      const profile = await this.db.transaction(
+        async (tx) => await this.profileRepo.create(userId, data, tx)
+      );
+      if (profile)
+        this.profileDispatcher.emitProfileCreated({ userId, profile });
       return profile;
     } catch (error) {
       console.error(`Failed to created profile for ${userId}`, error);
@@ -68,7 +84,9 @@ export class ProfileService
 
   public async delete(userId: UserId, profileId: ProfileId) {
     try {
-      await this.db.transaction(async (tx) => await this.profileRepo.delete(profileId, tx));
+      await this.db.transaction(
+        async (tx) => await this.profileRepo.delete(profileId, tx)
+      );
       this.profileDispatcher.emitProfileDeleted({ userId, profileId });
     } catch (error) {
       console.error(`Failed to delete profile ${profileId}`, error);
@@ -79,11 +97,13 @@ export class ProfileService
     try {
       this.dirtyProfiles.add(profileId);
     } catch (error) {
-      console.error(`Failed marking profile as dirt ${profileId}`);
+      console.error(`Failed marking profile as dirt ${profileId}`, error);
     }
   }
 
-  public async onProfileSelected({ profileId }: ProfileSelectedEventData): Promise<void> {
+  public async onProfileSelected({
+    profileId,
+  }: ProfileSelectedEventData): Promise<void> {
     try {
       const profile = await this.profileRepo.findByProfileId(profileId);
       if (profile) this.profileCache.storeProfile(profile);
@@ -91,15 +111,22 @@ export class ProfileService
       console.error(`Failed to warmup cache for profile ${profileId}`, error);
     }
   }
-  public async onProfileDeselected({ profileId }: ProfileDeselectedEventData): Promise<void> {
+  public async onProfileDeselected({
+    profileId,
+  }: ProfileDeselectedEventData): Promise<void> {
     try {
       const profile = this.profileCache.getProfileById(profileId);
       if (profile) {
-        await this.db.transaction(async (tx) => this.profileRepo.update(profileId, profile, tx));
+        await this.db.transaction(async (tx) =>
+          this.profileRepo.update(profileId, profile, tx)
+        );
         this.profileCache.invalidateProfile(profileId);
       }
     } catch (error) {
-      console.error(`Failed invalidating cache for profile ${profileId}`, error);
+      console.error(
+        `Failed invalidating cache for profile ${profileId}`,
+        error
+      );
     }
   }
 

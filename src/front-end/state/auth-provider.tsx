@@ -1,6 +1,14 @@
-﻿import React, { createContext, type FC, type ReactNode, useCallback, useContext, useEffect, useState } from 'react';
-import type { CredentialResponse } from '@react-oauth/google';
-import { useSocket } from '@/front-end/state/socket-provider.tsx';
+﻿import React, {
+  createContext,
+  type FC,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import type { CredentialResponse } from "@react-oauth/google";
+import { useSocket } from "@/front-end/state/socket-provider.tsx";
 
 interface IAuthContext {
   isLoggedIn: boolean;
@@ -31,24 +39,24 @@ export const AuthProvider: FC<Props> = React.memo((props) => {
   const login = useCallback(
     (credentialResponse: CredentialResponse) => {
       if (!socket || !credentialResponse.credential) return;
-      socket.send('Auth/GoogleLogin', { token: credentialResponse.credential });
+      socket.send("Auth/GoogleLogin", { token: credentialResponse.credential });
     },
-    [socket],
+    [socket]
   );
 
   const logout = useCallback(() => {
     if (!socket) return;
-    socket.send('Auth/Logout', {});
+    socket.send("Auth/Logout", {});
   }, [socket]);
 
   useEffect(() => {
     if (!socket) return;
 
-    socket.on('Auth/LoginSuccess', (s, d) => {
+    socket.on("Auth/LoginSuccess", (_, __) => {
       setIsLoggedIn(true);
     });
 
-    socket.on('Auth/LogoutSuccess', (s, d) => {
+    socket.on("Auth/LogoutSuccess", (_, __) => {
       setIsLoggedIn(false);
     });
   }, [socket]);
@@ -59,7 +67,8 @@ export const AuthProvider: FC<Props> = React.memo((props) => {
         isLoggedIn,
         login,
         logout,
-      }}>
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

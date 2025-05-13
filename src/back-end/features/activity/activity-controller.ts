@@ -84,7 +84,7 @@ export class ActivityController implements SocketOpenEventListener {
 
   private async handleGetActivity(
     socket: ServerSocket,
-    {}: ServerData<"Activity/GetActivity">
+    _: ServerData<"Activity/GetActivity">
   ) {
     const profileId = this.socketHub.getProfileId(socket.id);
     if (!profileId) return socket.error(ErrorType.RequiresProfile);
@@ -102,7 +102,7 @@ export class ActivityController implements SocketOpenEventListener {
 
   private async handleStopActivity(
     socket: ServerSocket,
-    {}: ServerData<"Activity/StopActivity">
+    _: ServerData<"Activity/StopActivity">
   ) {
     const profileId = this.socketHub.getProfileId(socket.id);
     if (!profileId) return socket.error(ErrorType.RequiresProfile);

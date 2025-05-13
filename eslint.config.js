@@ -18,10 +18,12 @@ export default defineConfig([
       pluginReact.configs.flat.recommended,
     ],
     rules: {
-      // We use empty patterns for socket events on the back-end.
-      "no-empty-pattern": "off",
       // Disabled for react 17+.
       "react/react-in-jsx-scope": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "_+", varsIgnorePattern: "_+" },
+      ],
     },
     languageOptions: {
       globals: {
