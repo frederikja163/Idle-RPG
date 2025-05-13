@@ -5,6 +5,7 @@ export enum ErrorType {
   EmailNotVerified,
   RequiresLogin,
   ProfileInUse,
+  ProfileDoesNotExist,
   NameTaken,
   ArgumentOutOfRange,
   RequiresProfile,
@@ -22,6 +23,7 @@ export const errorMessages: { [type in ErrorType]: string } = {
   [ErrorType.RequiresLogin]: "You must login to do this.",
   [ErrorType.ProfileInUse]:
     "This profile is already in use, please make sure you log out on all devices before deleting a profile.",
+  [ErrorType.ProfileDoesNotExist]: "No profile exists with provided id.",
   [ErrorType.NameTaken]: "A profile with this name already exists.",
   [ErrorType.ArgumentOutOfRange]: "Provided argument is out of range.",
   [ErrorType.RequiresProfile]: "You must select a profile to do this.",

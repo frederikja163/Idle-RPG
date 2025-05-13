@@ -45,12 +45,11 @@ export class ProfileController implements SocketOpenEventListener {
   ) {
     const userId = this.socketHub.requiresUserId(socket.id);
 
-    const profile = await this.profileService.create(userId, {
+    await this.profileService.create(userId, {
       name,
       activityId: null,
       activityStart: null,
     });
-    if (!profile) return socket.error(ErrorType.NameTaken);
 
     const profiles = await this.profileService.getProfilesByUserId(userId);
     this.socketHub.broadcastToUser(userId, "Profile/UpdateProfiles", {
@@ -89,7 +88,7 @@ export class ProfileController implements SocketOpenEventListener {
     if (index < 0 || index >= profiles.length)
       return socket.error(ErrorType.ArgumentOutOfRange);
 
-    const oldProfileId = this.socketHub.requireProfileId(socket.id);
+    const oldProfileId = this.socketHub.getProfileId(socket.id);
     if (oldProfileId) {
       this.profileEventDispatcher.emitProfileDeselected({
         userId,

@@ -41,9 +41,7 @@ export class ActivityController implements SocketOpenEventListener {
     { activityId }: ServerData<"Activity/StartActivity">
   ) {
     const profileId = this.socketHub.requireProfileId(socket.id);
-
     const profile = await this.profileService.getProfileById(profileId);
-    if (!profile) return socket.error(ErrorType.InternalError);
 
     const activity = activities.get(activityId);
     if (!activity) return socket.error(ErrorType.InternalError);
@@ -86,9 +84,7 @@ export class ActivityController implements SocketOpenEventListener {
     _: ServerData<"Activity/GetActivity">
   ) {
     const profileId = this.socketHub.requireProfileId(socket.id);
-
     const profile = await this.profileService.getProfileById(profileId);
-    if (!profile) return socket.error(ErrorType.InternalError);
 
     const activityId = profile.activityId;
     const activityStart = profile.activityStart;
@@ -105,7 +101,6 @@ export class ActivityController implements SocketOpenEventListener {
     const profileId = this.socketHub.requireProfileId(socket.id);
 
     const profile = await this.profileService.getProfileById(profileId);
-    if (!profile) return socket.error(ErrorType.InternalError);
 
     const activityId = profile.activityId;
     const activityStart = profile.activityStart;
