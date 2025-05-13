@@ -6,7 +6,7 @@ interface Props {
   className?: string;
 }
 
-export const Divider: FC<Props> = React.memo((props) => {
+export const Divider: FC<Props> = React.memo(function Divider(props) {
   const {orientation = "horizontal", className} = props;
 
   const dividerStyle = useMemo(() => {

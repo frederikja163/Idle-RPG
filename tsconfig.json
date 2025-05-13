@@ -4,7 +4,7 @@
     // Bundler mode
     "moduleResolution": "bundler",
     "module": "preserve",
-    "target": "ESNext",
+    "target": "ES2024",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "downlevelIteration": true,

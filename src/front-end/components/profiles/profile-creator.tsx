@@ -14,7 +14,7 @@ interface ProfileForm {
   name: string;
 }
 
-export const ProfileCreator: FC = React.memo(() => {
+export const ProfileCreator: FC = React.memo(function ProfileCreator() {
   const socket = useSocket();
 
   const [isOpen, setIsOpen] = useState(false);

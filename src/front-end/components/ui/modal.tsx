@@ -15,7 +15,7 @@ interface Props {
   onClose?(): void;
 }
 
-export const Modal: FC<Props> = React.memo((props) => {
+export const Modal: FC<Props> = React.memo(function Modal(props) {
   const {children, content, title, description, isOpen, onClose} = props;
 
   return (<Dialog.Root open={isOpen}>
