@@ -11,7 +11,7 @@ interface Props {
   onClick(index: number): void;
 }
 
-export const SideTabButton: FC<Props> = React.memo((props) => {
+export const SideTabButton: FC<Props> = React.memo(function SideTabButton(props) {
   const {index, selectedIndex, label, children, onClick} = props;
 
   const handleClick = useCallback(() => {

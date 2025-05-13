@@ -8,7 +8,7 @@ import {SkillButton} from './skill-button';
 import {skills as skillDefinitions} from "@/shared/definition/definition-skills.ts";
 import type {Skill} from "@/shared/definition/schema/types/types-skills.ts";
 
-export const SkillsPane: FC = React.memo(() => {
+export const SkillsPane: FC = React.memo(function SkillsPane() {
   const socket = useSocket();
   const setActiveActivity = useSetAtom(activeActivityAtom);
 
@@ -16,11 +16,11 @@ export const SkillsPane: FC = React.memo(() => {
 
   const skillTabs = useMemo(() =>
     skills?.map((skill, i) => {
-      return {
+    return {
         label: skillDefinitions.get(skill.skillId),
         content: <ActivitiesGrid key={i} skillId={skill.skillId}/>,
         buttonContent: <SkillButton key={i} skill={skill}/>
-      } as Tab;
+    } as Tab;
     }), [skills]);
 
   useEffect(() => {

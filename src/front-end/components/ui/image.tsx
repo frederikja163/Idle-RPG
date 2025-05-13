@@ -6,7 +6,7 @@ interface Props extends ImgHTMLAttributes<HTMLImageElement> {
   alt: string;
 }
 
-export const Image: FC<Props> = React.memo((props) => {
+export const Image: FC<Props> = React.memo(function Image(props) {
   const [isBrokenSrc, setIsBrokenSrc] = useState(false);
 
   const handleError = useCallback(() => {

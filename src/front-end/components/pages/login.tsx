@@ -13,11 +13,11 @@ export function Login() {
   useEffect(() => {
     if (!socket) return;
 
-    socket.on('Auth/LoginSuccess', (s, d) => {
+    socket.on('Auth/LoginSuccess', () => {
       navigate('/profiles');
     });
 
-    socket.on('Auth/LogoutSuccess', (s, d) => {
+    socket.on('Auth/LogoutSuccess', () => {
       navigate('/login');
     });
   }, [socket]);

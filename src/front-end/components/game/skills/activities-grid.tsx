@@ -7,7 +7,7 @@ interface Props {
   skillId: string;
 }
 
-export const ActivitiesGrid: FC<Props> = React.memo((props) => {
+export const ActivitiesGrid: FC<Props> = React.memo(function ActivitiesGrid(props) {
   const {skillId} = props;
 
   return (
