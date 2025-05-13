@@ -16,7 +16,7 @@ interface Props {
   tabs: Tab[];
 }
 
-export const SideTabPane: FC<Props> = React.memo((props) => {
+export const SideTabPane: FC<Props> = React.memo(function SideTabPane(props) {
   const {title, tabs} = props;
 
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);

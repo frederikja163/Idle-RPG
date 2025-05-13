@@ -10,7 +10,7 @@ interface Props {
   itemCategory: ItemTag;
 }
 
-export const InventoryTab: FC<Props> = React.memo((props) => {
+export const InventoryTab: FC<Props> = React.memo(function InventoryTab(props) {
   const {label, itemCategory} = props;
 
   const [selectedTab, setSelectedTab] = useAtom(selectedInventoryTabAtom);

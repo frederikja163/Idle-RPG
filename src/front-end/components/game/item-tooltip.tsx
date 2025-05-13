@@ -1,16 +1,16 @@
-﻿import React, { type FC } from 'react';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { Column } from '@/front-end/components/layout/column.tsx';
-import { Row } from '@/front-end/components/layout/row.tsx';
-import { Card } from '@/front-end/components/ui/card.tsx';
-import { items, itemTagDisplayMap } from '@/shared/definition/definition-items';
+﻿import React, {type FC} from 'react';
+import {Typography} from '@/front-end/components/ui/typography.tsx';
+import {Column} from '@/front-end/components/layout/column.tsx';
+import {Row} from '@/front-end/components/layout/row.tsx';
+import {Card} from '@/front-end/components/ui/card.tsx';
+import {items, itemTagDisplayMap} from '@/shared/definition/definition-items';
 
 interface Props {
   itemId: string;
 }
 
-export const ItemTooltip: FC<Props> = React.memo((props) => {
-  const { itemId } = props;
+export const ItemTooltip: FC<Props> = React.memo(function ItemTooltip(props) {
+  const {itemId} = props;
 
   const item = items.get(itemId);
 

@@ -6,7 +6,7 @@ interface Props {
   tooltipContent: ReactNode;
 }
 
-export const BasicTooltip: FC<Props> = React.memo((props) => {
+export const BasicTooltip: FC<Props> = React.memo(function BasicTooltip(props) {
   const {children, tooltipContent} = props;
 
   return (

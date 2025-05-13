@@ -7,7 +7,7 @@ interface Props {
   bottom: ReactNode | string;
 }
 
-export const ActivityDetail: FC<Props> = React.memo((props) => {
+export const ActivityDetail: FC<Props> = React.memo(function ActivityDetail(props) {
   const {top, bottom} = props;
 
   return (

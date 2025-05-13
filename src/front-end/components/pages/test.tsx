@@ -1,7 +1,6 @@
-import { clientServerEvent } from '@/shared/socket/socket-events';
-import { type CredentialResponse, GoogleLogin } from '@react-oauth/google';
+import {clientServerEvent} from '@/shared/socket/socket-events';
+import {type CredentialResponse, GoogleLogin} from '@react-oauth/google';
 import {
-  type TEnum,
   type TLiteral,
   type TNumber,
   type TObject,
@@ -11,9 +10,10 @@ import {
   type TUnion,
   TypeGuard,
 } from '@sinclair/typebox';
-import { type ChangeEvent, type ReactNode, useEffect, useState } from 'react';
-import { Row } from '../layout/row';
-import { useSocket } from '@/front-end/state/socket-provider.tsx';
+import {type ChangeEvent, type ReactNode, useEffect, useState} from 'react';
+import {Row} from '../layout/row';
+import {useSocket} from '@/front-end/state/socket-provider.tsx';
+import type {ServerEvent} from "@/shared/socket/socket-types.ts";
 
 export function Test() {
   const socket = useSocket();
@@ -24,18 +24,18 @@ export function Test() {
   }, [socket]);
 
   const handleSuccess = (r: CredentialResponse) => {
-    socket?.send('Auth/GoogleLogin', { token: r.credential! });
+    socket?.send('Auth/GoogleLogin', {token: r.credential!});
   };
 
   const send = (form: FormData) => {
     const data = formDiscriminatedUnion('event', form, clientServerEvent);
-    socket?.send(data.type as any, data.data);
+    socket?.send(data.type as ServerEvent, data.data);
   };
 
   return (
     <>
       <h1>Testing</h1>
-      {loggedIn ? null : <GoogleLogin onSuccess={handleSuccess} />}
+      {loggedIn ? null : <GoogleLogin onSuccess={handleSuccess}/>}
       <form action={send}>
         <button type="submit">Send</button>
         <DiscriminatedUnionInput path="event" object={clientServerEvent}></DiscriminatedUnionInput>
@@ -51,7 +51,7 @@ interface InputProps<T extends TSchema> {
 
 type DiscriminatedUnionType = TUnion<TObject<{ type: TLiteral; data: TObject }>[]>;
 
-function DiscriminatedUnionInput({ path, object: union }: InputProps<DiscriminatedUnionType>) {
+function DiscriminatedUnionInput({path, object: union}: InputProps<DiscriminatedUnionType>) {
   const [options, setOptions] = useState<ReactNode>([]);
   const [data, setData] = useState<ReactNode | null>(null);
 
@@ -68,7 +68,7 @@ function DiscriminatedUnionInput({ path, object: union }: InputProps<Discriminat
   const onChange = (ev: ChangeEvent<HTMLSelectElement>) => {
     const type = ev.target.value;
     const data = union.anyOf.find((o) => type === o.properties.type.const)?.properties.data;
-    setData(<SchemaInput path={`${path}.data`} object={data!} />);
+    setData(<SchemaInput path={`${path}.data`} object={data!}/>);
   };
 
   return (
@@ -76,7 +76,7 @@ function DiscriminatedUnionInput({ path, object: union }: InputProps<Discriminat
       <select name={`${path}.type`} onChange={(ev) => onChange(ev)}>
         {options}
       </select>
-      <br />
+      <br/>
       {data}
     </>
   );
@@ -86,16 +86,16 @@ function formDiscriminatedUnion(path: string, form: FormData, union: Discriminat
   const type = String(form.get(`${path}.type`));
   const dataSchema = union.anyOf.find((o) => type == String(o.properties.type.const))?.properties.data;
   const data = formSchema(`${path}.data`, form, dataSchema!);
-  return { type, data };
+  return {type, data};
 }
 
-function SchemaInput<T extends TSchema>({ path, object: schema }: InputProps<T>) {
+function SchemaInput<T extends TSchema>({path, object: schema}: InputProps<T>) {
   if (TypeGuard.IsObject(schema)) {
-    return <ObjectInput path={path} object={schema} />;
+    return <ObjectInput path={path} object={schema}/>;
   } else if (TypeGuard.IsNumber(schema)) {
-    return <NumberInput path={path} object={schema} />;
+    return <NumberInput path={path} object={schema}/>;
   } else if (TypeGuard.IsString(schema)) {
-    return <StringInput path={path} object={schema} />;
+    return <StringInput path={path} object={schema}/>;
   }
   return (
     <>
@@ -116,7 +116,7 @@ function formSchema<T extends TSchema>(path: string, form: FormData, schema: T) 
   }
 }
 
-function ObjectInput<T extends TProperties>({ path, object }: InputProps<TObject<T>>) {
+function ObjectInput<T extends TProperties>({path, object}: InputProps<TObject<T>>) {
   const [props, setProps] = useState<ReactNode[]>([]);
   useEffect(() => {
     const propsComp = [];
@@ -135,8 +135,9 @@ function ObjectInput<T extends TProperties>({ path, object }: InputProps<TObject
   return props;
 }
 
-function formObject<T extends TProperties>(path: string, form: FormData, object: TObject<TProperties>) {
+function formObject<T extends TProperties>(path: string, form: FormData, object: TObject<T>) {
   const props = object.properties;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const obj: any = {};
   for (const propName in props) {
     const prop = props[propName];
@@ -145,37 +146,18 @@ function formObject<T extends TProperties>(path: string, form: FormData, object:
   return obj;
 }
 
-function EnumInput({ path, object: enm }: InputProps<TEnum>) {
-  const [options, setOptions] = useState<ReactNode>([]);
-  useEffect(() => {
-    const options = [];
-    for (const obj of enm.anyOf) {
-      const prop = obj.properties;
-      const type = String(prop.type.const);
-      options.push(<option key={type}>{type}</option>);
-    }
-    setOptions(options);
-  }, []);
-
-  return <select name={path}>{options}</select>;
+function NumberInput({path}: InputProps<TNumber>) {
+  return <input name={path} type="number"/>;
 }
 
-function formEnum(path: string, form: FormData, enm: TEnum) {
-  return form.get(path);
-}
-
-function NumberInput({ path, object: num }: InputProps<TNumber>) {
-  return <input name={path} type="number" />;
-}
-
-function formNumber(path: string, form: FormData, num: TNumber) {
+function formNumber(path: string, form: FormData) {
   return parseInt(String(form.get(path)));
 }
 
-function StringInput({ path, object: str }: InputProps<TString>) {
-  return <input name={path} type="text" />;
+function StringInput({path}: InputProps<TString>) {
+  return <input name={path} type="text"/>;
 }
 
-function formString(path: string, form: FormData, str: TString) {
+function formString(path: string, form: FormData) {
   return form.get(path);
 }
