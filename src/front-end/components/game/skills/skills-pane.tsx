@@ -33,7 +33,7 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
           } as Tab;
         })
         .toArray(),
-    [],
+    [profileSkills],
   );
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
 
     socket?.on('Activity/ActivityStarted', (_, data) => setActiveActivity(data));
     socket?.on('Skill/UpdateSkills', (_, data) => setProfileSkills(data.skills));
-  }, []);
+  }, [setActiveActivity, socket]);
 
   if (!skillTabs) return;
 
