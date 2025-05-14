@@ -3,20 +3,7 @@ import { createSelectSchema } from "drizzle-typebox";
 import { profilesTable } from "../definition/schema/db/db-profiles";
 import { itemsTable } from "../definition/schema/db/db-items";
 import { skillsTable } from "../definition/schema/db/db-skills";
-
-export enum ErrorType {
-  NotImplemented, // = "This is not implemented yet.",
-  InternalError, // = "The server experienced an internal error handling your request, try again.",
-  InvalidInput, // = "The input was invalid, so the action could not be performed.",
-  EmailNotVerified, // = "Email is not verified.",
-  RequiresLogin, // = "You must login to do this.",
-  ProfileInUse, // = "This profile is already in use, please make sure you log out on all devices before deleting a profile.",
-  NameTaken, // = "A profile with this name already exists.",
-  ArgumentOutOfRange, // = "Provided argument is out of range.",
-  RequiresProfile, // = "You must select a profile to do this.",
-  InsufficientLevel, // = "This activity requires a lever higher than yours.",
-  NoActivity, // = "No activity in progress.",
-}
+import { ErrorType } from "./socket-errors";
 
 const profileDto = createSelectSchema(profilesTable);
 const itemDto = createSelectSchema(itemsTable);
@@ -65,7 +52,10 @@ export const clientServerEvent = Type.Union([
 ]);
 
 export const serverClientEvent = Type.Union([
-  event("Error", { error: Type.Enum(ErrorType) }),
+  event("Error", {
+    errorType: Type.Enum(ErrorType),
+    message: Type.Optional(Type.String()),
+  }),
   event("Auth/LoginSuccess", {}),
   event("Auth/LogoutSuccess", {}),
   event("Profile/UpdateProfiles", { profiles: Type.Array(profileDto) }),

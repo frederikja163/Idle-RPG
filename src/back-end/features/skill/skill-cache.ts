@@ -1,7 +1,12 @@
-import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
-import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skills';
-import { Table } from '@/shared/lib/table';
+import { injectableSingleton } from "@/back-end/core/lib/lib-tsyringe";
+import type { ProfileId } from "@/shared/definition/schema/types/types-profiles";
+import type {
+  Skill,
+  SkillId,
+} from "@/shared/definition/schema/types/types-skills";
+import { Table } from "@/shared/lib/table";
 
+@injectableSingleton()
 export class SkillCache {
   private readonly skillCache = new Table<ProfileId, SkillId, Skill>();
 

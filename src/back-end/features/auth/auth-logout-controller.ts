@@ -7,7 +7,7 @@ import {
 import { UserEventDispatcher } from "@/back-end/core/events/user-dispatcher";
 import { SocketHub } from "@/back-end/core/server/sockets/socket-hub";
 import { injectableSingleton } from "@/back-end/core/lib/lib-tsyringe";
-import { ErrorType } from "@/shared/socket/socket-events";
+import { ErrorType } from "@/shared/socket/socket-errors";
 import type { ServerData } from "@/shared/socket/socket-types";
 
 @injectableSingleton(SocketOpenEventToken)
