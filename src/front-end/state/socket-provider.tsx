@@ -1,7 +1,17 @@
-﻿import React, { createContext, type FC, type ReactNode, useContext, useEffect, useState } from 'react';
-import { Socket } from '@/shared/socket/socket.ts';
-import { clientServerEvent, serverClientEvent } from '@/shared/socket/socket-events';
-import { TypeCompiler } from '@sinclair/typebox/compiler';
+﻿import React, {
+  createContext,
+  type FC,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { Socket } from "@/shared/socket/socket.ts";
+import {
+  clientServerEvent,
+  serverClientEvent,
+} from "@/shared/socket/socket-events";
+import { TypeCompiler } from "@sinclair/typebox/compiler";
 
 const SocketContext = createContext<ClientSocket | null>(null);
 export const useSocket = () => useContext(SocketContext);
@@ -28,7 +38,9 @@ interface Props {
   children: ReactNode | ReactNode[];
 }
 
-export const SocketProvider: FC<Props> = React.memo(function SocketProvider(props) {
+export const SocketProvider: FC<Props> = React.memo(function SocketProvider(
+  props
+) {
   const { children } = props;
 
   const [socket, setSocket] = useState<ClientSocket | null>(null);
@@ -44,8 +56,11 @@ export const SocketProvider: FC<Props> = React.memo(function SocketProvider(prop
     }
 
     const ws = new WebSocket(url);
-    clientSocket(ws).then(setSocket);
+    clientSocket(ws).then((s) => {
+      setSocket(s);
   }, [socket]);
+      s.on("Error", (s, data) => s.onError(data.errorType, data.message));
+    });
 
   return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;
 });

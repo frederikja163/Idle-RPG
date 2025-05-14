@@ -1,7 +1,7 @@
-import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
-import { SkillCache } from './skill-cache';
-import { SkillRepository } from './skill-repository';
-import { injectDB, type Database } from '@/back-end/core/db/db';
+import { injectableSingleton } from "@/back-end/core/lib/lib-tsyringe";
+import { SkillCache } from "./skill-cache";
+import { SkillRepository } from "./skill-repository";
+import { injectDB, type Database } from "@/back-end/core/db/db";
 import {
   ProfileDeselectedEventToken,
   ProfileSelectedEventToken,
@@ -9,94 +9,98 @@ import {
   type ProfileDeselectedEventListener,
   type ProfileSelectedEventData,
   type ProfileSelectedEventListener,
-} from '@/back-end/core/events/profile-event';
-import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup-event';
-import { Lookup } from '@/shared/lib/lookup';
-import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
-import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skills';
+} from "@/back-end/core/events/profile-event";
+import {
+  CleanupEventToken,
+  type CleanupEventListener,
+} from "@/back-end/core/events/cleanup-event";
+import { Lookup } from "@/shared/lib/lookup";
+import type { ProfileId } from "@/shared/definition/schema/types/types-profiles";
+import type {
+  Skill,
+  SkillId,
+} from "@/shared/definition/schema/types/types-skills";
 
-@injectableSingleton(ProfileSelectedEventToken, ProfileDeselectedEventToken, CleanupEventToken)
+@injectableSingleton(
+  ProfileSelectedEventToken,
+  ProfileDeselectedEventToken,
+  CleanupEventToken
+)
 export class SkillService
-  implements ProfileSelectedEventListener, ProfileDeselectedEventListener, CleanupEventListener
+  implements
+    ProfileSelectedEventListener,
+    ProfileDeselectedEventListener,
+    CleanupEventListener
 {
-  private readonly dirtyProfiles = new Lookup<ProfileId, SkillId>();
+  private readonly dirtySkills = new Lookup<ProfileId, SkillId>();
   private readonly profilesToRemove = new Set<ProfileId>();
 
   public constructor(
     @injectDB() private readonly db: Database,
     private readonly skillCache: SkillCache,
-    private readonly skillRepo: SkillRepository,
+    private readonly skillRepo: SkillRepository
   ) {}
 
-  public async getSkillsByProfileId(profileId: ProfileId): Promise<Skill[] | undefined> {
-    try {
-      const cache = this.skillCache.getSkillsByProfileId(profileId);
-      if (cache) return cache.values().toArray();
+  public async getSkillsByProfileId(profileId: ProfileId): Promise<Skill[]> {
+    const cache = this.skillCache
+      .getSkillsByProfileId(profileId)
+      ?.values()
+      .toArray();
+    if (cache) return cache;
 
-      await this.warmupCache(profileId);
-      return this.skillCache.getSkillsByProfileId(profileId)?.values().toArray();
-    } catch (error) {
-      console.error(`Failed getting skills for profile ${profileId}`, error);
-    }
+    const skills = (await this.skillRepo.getSkillsByProfileId(profileId)) ?? [];
+    skills.forEach(this.skillCache.store.bind(this.skillCache));
+    return skills;
   }
 
   public async getSkillById(profileId: ProfileId, skillId: SkillId) {
-    try {
-      const cache = this.skillCache.getSkillById(profileId, skillId);
-      if (cache) return cache;
-
-      const skills = await this.skillRepo.getSkillById(profileId, skillId);
-      if (skills) {
-        this.skillCache.store(profileId, skills);
-      }
-      // TODO: The new skill should be added to the cache.
-      return this.skillCache.getSkillById(profileId, skillId) ?? { profileId, skillId, xp: 0, level: 0 };
-    } catch (error) {
-      console.error(`Failed getting skill by id ${profileId} ${skillId}`, error);
+    if (!this.skillCache.hasProfileId(profileId)) {
+      const skills =
+        (await this.skillRepo.getSkillsByProfileId(profileId)) ?? [];
+      skills.forEach(this.skillCache.store.bind(this.skillCache));
     }
+
+    const cache = this.skillCache.getSkillById(profileId, skillId);
+    if (cache) return cache;
+    const skill = { profileId, skillId, xp: 0, level: 0 };
+    this.skillCache.store(skill);
+    return skill;
   }
 
   public update(profileId: ProfileId, skillId: SkillId) {
-    try {
-      this.dirtyProfiles.add(profileId, skillId);
-    } catch (error) {
-      console.error(`Failed making skill ${profileId} ${skillId} dirty`, error);
-    }
+    this.dirtySkills.add(profileId, skillId);
   }
 
-  private async warmupCache(profileId: ProfileId) {
-    const skills = await this.skillRepo.getSkillsByProfileId(profileId);
-    if (skills) this.skillCache.store(profileId, skills);
-  }
-
-  public async onProfileSelected({ profileId }: ProfileSelectedEventData): Promise<void> {
+  public async onProfileSelected({
+    profileId,
+  }: ProfileSelectedEventData): Promise<void> {
     if (this.skillCache.hasProfileId(profileId)) return;
-    await this.warmupCache(profileId);
+    const skills = await this.skillRepo.getSkillsByProfileId(profileId);
+    skills.forEach(this.skillCache.store.bind(this.skillCache));
   }
-  public onProfileDeselected({ profileId }: ProfileDeselectedEventData): void | Promise<void> {
+  public onProfileDeselected({
+    profileId,
+  }: ProfileDeselectedEventData): void | Promise<void> {
     this.profilesToRemove.add(profileId);
   }
 
   public async cleanup(): Promise<void> {
-    const profileSkills = this.dirtyProfiles.values().toArray();
-    const profilesToRemove = Array.from(this.profilesToRemove);
-
     try {
       await this.db.transaction(async (tx) => {
-        for (const [profileId, skillId] of profileSkills) {
+        for (const [profileId, skillId] of this.dirtySkills.values()) {
           const skill = this.skillCache.getSkillById(profileId, skillId);
           if (skill) {
             await this.skillRepo.update(profileId, skillId, skill, tx);
           }
         }
       });
-      profilesToRemove.forEach(this.skillCache.invalidateCache);
-      this.dirtyProfiles.clear();
+      this.dirtySkills.clear();
+      this.profilesToRemove.forEach(
+        this.skillCache.invalidateCache.bind(this.skillCache)
+      );
       this.profilesToRemove.clear();
     } catch (error) {
-      profileSkills.forEach(([p, s]) => this.dirtyProfiles.add(p, s));
-      profilesToRemove.forEach(this.profilesToRemove.add);
-      console.error(`Failed to save cached skill changes`, error);
+      console.error(`Failed saving skills`, error);
     }
   }
 }
