@@ -46,15 +46,14 @@ export class ActivityController implements SocketOpenEventListener {
     const activity = activities.get(activityId);
     if (!activity) return socket.error(ErrorType.InternalError);
 
-    if (profile.activityId && profile.activityStart)
-      if (
-        !this.stopActivity(
-          profile,
-          activities.get(activityId)!,
-          profile.activityStart
-        )
-      )
-        return socket.error(ErrorType.InternalError);
+    if (profile.activityId && profile.activityStart) {
+      this.stopActivity(
+        profile,
+        activities.get(activityId)!,
+        profile.activityStart
+      );
+      return socket.error(ErrorType.InternalError);
+    }
 
     switch (activity.type) {
       case "gathering":
@@ -105,9 +104,7 @@ export class ActivityController implements SocketOpenEventListener {
     const activity = activities.get(activityId);
     if (!activity) return socket.error(ErrorType.InternalError);
 
-    if (!(await this.stopActivity(profile, activity, activityStart))) {
-      socket.error(ErrorType.InternalError);
-    }
+    await this.stopActivity(profile, activity, activityStart);
   }
 
   private async stopActivity(
@@ -127,11 +124,10 @@ export class ActivityController implements SocketOpenEventListener {
       activity.skill
     );
 
-    const item = await this.inventoryService.getByItemId(
+    const item = await this.inventoryService.getItemById(
       profile.id,
       activity.resultId
     );
-    if (!item) return false;
 
     addXp(skill, activity.xpAmount * actionCount);
     this.skillService.update(profile.id, skill.skillId);
@@ -146,8 +142,6 @@ export class ActivityController implements SocketOpenEventListener {
       activityId: activity.id,
       activityStop,
     });
-
-    return true;
   }
 
   private async startGathering(

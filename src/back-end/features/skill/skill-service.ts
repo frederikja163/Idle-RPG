@@ -56,7 +56,7 @@ export class SkillService
   public async getSkillById(profileId: ProfileId, skillId: SkillId) {
     if (!this.skillCache.hasProfileId(profileId)) {
       const skills =
-        (await this.skillRepo.getSkillById(profileId, skillId)) ?? [];
+        (await this.skillRepo.getSkillsByProfileId(profileId)) ?? [];
       skills.forEach(this.skillCache.store);
     }
 
@@ -85,12 +85,9 @@ export class SkillService
   }
 
   public async cleanup(): Promise<void> {
-    const profileSkills = this.dirtySkills.values().toArray();
-    const profilesToRemove = Array.from(this.profilesToRemove);
-
     try {
       await this.db.transaction(async (tx) => {
-        for (const [profileId, skillId] of profileSkills) {
+        for (const [profileId, skillId] of this.dirtySkills.values()) {
           const skill = this.skillCache.getSkillById(profileId, skillId);
           if (skill) {
             await this.skillRepo.update(profileId, skillId, skill, tx);
@@ -98,10 +95,10 @@ export class SkillService
         }
       });
       this.dirtySkills.clear();
-      profilesToRemove.forEach(this.skillCache.invalidateCache);
+      this.profilesToRemove.forEach(this.skillCache.invalidateCache);
       this.profilesToRemove.clear();
     } catch (error) {
-      console.error(`Failed to save cached skill changes`, error);
+      console.error(`Failed saving skills`, error);
     }
   }
 }

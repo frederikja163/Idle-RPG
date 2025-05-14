@@ -39,7 +39,7 @@ export class Socket<TIncoming extends AllEvents, TOutgoing extends AllEvents> {
   }
 
   public handleMessage(message: string) {
-    if (Socket.LogEvents) {
+    if (Socket.LogEvents || true) {
       console.log(message);
     }
     const object = JSON.parse(message, reviver) as object;
