@@ -30,9 +30,7 @@ export class SkillCache {
     this.skillCache.deleteColumn(profileId);
   }
 
-  public store(profileId: ProfileId, skills: Skill[]) {
-    for (const skill of skills) {
-      this.skillCache.add(profileId, skill.skillId, skill);
-    }
+  public store(skill: Skill) {
+    this.skillCache.add(skill.profileId, skill.skillId, skill);
   }
 }

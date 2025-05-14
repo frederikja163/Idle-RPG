@@ -32,7 +32,7 @@ export class SkillService
     ProfileDeselectedEventListener,
     CleanupEventListener
 {
-  private readonly dirtyProfiles = new Lookup<ProfileId, SkillId>();
+  private readonly dirtySkills = new Lookup<ProfileId, SkillId>();
   private readonly profilesToRemove = new Set<ProfileId>();
 
   public constructor(
@@ -41,67 +41,42 @@ export class SkillService
     private readonly skillRepo: SkillRepository
   ) {}
 
-  public async getSkillsByProfileId(
-    profileId: ProfileId
-  ): Promise<Skill[] | undefined> {
-    try {
-      const cache = this.skillCache.getSkillsByProfileId(profileId);
-      if (cache) return cache.values().toArray();
+  public async getSkillsByProfileId(profileId: ProfileId): Promise<Skill[]> {
+    const cache = this.skillCache
+      .getSkillsByProfileId(profileId)
+      ?.values()
+      .toArray();
+    if (cache) return cache;
 
-      await this.warmupCache(profileId);
-      return this.skillCache
-        .getSkillsByProfileId(profileId)
-        ?.values()
-        .toArray();
-    } catch (error) {
-      console.error(`Failed getting skills for profile ${profileId}`, error);
-    }
+    const skills = (await this.skillRepo.getSkillsByProfileId(profileId)) ?? [];
+    skills.forEach(this.skillCache.store);
+    return skills;
   }
 
   public async getSkillById(profileId: ProfileId, skillId: SkillId) {
-    try {
-      const cache = this.skillCache.getSkillById(profileId, skillId);
-      if (cache) return cache;
-
-      const skills = await this.skillRepo.getSkillById(profileId, skillId);
-      if (skills) {
-        this.skillCache.store(profileId, skills);
-      }
-      // TODO: The new skill should be added to the cache.
-      return (
-        this.skillCache.getSkillById(profileId, skillId) ?? {
-          profileId,
-          skillId,
-          xp: 0,
-          level: 0,
-        }
-      );
-    } catch (error) {
-      console.error(
-        `Failed getting skill by id ${profileId} ${skillId}`,
-        error
-      );
+    if (!this.skillCache.hasProfileId(profileId)) {
+      const skills =
+        (await this.skillRepo.getSkillById(profileId, skillId)) ?? [];
+      skills.forEach(this.skillCache.store);
     }
+
+    const cache = this.skillCache.getSkillById(profileId, skillId);
+    if (cache) return cache;
+    const skill = { profileId, skillId, xp: 0, level: 0 };
+    this.skillCache.store(skill);
+    return skill;
   }
 
   public update(profileId: ProfileId, skillId: SkillId) {
-    try {
-      this.dirtyProfiles.add(profileId, skillId);
-    } catch (error) {
-      console.error(`Failed making skill ${profileId} ${skillId} dirty`, error);
-    }
-  }
-
-  private async warmupCache(profileId: ProfileId) {
-    const skills = await this.skillRepo.getSkillsByProfileId(profileId);
-    if (skills) this.skillCache.store(profileId, skills);
+    this.dirtySkills.add(profileId, skillId);
   }
 
   public async onProfileSelected({
     profileId,
   }: ProfileSelectedEventData): Promise<void> {
     if (this.skillCache.hasProfileId(profileId)) return;
-    await this.warmupCache(profileId);
+    const skills = await this.skillRepo.getSkillsByProfileId(profileId);
+    skills.forEach(this.skillCache.store);
   }
   public onProfileDeselected({
     profileId,
@@ -110,7 +85,7 @@ export class SkillService
   }
 
   public async cleanup(): Promise<void> {
-    const profileSkills = this.dirtyProfiles.values().toArray();
+    const profileSkills = this.dirtySkills.values().toArray();
     const profilesToRemove = Array.from(this.profilesToRemove);
 
     try {
@@ -122,13 +97,11 @@ export class SkillService
           }
         }
       });
+      this.dirtySkills.clear();
       profilesToRemove.forEach(this.skillCache.invalidateCache);
-      this.dirtyProfiles.clear();
       this.profilesToRemove.clear();
     } catch (error) {
       console.error(`Failed to save cached skill changes`, error);
-      profileSkills.forEach(([p, s]) => this.dirtyProfiles.add(p, s));
-      profilesToRemove.forEach(this.profilesToRemove.add);
     }
   }
 }

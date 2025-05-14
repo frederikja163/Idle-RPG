@@ -18,7 +18,7 @@ import { getActionCount } from "@/shared/util/util-activities";
 import { addXp } from "@/shared/util/util-skills";
 import type { ServerData } from "@/shared/socket/socket-types";
 import type { Profile } from "@/shared/definition/schema/types/types-profiles";
-import { ErrorType } from "@/shared/socket/socket-errors";
+import { ErrorType, ServerError } from "@/shared/socket/socket-errors";
 
 @injectableSingleton(SocketOpenEventToken)
 export class ActivityController implements SocketOpenEventListener {
@@ -56,18 +56,13 @@ export class ActivityController implements SocketOpenEventListener {
       )
         return socket.error(ErrorType.InternalError);
 
-    let success = false;
     switch (activity.type) {
       case "gathering":
-        success = await this.startGathering(
-          profile,
-          activity as GatheringActivityDef
-        );
+        await this.startGathering(profile, activity as GatheringActivityDef);
         break;
       default:
         return socket.error(ErrorType.InternalError);
     }
-    if (!success) return socket.error(ErrorType.InsufficientLevel);
 
     const activityStart = new Date();
     profile.activityId = activity.id;
@@ -131,7 +126,6 @@ export class ActivityController implements SocketOpenEventListener {
       profile.id,
       activity.skill
     );
-    if (!skill) return false;
 
     const item = await this.inventoryService.getByItemId(
       profile.id,
@@ -164,10 +158,8 @@ export class ActivityController implements SocketOpenEventListener {
       profile.id,
       activity.skill
     );
-    if (!skill) return false;
 
-    if (skill.level < activity.levelRequirement) return false;
-
-    return true;
+    if (skill.level < activity.levelRequirement)
+      throw new ServerError(ErrorType.InsufficientLevel);
   }
 }
