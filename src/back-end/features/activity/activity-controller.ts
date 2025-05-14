@@ -11,7 +11,7 @@ import { SkillService } from "../skill/skill-service";
 import { ItemService } from "../item/item-service";
 import {
   activities,
-  type ActivityDef,
+  type ActivityId,
   type GatheringActivityDef,
 } from "@/shared/definition/definition-activities";
 import { getActionCount } from "@/shared/util/util-activities";
@@ -26,7 +26,7 @@ export class ActivityController implements SocketOpenEventListener {
     private readonly socketHub: SocketHub,
     private readonly profileService: ProfileService,
     private readonly skillService: SkillService,
-    private readonly inventoryService: ItemService
+    private readonly itemService: ItemService
   ) {}
 
   public onSocketOpen({ socketId }: SocketOpenEventData): void | Promise<void> {
@@ -47,11 +47,7 @@ export class ActivityController implements SocketOpenEventListener {
     if (!activity) return socket.error(ErrorType.InternalError);
 
     if (profile.activityId && profile.activityStart) {
-      this.stopActivity(
-        profile,
-        activities.get(profile.activityId)!,
-        profile.activityStart
-      );
+      this.stopActivity(profile);
     }
 
     switch (activity.type) {
@@ -82,7 +78,7 @@ export class ActivityController implements SocketOpenEventListener {
     const activityId = profile.activityId;
     const activityStart = profile.activityStart;
     if (!activityId || !activityStart)
-      return socket.error(ErrorType.NoActivity);
+      return socket.send("Activity/NoActivity", {});
 
     socket.send("Activity/ActivityStarted", { activityId, activityStart });
   }
@@ -92,45 +88,37 @@ export class ActivityController implements SocketOpenEventListener {
     _: ServerData<"Activity/StopActivity">
   ) {
     const profileId = this.socketHub.requireProfileId(socket.id);
-
     const profile = await this.profileService.getProfileById(profileId);
+    await this.stopActivity(profile);
+  }
 
+  private async stopActivity(profile: Profile) {
     const activityId = profile.activityId;
     const activityStart = profile.activityStart;
     if (!activityId || !activityStart)
-      return socket.error(ErrorType.NoActivity);
+      throw new ServerError(ErrorType.NoActivity);
 
-    const activity = activities.get(activityId);
-    if (!activity) return socket.error(ErrorType.InternalError);
-
-    await this.stopActivity(profile, activity, activityStart);
-  }
-
-  private async stopActivity(
-    profile: Profile,
-    activity: ActivityDef,
-    activityStart: Date
-  ) {
+    const activity = this.getActivity(activityId);
     const activityStop = new Date();
     const actionCount = getActionCount(
       activityStart,
       activity.time,
       activityStop
     );
+
     const skill = await this.skillService.getSkillById(
       profile.id,
       activity.skill
     );
-    const item = await this.inventoryService.getItemById(
-      profile.id,
-      activity.resultId
-    );
-
     addXp(skill, activity.xpAmount * actionCount);
     this.skillService.update(profile.id, skill.skillId);
 
+    const item = await this.itemService.getItemById(
+      profile.id,
+      activity.resultId
+    );
     item.count += actionCount;
-    this.inventoryService.updateItem(profile.id, item.itemId);
+    this.itemService.updateItem(profile.id, item.itemId);
 
     profile.activityId = null;
     profile.activityStart = null;
@@ -138,6 +126,8 @@ export class ActivityController implements SocketOpenEventListener {
     this.socketHub.broadcastToProfile(profile.id, "Activity/ActivityStopped", {
       activityId: activity.id,
       activityStop,
+      items: [item],
+      skills: [skill],
     });
   }
 
@@ -152,5 +142,12 @@ export class ActivityController implements SocketOpenEventListener {
 
     if (skill.level < activity.levelRequirement)
       throw new ServerError(ErrorType.InsufficientLevel);
+  }
+
+  private getActivity(activityId: ActivityId) {
+    const activity = activities.get(activityId);
+    if (!activity)
+      throw new ServerError(ErrorType.InternalError, "Activity not found.");
+    return activity;
   }
 }

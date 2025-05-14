@@ -109,7 +109,7 @@ export class ProfileService
       await this.db.transaction(async (tx) => {
         for (const profileId of this.dirtyProfiles) {
           const profile = this.profileCache.getProfileById(profileId);
-          if (profile) this.profileRepo.update(profileId, profile, tx);
+          if (profile) await this.profileRepo.update(profileId, profile, tx);
         }
       });
       this.dirtyProfiles.clear();

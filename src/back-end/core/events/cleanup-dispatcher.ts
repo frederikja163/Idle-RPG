@@ -1,5 +1,5 @@
-import { CleanupEventToken } from './cleanup-event';
-import { injectableSingleton, resolveAll } from '../lib/lib-tsyringe';
+import { CleanupEventToken } from "./cleanup-event";
+import { injectableSingleton, resolveAll } from "../lib/lib-tsyringe";
 
 @injectableSingleton()
 export class CleanupEventDispatcher {
@@ -8,6 +8,7 @@ export class CleanupEventDispatcher {
   public start(interval: number) {
     if (this.timeout) clearInterval(this.timeout);
 
+    console.log(interval);
     this.timeout = setInterval(this.cleanup.bind(this), interval);
   }
 
