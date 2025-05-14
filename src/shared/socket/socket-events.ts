@@ -46,8 +46,8 @@ export const clientServerEvent = Type.Union([
   // Activity/ActivityStopped
   // Error: RequiresProfile, NoActivity
   event("Activity/StopActivity", {}),
-  // Activity/ActivityStarted
-  // Error: RequiresProfile, NoActivity
+  // Activity/ActivityStarted, Activity/NoActivity
+  // Error: RequiresProfile
   event("Activity/GetActivity", {}),
 ]);
 
@@ -69,7 +69,10 @@ export const serverClientEvent = Type.Union([
   event("Activity/ActivityStopped", {
     activityId: Type.String(),
     activityStop: Type.Date(),
+    items: Type.Array(itemDto),
+    skills: Type.Array(skillDto),
   }),
+  event("Activity/NoActivity", {}),
 ]);
 
 function event<T1 extends TLiteralValue, T2 extends TProperties>(
