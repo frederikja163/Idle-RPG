@@ -10,7 +10,7 @@ import type { ProfileId } from "@/shared/definition/schema/types/types-profiles"
 import type { Item } from "@/shared/definition/schema/types/types-items";
 
 @injectableSingleton()
-export class InventoryRepository {
+export class ItemRepository {
   public constructor(@injectDB() private readonly db: Database) {}
 
   public async getItemsByProfileId(profileId: ProfileId) {
@@ -23,11 +23,11 @@ export class InventoryRepository {
 
   public async updateItems(
     profileId: ProfileId,
-    inventory: Item[],
+    items: Item[],
     tx: Transaction
   ) {
     await tx.delete(itemsTable).where(eq(itemsTable.profileId, profileId));
-    await tx.insert(itemsTable).values(inventory);
+    await tx.insert(itemsTable).values(items);
   }
 
   public async updateItem(item: Item, tx: Transaction) {
