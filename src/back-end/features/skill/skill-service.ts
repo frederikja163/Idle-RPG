@@ -90,7 +90,7 @@ export class SkillService
         for (const [profileId, skillId] of this.dirtySkills.values()) {
           const skill = this.skillCache.getSkillById(profileId, skillId);
           if (skill) {
-            await this.skillRepo.update(profileId, skillId, skill, tx);
+            await this.skillRepo.update(skill, tx);
           }
         }
       });
