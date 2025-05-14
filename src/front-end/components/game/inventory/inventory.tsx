@@ -29,7 +29,7 @@ export const Inventory: FC = React.memo(function Inventory() {
     socket?.on("Item/UpdateItems", (socket, data) => {
       setItemStacks(getItemStacksFromInventory(data.items));
     });
-  }, []);
+  }, [socket]);
 
   const shownItems = useMemo(
     () =>

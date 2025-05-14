@@ -7,8 +7,9 @@ import {SideTabButton} from '@/front-end/components/ui/side-tab-pane/side-tab-bu
 import {Divider} from "@/front-end/components/ui/divider.tsx";
 
 export interface Tab {
-  label: string;
   content: ReactNode;
+  label?: string;
+  buttonContent?: ReactNode;
 }
 
 interface Props {
@@ -27,9 +28,18 @@ export const SideTabPane: FC<Props> = React.memo(function SideTabPane(props) {
         <Typography className="text-2xl">{title}</Typography>
         <Divider/>
         <Row className="h-full">
-          <Column className="gap-2">
-            {tabs.map((tab, i) => <SideTabButton key={i} index={i} selectedIndex={selectedTabIndex} tab={tab}
-                                                 onClick={setSelectedTabIndex}/>)}
+          <Column className="gap-4">
+            {tabs.map((tab, i) =>
+              <SideTabButton
+                key={i}
+                index={i}
+                selectedIndex={selectedTabIndex}
+                label={tab.label}
+                onClick={setSelectedTabIndex}
+              >
+                {tab.buttonContent}
+              </SideTabButton>
+            )}
           </Column>
           <Divider orientation="vertical"/>
           {tabs.at(selectedTabIndex)?.content}
