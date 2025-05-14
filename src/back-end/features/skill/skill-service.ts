@@ -49,7 +49,7 @@ export class SkillService
     if (cache) return cache;
 
     const skills = (await this.skillRepo.getSkillsByProfileId(profileId)) ?? [];
-    skills.forEach(this.skillCache.store);
+    skills.forEach(this.skillCache.store.bind(this.skillCache));
     return skills;
   }
 
@@ -57,7 +57,7 @@ export class SkillService
     if (!this.skillCache.hasProfileId(profileId)) {
       const skills =
         (await this.skillRepo.getSkillsByProfileId(profileId)) ?? [];
-      skills.forEach(this.skillCache.store);
+      skills.forEach(this.skillCache.store.bind(this.skillCache));
     }
 
     const cache = this.skillCache.getSkillById(profileId, skillId);
@@ -76,7 +76,7 @@ export class SkillService
   }: ProfileSelectedEventData): Promise<void> {
     if (this.skillCache.hasProfileId(profileId)) return;
     const skills = await this.skillRepo.getSkillsByProfileId(profileId);
-    skills.forEach(this.skillCache.store);
+    skills.forEach(this.skillCache.store.bind(this.skillCache));
   }
   public onProfileDeselected({
     profileId,
@@ -95,7 +95,9 @@ export class SkillService
         }
       });
       this.dirtySkills.clear();
-      this.profilesToRemove.forEach(this.skillCache.invalidateCache);
+      this.profilesToRemove.forEach(
+        this.skillCache.invalidateCache.bind(this.skillCache)
+      );
       this.profilesToRemove.clear();
     } catch (error) {
       console.error(`Failed saving skills`, error);

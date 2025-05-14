@@ -52,7 +52,6 @@ export class ActivityController implements SocketOpenEventListener {
         activities.get(activityId)!,
         profile.activityStart
       );
-      return socket.error(ErrorType.InternalError);
     }
 
     switch (activity.type) {
@@ -118,12 +117,10 @@ export class ActivityController implements SocketOpenEventListener {
       activity.time,
       activityStop
     );
-
     const skill = await this.skillService.getSkillById(
       profile.id,
       activity.skill
     );
-
     const item = await this.inventoryService.getItemById(
       profile.id,
       activity.resultId

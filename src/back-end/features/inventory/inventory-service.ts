@@ -47,14 +47,14 @@ export class InventoryService
 
     const items =
       (await this.inventoryRepo.getItemsByProfileId(profileId)) ?? [];
-    items.forEach(this.inventoryCache.store);
+    items.forEach(this.inventoryCache.store.bind(this.inventoryCache));
     return items;
   }
 
   public async getItemById(profileId: ProfileId, itemId: ItemId) {
     if (!this.inventoryCache.hasProfileId(profileId)) {
       const items = await this.inventoryRepo.getItemsByProfileId(profileId);
-      items.forEach(this.inventoryCache.store);
+      items.forEach(this.inventoryCache.store.bind(this.inventoryCache));
     }
 
     const cache = this.inventoryCache.getItemById(profileId, itemId);
@@ -78,7 +78,7 @@ export class InventoryService
   }: ProfileSelectedEventData): Promise<void> {
     if (this.inventoryCache.hasProfileId(profileId)) return;
     const items = await this.inventoryRepo.getItemsByProfileId(profileId);
-    items.forEach(this.inventoryCache.store);
+    items.forEach(this.inventoryCache.store.bind(this.inventoryCache));
   }
   public onProfileDeselected({
     profileId,
@@ -95,7 +95,9 @@ export class InventoryService
         }
       });
       this.dirtyItems.clear();
-      this.profilesToRemove.forEach(this.inventoryCache.invalidateInventory);
+      this.profilesToRemove.forEach(
+        this.inventoryCache.invalidateInventory.bind(this.inventoryCache)
+      );
       this.profilesToRemove.clear();
     } catch (error) {
       console.error(`Failed saving inventories`, error);
