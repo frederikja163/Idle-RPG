@@ -20,6 +20,7 @@ import type {
   ProfileInsert,
 } from "@/shared/definition/schema/types/types-profiles";
 import type { UserId } from "@/shared/definition/schema/types/types-user";
+import { ErrorType, ServerError } from "@/shared/socket/socket-errors";
 
 @injectableSingleton(
   ProfileSelectedEventToken,
@@ -42,92 +43,56 @@ export class ProfileService
   ) {}
 
   public async getProfilesByUserId(userId: UserId) {
-    try {
-      // As of now we dont cache here since it is unlikely for a user to query all profiles multiple times.
-      // It is much more likely they will query all profiles once and then only a single profile from then on out.
-      return await this.profileRepo.findByUserId(userId);
-    } catch (error) {
-      console.error(`Failed to get profiles for user ${userId}`, error);
-      return [];
-    }
+    // As of now we dont cache here since it is unlikely for a user to query all profiles multiple times.
+    // It is much more likely they will query all profiles once and then only a single profile from then on out.
+    return await this.profileRepo.findByUserId(userId);
   }
 
   public async getProfileById(profileId: ProfileId) {
-    try {
-      const cache = this.profileCache.getProfileById(profileId);
-      if (cache) return cache;
+    const cache = this.profileCache.getProfileById(profileId);
+    if (cache) return cache;
 
-      const profile = await this.profileRepo.findByProfileId(profileId);
-      if (profile) {
-        this.profileCache.storeProfile(profile);
-      }
-      return profile;
-    } catch (error) {
-      console.error(`Failed to to get profile ${profileId}`, error);
-      return null;
-    }
+    const profile = await this.profileRepo.findByProfileId(profileId);
+    if (!profile) throw new ServerError(ErrorType.ProfileDoesNotExist);
+    this.profileCache.storeProfile(profile);
+    return profile;
   }
 
   public async create(userId: UserId, data: ProfileInsert) {
-    try {
-      const profile = await this.db.transaction(
-        async (tx) => await this.profileRepo.create(userId, data, tx)
-      );
-      if (profile)
-        this.profileDispatcher.emitProfileCreated({ userId, profile });
-      return profile;
-    } catch (error) {
-      console.error(`Failed to created profile for ${userId}`, error);
-      return null;
-    }
+    const profile = await this.db.transaction(
+      async (tx) => await this.profileRepo.create(userId, data, tx)
+    );
+    if (!profile) throw new ServerError(ErrorType.NameTaken);
+    this.profileDispatcher.emitProfileCreated({ userId, profile });
+    return profile;
   }
 
   public async delete(userId: UserId, profileId: ProfileId) {
-    try {
-      await this.db.transaction(
-        async (tx) => await this.profileRepo.delete(profileId, tx)
-      );
-      this.profileDispatcher.emitProfileDeleted({ userId, profileId });
-    } catch (error) {
-      console.error(`Failed to delete profile ${profileId}`, error);
-    }
+    await this.db.transaction(
+      async (tx) => await this.profileRepo.delete(profileId, tx)
+    );
+    this.profileDispatcher.emitProfileDeleted({ userId, profileId });
   }
 
   public update(profileId: ProfileId) {
-    try {
-      this.dirtyProfiles.add(profileId);
-    } catch (error) {
-      console.error(`Failed marking profile as dirt ${profileId}`, error);
-    }
+    this.dirtyProfiles.add(profileId);
   }
 
   public async onProfileSelected({
     profileId,
   }: ProfileSelectedEventData): Promise<void> {
-    try {
-      const profile = await this.profileRepo.findByProfileId(profileId);
-      if (profile) this.profileCache.storeProfile(profile);
-    } catch (error) {
-      console.error(`Failed to warmup cache for profile ${profileId}`, error);
-    }
+    const profile = await this.profileRepo.findByProfileId(profileId);
+    if (profile) this.profileCache.storeProfile(profile);
   }
   public async onProfileDeselected({
     profileId,
   }: ProfileDeselectedEventData): Promise<void> {
-    try {
-      const profile = this.profileCache.getProfileById(profileId);
-      if (profile) {
-        await this.db.transaction(async (tx) =>
-          this.profileRepo.update(profileId, profile, tx)
-        );
-        this.profileCache.invalidateProfile(profileId);
-      }
-    } catch (error) {
-      console.error(
-        `Failed invalidating cache for profile ${profileId}`,
-        error
-      );
-    }
+    const profile = this.profileCache.getProfileById(profileId);
+    if (!profile) return;
+    await this.db.transaction(async (tx) =>
+      this.profileRepo.update(profileId, profile, tx)
+    );
+    this.profileCache.invalidateProfile(profileId);
   }
 
   public async cleanup(): Promise<void> {
@@ -135,14 +100,21 @@ export class ProfileService
       const profileIds = this.profileCache.getProfileIds().toArray();
       await this.db.transaction(async (tx) => {
         await this.profileRepo.updateTimes(profileIds, tx);
+      });
+    } catch (error) {
+      console.error(`Failed updating times for all profiles`, error);
+    }
+
+    try {
+      await this.db.transaction(async (tx) => {
         for (const profileId of this.dirtyProfiles) {
           const profile = this.profileCache.getProfileById(profileId);
           if (profile) this.profileRepo.update(profileId, profile, tx);
         }
-        this.dirtyProfiles.clear();
       });
+      this.dirtyProfiles.clear();
     } catch (error) {
-      console.error(`Failed updating times for all profiles`, error);
+      console.error(`Failed updating all dirty profiles.`, error);
     }
   }
 }

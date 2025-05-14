@@ -7,7 +7,6 @@ import {
 import { UserEventDispatcher } from "@/back-end/core/events/user-dispatcher";
 import { SocketHub } from "@/back-end/core/server/sockets/socket-hub";
 import { injectableSingleton } from "@/back-end/core/lib/lib-tsyringe";
-import { ErrorType } from "@/shared/socket/socket-errors";
 import type { ServerData } from "@/shared/socket/socket-types";
 
 @injectableSingleton(SocketOpenEventToken)
@@ -23,10 +22,7 @@ export class AuthLogoutController implements SocketOpenEventListener {
   }
 
   private handleLogout(socket: ServerSocket, _: ServerData<"Auth/Logout">) {
-    const userId = this.socketHub.getUserId(socket.id);
-    if (!userId) {
-      return socket.error(ErrorType.RequiresLogin);
-    }
+    const userId = this.socketHub.requiresUserId(socket.id);
     this.userDispatch.emitUserLoggedOut({ userId });
     this.socketHub.setUserId(socket.id);
     socket.send("Auth/LogoutSuccess", {});

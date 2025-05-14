@@ -27,10 +27,11 @@ export class InventoryController implements SocketOpenEventListener {
     socket: ServerSocket,
     _: ServerData<"Inventory/GetInventory">
   ) {
-    const profileId = this.socketHub.getProfileId(socket.id);
-    if (!profileId) return socket.error(ErrorType.RequiresProfile);
+    const profileId = this.socketHub.requireProfileId(socket.id);
 
-    const inventory = await this.inventoryService.getByProfileId(profileId);
+    const inventory = await this.inventoryService.getItemsByProfileId(
+      profileId
+    );
     socket.send("Inventory/UpdateInventory", { items: inventory });
   }
 
@@ -38,10 +39,11 @@ export class InventoryController implements SocketOpenEventListener {
     socket: ServerSocket,
     { index1, index2 }: ServerData<"Inventory/SwapItems">
   ) {
-    const profileId = this.socketHub.getProfileId(socket.id);
-    if (!profileId) return socket.error(ErrorType.RequiresProfile);
+    const profileId = this.socketHub.requireProfileId(socket.id);
 
-    const inventory = await this.inventoryService.getByProfileId(profileId);
+    const inventory = await this.inventoryService.getItemsByProfileId(
+      profileId
+    );
     if (
       index1 < 0 ||
       index1 >= inventory.length ||
@@ -54,7 +56,8 @@ export class InventoryController implements SocketOpenEventListener {
       inventory[index2].index,
       inventory[index1].index,
     ];
-    this.inventoryService.updateInventory(profileId);
+    this.inventoryService.updateItem(profileId, inventory[index1].itemId);
+    this.inventoryService.updateItem(profileId, inventory[index2].itemId);
 
     this.socketHub.broadcastToProfile(profileId, "Inventory/UpdateInventory", {
       items: inventory,

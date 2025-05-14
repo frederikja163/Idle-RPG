@@ -31,8 +31,7 @@ export class ProfileController implements SocketOpenEventListener {
     socket: ServerSocket,
     _: ServerData<"Profile/GetProfiles">
   ) {
-    const userId = this.socketHub.getUserId(socket.id);
-    if (!userId) return socket.error(ErrorType.RequiresLogin);
+    const userId = this.socketHub.requiresUserId(socket.id);
     const profiles = await this.profileService.getProfilesByUserId(userId);
 
     socket.send("Profile/UpdateProfiles", {
@@ -44,15 +43,13 @@ export class ProfileController implements SocketOpenEventListener {
     socket: ServerSocket,
     { name }: ServerData<"Profile/CreateProfile">
   ) {
-    const userId = this.socketHub.getUserId(socket.id);
-    if (!userId) return socket.error(ErrorType.RequiresLogin);
+    const userId = this.socketHub.requiresUserId(socket.id);
 
-    const profile = await this.profileService.create(userId, {
+    await this.profileService.create(userId, {
       name,
       activityId: null,
       activityStart: null,
     });
-    if (!profile) return socket.error(ErrorType.NameTaken);
 
     const profiles = await this.profileService.getProfilesByUserId(userId);
     this.socketHub.broadcastToUser(userId, "Profile/UpdateProfiles", {
@@ -64,8 +61,7 @@ export class ProfileController implements SocketOpenEventListener {
     socket: ServerSocket,
     { index }: ServerData<"Profile/DeleteProfile">
   ) {
-    const userId = this.socketHub.getUserId(socket.id);
-    if (!userId) return socket.error(ErrorType.RequiresLogin);
+    const userId = this.socketHub.requiresUserId(socket.id);
 
     const profiles = await this.profileService.getProfilesByUserId(userId);
     if (index < 0 || index >= profiles.length)
@@ -86,8 +82,7 @@ export class ProfileController implements SocketOpenEventListener {
     socket: ServerSocket,
     { index }: ServerData<"Profile/SelectProfile">
   ) {
-    const userId = this.socketHub.getUserId(socket.id);
-    if (!userId) return socket.error(ErrorType.RequiresLogin);
+    const userId = this.socketHub.requiresUserId(socket.id);
 
     const profiles = await this.profileService.getProfilesByUserId(userId);
     if (index < 0 || index >= profiles.length)
