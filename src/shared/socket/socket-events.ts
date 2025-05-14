@@ -69,7 +69,10 @@ export const serverClientEvent = Type.Union([
   event("Activity/ActivityStopped", {
     activityId: Type.String(),
     activityStop: Type.Date(),
+    items: Type.Array(itemDto),
+    skills: Type.Array(skillDto),
   }),
+  event("Activity/NoActivity", {}),
 ]);
 
 function event<T1 extends TLiteralValue, T2 extends TProperties>(

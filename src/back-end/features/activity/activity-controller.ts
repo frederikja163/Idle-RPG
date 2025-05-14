@@ -26,7 +26,7 @@ export class ActivityController implements SocketOpenEventListener {
     private readonly socketHub: SocketHub,
     private readonly profileService: ProfileService,
     private readonly skillService: SkillService,
-    private readonly inventoryService: ItemService
+    private readonly itemService: ItemService
   ) {}
 
   public onSocketOpen({ socketId }: SocketOpenEventData): void | Promise<void> {
@@ -82,7 +82,7 @@ export class ActivityController implements SocketOpenEventListener {
     const activityId = profile.activityId;
     const activityStart = profile.activityStart;
     if (!activityId || !activityStart)
-      return socket.error(ErrorType.NoActivity);
+      return socket.send("Activity/NoActivity", {});
 
     socket.send("Activity/ActivityStarted", { activityId, activityStart });
   }
@@ -117,20 +117,20 @@ export class ActivityController implements SocketOpenEventListener {
       activity.time,
       activityStop
     );
+
     const skill = await this.skillService.getSkillById(
       profile.id,
       activity.skill
     );
-    const item = await this.inventoryService.getItemById(
-      profile.id,
-      activity.resultId
-    );
-
     addXp(skill, activity.xpAmount * actionCount);
     this.skillService.update(profile.id, skill.skillId);
 
+    const item = await this.itemService.getItemById(
+      profile.id,
+      activity.resultId
+    );
     item.count += actionCount;
-    this.inventoryService.updateItem(profile.id, item.itemId);
+    this.itemService.updateItem(profile.id, item.itemId);
 
     profile.activityId = null;
     profile.activityStart = null;
@@ -138,6 +138,8 @@ export class ActivityController implements SocketOpenEventListener {
     this.socketHub.broadcastToProfile(profile.id, "Activity/ActivityStopped", {
       activityId: activity.id,
       activityStop,
+      items: [item],
+      skills: [skill],
     });
   }
 
