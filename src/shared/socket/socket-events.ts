@@ -28,12 +28,12 @@ export const clientServerEvent = Type.Union([
   // Profiles/UpdateProfiles
   // Error: RequiresLogin, ProfileInUse, ArgumentOutOfRange
   event("Profile/DeleteProfile", { index: Type.Number() }),
-  // Inventory/UpdateInventory
+  // Item/UpdateItems
   // Error: RequiresProfile
-  event("Inventory/GetInventory", {}),
-  // Inventory/UpdateInventory
+  event("Item/GetItems", {}),
+  // Item/UpdateItems
   // Error: RequiresProfile, ArgumentOutOfRange
-  event("Inventory/SwapItems", {
+  event("Item/SwapItems", {
     index1: Type.Number(),
     index2: Type.Number(),
   }),
@@ -60,7 +60,7 @@ export const serverClientEvent = Type.Union([
   event("Auth/LogoutSuccess", {}),
   event("Profile/UpdateProfiles", { profiles: Type.Array(profileDto) }),
   event("Profile/SelectProfileSuccess", {}),
-  event("Inventory/UpdateInventory", { items: Type.Array(itemDto) }),
+  event("Item/UpdateItems", { items: Type.Array(itemDto) }),
   event("Skill/UpdateSkills", { skills: Type.Array(skillDto) }),
   event("Activity/ActivityStarted", {
     activityId: Type.String(),

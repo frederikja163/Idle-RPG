@@ -8,7 +8,7 @@ import { SocketHub } from "@/back-end/core/server/sockets/socket-hub";
 import { ProfileService } from "../profile/profile-service";
 import type { ServerSocket } from "@/back-end/core/server/sockets/server-socket";
 import { SkillService } from "../skill/skill-service";
-import { InventoryService } from "../inventory/inventory-service";
+import { ItemService } from "../item/item-service";
 import {
   activities,
   type ActivityDef,
@@ -26,7 +26,7 @@ export class ActivityController implements SocketOpenEventListener {
     private readonly socketHub: SocketHub,
     private readonly profileService: ProfileService,
     private readonly skillService: SkillService,
-    private readonly inventoryService: InventoryService
+    private readonly inventoryService: ItemService
   ) {}
 
   public onSocketOpen({ socketId }: SocketOpenEventData): void | Promise<void> {
@@ -49,7 +49,7 @@ export class ActivityController implements SocketOpenEventListener {
     if (profile.activityId && profile.activityStart) {
       this.stopActivity(
         profile,
-        activities.get(activityId)!,
+        activities.get(profile.activityId)!,
         profile.activityStart
       );
     }

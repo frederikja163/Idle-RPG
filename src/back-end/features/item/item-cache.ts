@@ -7,7 +7,7 @@ import type { ProfileId } from "@/shared/definition/schema/types/types-profiles"
 import { Table } from "@/shared/lib/table";
 
 @injectableSingleton()
-export class InventoryCache {
+export class ItemCache {
   private readonly profileToItems = new Table<ProfileId, ItemId, Item>();
 
   public getItemsByProfileId(profileId: ProfileId) {
@@ -30,7 +30,7 @@ export class InventoryCache {
     return this.profileToItems.getColumn(profileId)?.size ?? 0;
   }
 
-  public invalidateInventory(profileId: ProfileId) {
+  public invalidateProfile(profileId: ProfileId) {
     this.profileToItems.deleteColumn(profileId);
   }
 

@@ -1,6 +1,6 @@
 import { injectDB, type Database } from "@/back-end/core/db/db";
-import { InventoryCache } from "./inventory-cache";
-import { InventoryRepository } from "./inventory-repository";
+import { ItemCache } from "./item-cache";
+import { ItemRepository } from "./item-repository";
 import {
   ProfileDeselectedEventToken,
   ProfileSelectedEventToken,
@@ -23,7 +23,7 @@ import type { ProfileId } from "@/shared/definition/schema/types/types-profiles"
   ProfileDeselectedEventToken,
   CleanupEventToken
 )
-export class InventoryService
+export class ItemService
   implements
     ProfileSelectedEventListener,
     ProfileDeselectedEventListener,
@@ -34,38 +34,37 @@ export class InventoryService
 
   public constructor(
     @injectDB() private readonly db: Database,
-    private readonly inventoryCache: InventoryCache,
-    private readonly inventoryRepo: InventoryRepository
+    private readonly itemCache: ItemCache,
+    private readonly itemRepo: ItemRepository
   ) {}
 
   public async getItemsByProfileId(profileId: ProfileId) {
-    const cache = this.inventoryCache
+    const cache = this.itemCache
       .getItemsByProfileId(profileId)
       ?.values()
       .toArray();
     if (cache) return cache;
 
-    const items =
-      (await this.inventoryRepo.getItemsByProfileId(profileId)) ?? [];
-    items.forEach(this.inventoryCache.store.bind(this.inventoryCache));
+    const items = (await this.itemRepo.getItemsByProfileId(profileId)) ?? [];
+    items.forEach(this.itemCache.store.bind(this.itemCache));
     return items;
   }
 
   public async getItemById(profileId: ProfileId, itemId: ItemId) {
-    if (!this.inventoryCache.hasProfileId(profileId)) {
-      const items = await this.inventoryRepo.getItemsByProfileId(profileId);
-      items.forEach(this.inventoryCache.store.bind(this.inventoryCache));
+    if (!this.itemCache.hasProfileId(profileId)) {
+      const items = await this.itemRepo.getItemsByProfileId(profileId);
+      items.forEach(this.itemCache.store.bind(this.itemCache));
     }
 
-    const cache = this.inventoryCache.getItemById(profileId, itemId);
+    const cache = this.itemCache.getItemById(profileId, itemId);
     if (cache) return cache;
     const item = {
       profileId,
       itemId,
       count: 0,
-      index: this.inventoryCache.getItemCount(profileId),
+      index: this.itemCache.getItemCount(profileId),
     };
-    this.inventoryCache.store(item);
+    this.itemCache.store(item);
     return item;
   }
 
@@ -76,9 +75,9 @@ export class InventoryService
   public async onProfileSelected({
     profileId,
   }: ProfileSelectedEventData): Promise<void> {
-    if (this.inventoryCache.hasProfileId(profileId)) return;
-    const items = await this.inventoryRepo.getItemsByProfileId(profileId);
-    items.forEach(this.inventoryCache.store.bind(this.inventoryCache));
+    if (this.itemCache.hasProfileId(profileId)) return;
+    const items = await this.itemRepo.getItemsByProfileId(profileId);
+    items.forEach(this.itemCache.store.bind(this.itemCache));
   }
   public onProfileDeselected({
     profileId,
@@ -90,13 +89,13 @@ export class InventoryService
     try {
       await this.db.transaction(async (tx) => {
         for (const [profileId, itemId] of this.dirtyItems.values()) {
-          const item = this.inventoryCache.getItemById(profileId, itemId);
-          if (item) await this.inventoryRepo.updateItem(item, tx);
+          const item = this.itemCache.getItemById(profileId, itemId);
+          if (item) await this.itemRepo.updateItem(item, tx);
         }
       });
       this.dirtyItems.clear();
       this.profilesToRemove.forEach(
-        this.inventoryCache.invalidateInventory.bind(this.inventoryCache)
+        this.itemCache.invalidateProfile.bind(this.itemCache)
       );
       this.profilesToRemove.clear();
     } catch (error) {
