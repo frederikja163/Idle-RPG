@@ -12,7 +12,7 @@ export const ActivitiesGrid: FC<Props> = React.memo(function ActivitiesGrid(prop
   const { skill } = props;
 
   return (
-    <Row className="p-6 gap-6">
+    <Row className="p-6 gap-6 items-start">
       {activitySkillMap
         .get(skill.skillId)
         ?.map((activityId, i) => <ActivityBox key={i} activityId={activityId} skillLevel={skill.level} />)}
