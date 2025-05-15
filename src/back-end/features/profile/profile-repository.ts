@@ -59,7 +59,7 @@ export class ProfileRepository {
   }
 
   public async userHasAccess(profileId: ProfileId, userId: UserId) {
-    return await this.db
+    const results = await this.db
       .select({})
       .from(userProfilesTable)
       .where(
@@ -69,6 +69,7 @@ export class ProfileRepository {
         )
       )
       .limit(1);
+      return results.length == 1;
   }
 
   public async update(
