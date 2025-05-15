@@ -8,6 +8,7 @@ import { SkillService } from "./skill-service";
 import { SocketHub } from "@/back-end/core/server/sockets/socket-hub";
 import type { ServerSocket } from "@/back-end/core/server/sockets/server-socket";
 import type { ServerData } from "@/shared/socket/socket-types";
+import type { Skill } from "@/shared/definition/schema/types/types-skills";
 
 @injectableSingleton(SocketOpenEventToken)
 export class SkillController implements SocketOpenEventListener {
@@ -23,9 +24,17 @@ export class SkillController implements SocketOpenEventListener {
 
   public async handleGetSkills(
     socket: ServerSocket,
-    _: ServerData<"Skill/GetSkills">
+    {skillIds}: ServerData<"Skill/GetSkills">
   ) {
     const profileId = this.socketHub.requireProfileId(socket.id);
+    if (skillIds){
+      const skills: Skill[] = [];
+      for (const skillId of skillIds) {
+        const skill = await this.skillService.getSkillById(profileId, skillId);
+        skills.push(skill);
+      }
+      return skills;
+    }
     const skills = await this.skillService.getSkillsByProfileId(profileId);
     socket.send("Skill/UpdateSkills", { skills });
   }

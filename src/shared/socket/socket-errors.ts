@@ -6,6 +6,7 @@ export enum ErrorType {
   RequiresLogin,
   ProfileInUse,
   ProfileDoesNotExist,
+  InsufficientPermissions,
   NameTaken,
   ArgumentOutOfRange,
   RequiresProfile,
@@ -15,20 +16,17 @@ export enum ErrorType {
 
 export const errorMessages: { [type in ErrorType]: string } = {
   [ErrorType.NotImplemented]: "This is not implemented yet.",
-  [ErrorType.InternalError]:
-    "The server experienced an internal error handling your request.",
-  [ErrorType.InvalidInput]:
-    "The input was invalid, so the action could not be performed.",
+  [ErrorType.InternalError]: "The server experienced an internal error handling your request.",
+  [ErrorType.InvalidInput]: "The input was invalid, so the action could not be performed.",
+  [ErrorType.InsufficientPermissions]: "You do not have permission to do this action.",
   [ErrorType.EmailNotVerified]: "Email is not verified.",
   [ErrorType.RequiresLogin]: "You must login to do this.",
-  [ErrorType.ProfileInUse]:
-    "This profile is already in use, please make sure you log out on all devices before deleting a profile.",
+  [ErrorType.ProfileInUse]: "This profile is already in use, please make sure you log out on all devices before deleting a profile.",
   [ErrorType.ProfileDoesNotExist]: "No profile exists with provided id.",
   [ErrorType.NameTaken]: "A profile with this name already exists.",
   [ErrorType.ArgumentOutOfRange]: "Provided argument is out of range.",
   [ErrorType.RequiresProfile]: "You must select a profile to do this.",
-  [ErrorType.InsufficientLevel]:
-    "This activity requires a lever higher than yours.",
+  [ErrorType.InsufficientLevel]: "This activity requires a lever higher than yours.",
   [ErrorType.NoActivity]: "No activity in progress.",
 };
 

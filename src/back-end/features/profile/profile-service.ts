@@ -58,11 +58,18 @@ export class ProfileService
     return profile;
   }
 
+  public async requireUserHasAccess(userId: string, profileId: string) {
+    if (!await this.profileRepo.userHasAccess(profileId, userId)){
+      throw new ServerError(ErrorType.InsufficientPermissions, "Either profile does not exist, or you lack access to it.");
+    }
+  }
+
   public async create(userId: UserId, data: ProfileInsert) {
     const profile = await this.db.transaction(
       async (tx) => await this.profileRepo.create(userId, data, tx)
     );
     if (!profile) throw new ServerError(ErrorType.NameTaken);
+    this.profileCache.storeProfile(profile);
     this.profileDispatcher.emitProfileCreated({ userId, profile });
     return profile;
   }
@@ -71,6 +78,7 @@ export class ProfileService
     await this.db.transaction(
       async (tx) => await this.profileRepo.delete(profileId, tx)
     );
+    this.profileCache.invalidateProfile(profileId);
     this.profileDispatcher.emitProfileDeleted({ userId, profileId });
   }
 

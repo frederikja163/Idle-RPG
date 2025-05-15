@@ -24,22 +24,22 @@ export const clientServerEvent = Type.Union([
   event("Profile/CreateProfile", { name: Type.String() }),
   // Profiles/SelectProfileSuccess
   // Error: RequiresLogin, ArgumentOutOfRange
-  event("Profile/SelectProfile", { index: Type.Number() }),
+  event("Profile/SelectProfile", { profileId: Type.String() }),
   // Profiles/UpdateProfiles
   // Error: RequiresLogin, ProfileInUse, ArgumentOutOfRange
-  event("Profile/DeleteProfile", { index: Type.Number() }),
+  event("Profile/DeleteProfile", { profileId: Type.String() }),
   // Item/UpdateItems
   // Error: RequiresProfile
-  event("Item/GetItems", {}),
+  event("Item/GetItems", { itemIds: Type.Optional(Type.Array(Type.String()))}),
   // Item/UpdateItems
   // Error: RequiresProfile, ArgumentOutOfRange
   event("Item/SwapItems", {
-    index1: Type.Number(),
-    index2: Type.Number(),
+    itemId1: Type.String(),
+    itemId2: Type.String(),
   }),
   // Skill/UpdateSkills
   // Error: RequiresProfile
-  event("Skill/GetSkills", {}),
+  event("Skill/GetSkills", { skillIds: Type.Optional(Type.Array(Type.String()))}),
   // Activity/ActivityStarted
   // Error: RequiresProfile, InsufficientLevel
   event("Activity/StartActivity", { activityId: Type.String() }),
