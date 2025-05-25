@@ -10,12 +10,11 @@ import { Typography } from '@/front-end/components/ui/typography.tsx';
 import type { Profile } from '@/shared/definition/schema/types/types-profiles.ts';
 
 interface Props {
-  profileIndex: number;
   profile: Profile;
 }
 
 export const ProfileCard: FC<Props> = React.memo(function ProfileCard(props) {
-  const { profileIndex, profile } = props;
+  const { profile } = props;
 
   const socket = useSocket();
   const navigate = useNavigate();
@@ -23,18 +22,18 @@ export const ProfileCard: FC<Props> = React.memo(function ProfileCard(props) {
   const selectProfile = useCallback(
     (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       event.stopPropagation();
-      socket?.send('Profile/SelectProfile', { index: profileIndex });
+      socket?.send('Profile/SelectProfile', { profileId: profile.id });
       navigate(routes.game);
     },
-    [socket, profileIndex, navigate],
+    [socket, profile.id, navigate],
   );
 
   const deleteProfile = useCallback(
     (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
       event.stopPropagation();
-      socket?.send('Profile/DeleteProfile', { index: profileIndex });
+      socket?.send('Profile/DeleteProfile', { profileId: profile.id });
     },
-    [socket, profileIndex],
+    [socket, profile.id],
   );
 
   return (
