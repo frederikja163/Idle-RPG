@@ -1,62 +1,56 @@
-import type { ServerSocket } from "@/back-end/core/server/sockets/server-socket";
-import { SocketHub } from "@/back-end/core/server/sockets/socket-hub";
+import type { ServerSocket } from '@/back-end/core/server/sockets/server-socket';
+import { SocketHub } from '@/back-end/core/server/sockets/socket-hub';
 import {
   SocketOpenEventToken,
   type SocketOpenEventData,
   type SocketOpenEventListener,
-} from "@/back-end/core/events/socket-event";
-import { injectableSingleton } from "@/back-end/core/lib/lib-tsyringe";
-import { ItemService } from "./item-service";
-import type { ServerData } from "@/shared/socket/socket-types";
-import { ErrorType } from "@/shared/socket/socket-errors";
+} from '@/back-end/core/events/socket-event';
+import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
+import { ItemService } from './item-service';
+import type { ServerData } from '@/shared/socket/socket-types';
+import type { Item } from '@/shared/definition/schema/types/types-items';
 
 @injectableSingleton(SocketOpenEventToken)
 export class ItemController implements SocketOpenEventListener {
   public constructor(
     private readonly socketHub: SocketHub,
-    private readonly itemService: ItemService
+    private readonly itemService: ItemService,
   ) {}
 
   public onSocketOpen({ socketId }: SocketOpenEventData): void | Promise<void> {
     const socket = this.socketHub.getSocket(socketId)!;
-    socket.on("Item/GetItems", this.handleGetItems.bind(this));
-    socket.on("Item/SwapItems", this.handleSwapItems.bind(this));
+    socket.on('Item/GetItems', this.handleGetItems.bind(this));
+    socket.on('Item/SwapItems', this.handleSwapItems.bind(this));
   }
 
-  private async handleGetItems(
-    socket: ServerSocket,
-    _: ServerData<"Item/GetItems">
-  ) {
+  private async handleGetItems(socket: ServerSocket, { itemIds }: ServerData<'Item/GetItems'>) {
     const profileId = this.socketHub.requireProfileId(socket.id);
+    if (itemIds) {
+      const items: Item[] = [];
+      for (const itemId of itemIds) {
+        const item = await this.itemService.getItemById(profileId, itemId);
+        items.push(item);
+      }
+      return items;
+    }
 
     const items = await this.itemService.getItemsByProfileId(profileId);
-    socket.send("Item/UpdateItems", { items });
+    socket.send('Item/UpdateItems', { items });
   }
 
-  private async handleSwapItems(
-    socket: ServerSocket,
-    { index1, index2 }: ServerData<"Item/SwapItems">
-  ) {
+  private async handleSwapItems(socket: ServerSocket, { itemId1, itemId2 }: ServerData<'Item/SwapItems'>) {
     const profileId = this.socketHub.requireProfileId(socket.id);
 
-    const items = await this.itemService.getItemsByProfileId(profileId);
-    if (
-      index1 < 0 ||
-      index1 >= items.length ||
-      index2 < 0 ||
-      index2 >= items.length
-    )
-      return socket.error(ErrorType.ArgumentOutOfRange);
+    const item1 = await this.itemService.getItemById(profileId, itemId1);
+    const item2 = await this.itemService.getItemById(profileId, itemId2);
 
-    [items[index1].index, items[index2].index] = [
-      items[index2].index,
-      items[index1].index,
-    ];
-    this.itemService.updateItem(profileId, items[index1].itemId);
-    this.itemService.updateItem(profileId, items[index2].itemId);
+    [item1.index, item2.index] = [item2.index, item1.index];
 
-    this.socketHub.broadcastToProfile(profileId, "Item/UpdateItems", {
-      items: items,
+    this.itemService.updateItem(profileId, item1.itemId);
+    this.itemService.updateItem(profileId, item2.itemId);
+
+    this.socketHub.broadcastToProfile(profileId, 'Item/UpdateItems', {
+      items: [item1, item2],
     });
   }
 }
