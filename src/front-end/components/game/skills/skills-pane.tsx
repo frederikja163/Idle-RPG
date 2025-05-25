@@ -41,6 +41,8 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
     socket?.send('Activity/GetActivity', {});
 
     socket?.on('Activity/ActivityStarted', (_, data) => setActiveActivity(data));
+    socket?.on('Activity/ActivityStopped', () => setActiveActivity(undefined));
+    socket?.on('Activity/NoActivity', () => setActiveActivity(undefined));
     socket?.on('Skill/UpdateSkills', (_, data) => setProfileSkills(data.skills));
   }, [setActiveActivity, socket]);
 
