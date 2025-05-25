@@ -12,7 +12,7 @@ import { mergeItems, mergeSkills } from '@/front-end/lib/utils.ts';
 export const SkillsPane: FC = React.memo(function SkillsPane() {
   const socket = useSocket();
   const setActiveActivity = useSetAtom(activeActivityAtom);
-  const [profileItems, setProfileItems] = useAtom(profileItemsAtom);
+  const setProfileItems = useSetAtom(profileItemsAtom);
   const [profileSkills, setProfileSkills] = useAtom(profileSkillsAtom);
 
   const skillTabs = useMemo(
@@ -45,12 +45,12 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
     socket?.on('Activity/ActivityStopped', (_, data) => {
       setActiveActivity(undefined);
 
-      setProfileSkills(mergeSkills(profileSkills, data.skills));
-      setProfileItems(mergeItems(profileItems, data.items));
+      setProfileSkills(mergeSkills(data.skills));
+      setProfileItems(mergeItems(data.items));
     });
     socket?.on('Activity/NoActivity', () => setActiveActivity(undefined));
-    socket?.on('Skill/UpdateSkills', (_, data) => setProfileSkills(mergeSkills(profileSkills, data.skills)));
-  }, [profileItems, profileSkills, setActiveActivity, setProfileItems, setProfileSkills, socket]);
+    socket?.on('Skill/UpdateSkills', (_, data) => setProfileSkills(mergeSkills(data.skills)));
+  }, [setActiveActivity, setProfileItems, setProfileSkills, socket]);
 
   if (!skillTabs) return;
 

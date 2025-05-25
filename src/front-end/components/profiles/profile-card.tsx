@@ -3,8 +3,6 @@ import { Column } from '@/front-end/components/layout/column.tsx';
 import { Card } from '@/front-end/components/ui/card.tsx';
 import { Trash2 } from 'lucide-react';
 import { Row } from '../layout/row';
-import { useNavigate } from 'react-router-dom';
-import { routes } from '@/front-end/router/routes.ts';
 import { useSocket } from '@/front-end/state/socket-provider.tsx';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
 import type { Profile } from '@/shared/definition/schema/types/types-profiles.ts';
@@ -17,15 +15,13 @@ export const ProfileCard: FC<Props> = React.memo(function ProfileCard(props) {
   const { profile } = props;
 
   const socket = useSocket();
-  const navigate = useNavigate();
 
   const selectProfile = useCallback(
     (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       event.stopPropagation();
       socket?.send('Profile/SelectProfile', { profileId: profile.id });
-      navigate(routes.game);
     },
-    [socket, profile.id, navigate],
+    [socket, profile.id],
   );
 
   const deleteProfile = useCallback(

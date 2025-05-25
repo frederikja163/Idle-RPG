@@ -18,10 +18,10 @@ export const Inventory: FC = React.memo(function Inventory() {
   useEffect(() => {
     socket?.send('Item/GetItems', {});
 
-    socket?.on('Item/UpdateItems', (socket, data) => {
-      setProfileItems(mergeItems(profileItems, data.items));
+    socket?.on('Item/UpdateItems', (_, data) => {
+      setProfileItems(mergeItems(data.items));
     });
-  }, [profileItems, setProfileItems, socket]);
+  }, [setProfileItems, socket]);
 
   const shownItems = useMemo(
     () =>

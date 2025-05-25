@@ -13,18 +13,22 @@ export function getFormData<T>(formEvent: FormEvent<HTMLFormElement>) {
   return Object.fromEntries(formData.entries()) as unknown as T;
 }
 
-export function mergeSkills(existingSkills: Map<SkillId, Skill>, updatedSkills: Skill[]) {
+export const mergeSkills = (updatedSkills: Skill[]) => (existingSkills: Map<SkillId, Skill>) => {
+  const skills = new Map(existingSkills);
+
   for (const skill of updatedSkills) {
-    existingSkills.set(skill.skillId, skill);
+    skills.set(skill.skillId, skill);
   }
 
-  return existingSkills;
-}
+  return skills;
+};
 
-export function mergeItems(existingItems: Map<ItemId, Item>, updatedItems: Item[]) {
+export const mergeItems = (updatedItems: Item[]) => (existingItems: Map<ItemId, Item>) => {
+  const items = new Map(existingItems);
+
   for (const item of updatedItems) {
-    existingItems.set(item.itemId, item);
+    items.set(item.itemId, item);
   }
 
-  return existingItems;
-}
+  return items;
+};
