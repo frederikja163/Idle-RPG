@@ -7,6 +7,7 @@
   "module": "src/back-end/app.ts",
   "scripts": {
     "setup": "bun scripts/setup.ts",
+    "dev": "bun scripts/dev.ts",
     "fe": "vite",
     "fe:start": "vite preview --mode production --port 3000",
     "fe:build": "vite build",
