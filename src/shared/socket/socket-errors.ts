@@ -6,6 +6,7 @@ export enum ErrorType {
   RequiresLogin,
   ProfileInUse,
   ProfileDoesNotExist,
+  InsufficientPermissions,
   NameTaken,
   ArgumentOutOfRange,
   RequiresProfile,
@@ -18,6 +19,7 @@ export const errorMessages: { [type in ErrorType]: string } = {
   [ErrorType.NotImplemented]: 'This is not implemented yet.',
   [ErrorType.InternalError]: 'The server experienced an internal error handling your request.',
   [ErrorType.InvalidInput]: 'The input was invalid, so the action could not be performed.',
+  [ErrorType.InsufficientPermissions]: 'You do not have permission to do this action.',
   [ErrorType.EmailNotVerified]: 'Email is not verified.',
   [ErrorType.RequiresLogin]: 'You must login to do this.',
   [ErrorType.ProfileInUse]:

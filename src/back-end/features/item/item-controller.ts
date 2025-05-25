@@ -8,7 +8,11 @@ import {
 import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 import { ItemService } from './item-service';
 import type { ServerData } from '@/shared/socket/socket-types';
+<<<<<<< HEAD
 import { ErrorType } from '@/shared/socket/socket-errors';
+=======
+import type { Item } from '@/shared/definition/schema/types/types-items';
+>>>>>>> origin/main
 
 @injectableSingleton(SocketOpenEventToken)
 export class ItemController implements SocketOpenEventListener {
@@ -23,13 +27,26 @@ export class ItemController implements SocketOpenEventListener {
     socket.on('Item/SwapItems', this.handleSwapItems.bind(this));
   }
 
+<<<<<<< HEAD
   private async handleGetItems(socket: ServerSocket, _: ServerData<'Item/GetItems'>) {
+=======
+  private async handleGetItems(socket: ServerSocket, { itemIds }: ServerData<'Item/GetItems'>) {
+>>>>>>> origin/main
     const profileId = this.socketHub.requireProfileId(socket.id);
+    if (itemIds) {
+      const items: Item[] = [];
+      for (const itemId of itemIds) {
+        const item = await this.itemService.getItemById(profileId, itemId);
+        items.push(item);
+      }
+      return items;
+    }
 
     const items = await this.itemService.getItemsByProfileId(profileId);
     socket.send('Item/UpdateItems', { items });
   }
 
+<<<<<<< HEAD
   private async handleSwapItems(socket: ServerSocket, { index1, index2 }: ServerData<'Item/SwapItems'>) {
     const profileId = this.socketHub.requireProfileId(socket.id);
 
@@ -43,6 +60,21 @@ export class ItemController implements SocketOpenEventListener {
 
     this.socketHub.broadcastToProfile(profileId, 'Item/UpdateItems', {
       items: items,
+=======
+  private async handleSwapItems(socket: ServerSocket, { itemId1, itemId2 }: ServerData<'Item/SwapItems'>) {
+    const profileId = this.socketHub.requireProfileId(socket.id);
+
+    const item1 = await this.itemService.getItemById(profileId, itemId1);
+    const item2 = await this.itemService.getItemById(profileId, itemId2);
+
+    [item1.index, item2.index] = [item2.index, item1.index];
+
+    this.itemService.updateItem(profileId, item1.itemId);
+    this.itemService.updateItem(profileId, item2.itemId);
+
+    this.socketHub.broadcastToProfile(profileId, 'Item/UpdateItems', {
+      items: [item1, item2],
+>>>>>>> origin/main
     });
   }
 }
