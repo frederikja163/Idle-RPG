@@ -3,13 +3,14 @@ import type { ActivityService } from './activity-service';
 import { SocketHub } from '@/back-end/core/server/sockets/socket-hub';
 import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
 import { ErrorType, ServerError } from '@/shared/socket/socket-errors';
-import { getActionCount, processProcessingActivity } from '@/shared/util/util-activities';
-import { addXp } from '@/shared/util/util-skills';
+import { processProcessingActivity } from '@/shared/util/util-activities';
 import { ItemService } from '../item/item-service';
 import { ProfileService } from '../profile/profile-service';
 import { SkillService } from '../skill/skill-service';
-import { ServerProfileUpdater } from '../profile/profile-updater';
+import { ServerProfileInterface } from '../profile/profile-interface';
+import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 
+@injectableSingleton()
 export class ProcessingService implements ActivityService<ProcessingActivityDef> {
   public constructor(
     private readonly socketHub: SocketHub,
@@ -40,8 +41,9 @@ export class ProcessingService implements ActivityService<ProcessingActivityDef>
     if (!profile.activityStart) throw new ServerError(ErrorType.InternalError);
 
     const activityEnd = new Date();
-    const updater = new ServerProfileUpdater(profileId, this.skillService, this.itemService);
-    processProcessingActivity(profile.activityStart, activityEnd, activity, updater);
+    const profileInterface = new ServerProfileInterface(profileId, this.skillService, this.itemService);
+    await processProcessingActivity(profile.activityStart, activityEnd, activity, profileInterface);
+    profileInterface.save();
 
     profile.activityId = null;
     profile.activityStart = null;
@@ -49,8 +51,8 @@ export class ProcessingService implements ActivityService<ProcessingActivityDef>
     this.socketHub.broadcastToProfile(profile.id, 'Activity/ActivityStopped', {
       activityId: activity.id,
       activityStop: activityEnd,
-      items: updater.allItems,
-      skills: updater.allSkills,
+      items: profileInterface.allItems,
+      skills: profileInterface.allSkills,
     });
   }
 }

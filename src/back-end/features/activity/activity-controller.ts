@@ -16,10 +16,8 @@ import {
 import type { ServerData } from '@/shared/socket/socket-types';
 import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
 import { ErrorType, ServerError } from '@/shared/socket/socket-errors';
-import type { GatheringService } from './gathering-service';
-import type { ItemService } from '../item/item-service';
-import type { SkillService } from '../skill/skill-service';
-import type { ProcessingService } from './processing-service';
+import { GatheringService } from './gathering-service';
+import { ProcessingService } from './processing-service';
 
 @injectableSingleton(SocketOpenEventToken)
 export class ActivityController implements SocketOpenEventListener {

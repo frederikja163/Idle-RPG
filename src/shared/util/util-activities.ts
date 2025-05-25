@@ -14,39 +14,34 @@ export async function proccessGatheringActivity(
   activityStart: Date,
   activityEnd: Date,
   activity: GatheringActivityDef,
-  profileUpdater: ProfileUpdater,
+  profileInterface: ProfileInterface,
 ) {
   const actionCount = Math.floor(getActionCount(activityStart, activity.time, activityEnd));
 
-  const skill = await profileUpdater.getSkill(activity.skill);
+  const skill = await profileInterface.getSkill(activity.skill);
   addXp(skill, actionCount * activity.xpAmount);
 
-  const item = await profileUpdater.getItem(activity.resultId);
+  const item = await profileInterface.getItem(activity.resultId);
   addItems(item, actionCount);
-
-  profileUpdater.save();
 }
 
 export async function processProcessingActivity(
   activityStart: Date,
   activityEnd: Date,
   activity: ProcessingActivityDef,
-  profileUpdater: ProfileUpdater,
+  profileInterface: ProfileInterface,
 ) {
-  const item = await profileUpdater.getItem(activity.costId);
+  const item = await profileInterface.getItem(activity.costId);
 
   const actionCount = Math.min(Math.floor(getActionCount(activityStart, activity.time, activityEnd)), item.count);
 
   subItems(item, actionCount);
 
-  const skill = await profileUpdater.getSkill(activity.skill);
+  const skill = await profileInterface.getSkill(activity.skill);
   addXp(skill, actionCount * activity.xpAmount);
-
-  profileUpdater.save();
 }
 
-export interface ProfileUpdater {
+export interface ProfileInterface {
   getItem(itemId: ItemId): Item | Promise<Item>;
   getSkill(skillId: SkillId): Skill | Promise<Skill>;
-  save(): void;
 }

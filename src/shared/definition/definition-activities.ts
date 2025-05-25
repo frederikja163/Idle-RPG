@@ -17,14 +17,14 @@ log('Oak', 4);
 
 function ore(name: string, tier: number) {
   const id = name.toLowerCase();
-  gathering(`mine_ore_${id}`, 'mining', `${name} ore`, 5000, tier + 1, `ore_${id}`, tier * 10);
-  processing(`smith_ore_${id}`, 'smithing', `${name} ore`, 5000, tier + 1, `ore_${id}`, tier * 10);
+  gathering(`mine_ore_${id}`, 'mining', `Mine ${name} ore`, 5000, tier + 1, `ore_${id}`, tier * 10);
+  processing(`smith_ore_${id}`, 'smithing', `Smith ${name} ore`, 5000, tier + 1, `ore_${id}`, tier * 10);
 }
 
 function log(name: string, tier: number) {
   const id = name.toLowerCase();
-  gathering(`cut_log_${id}`, 'lumberjacking', `${name} log`, 5000, tier + 1, `log_${id}`, tier * 10);
-  processing(`carve_log_${id}`, 'carpentry', `${name} log`, 5000, tier + 1, `log_${id}`, tier * 10);
+  gathering(`cut_log_${id}`, 'lumberjacking', `Cut ${name} log`, 5000, tier + 1, `log_${id}`, tier * 10);
+  processing(`carve_log_${id}`, 'carpentry', `Carve ${name} log`, 5000, tier + 1, `log_${id}`, tier * 10);
 }
 
 function gathering(
