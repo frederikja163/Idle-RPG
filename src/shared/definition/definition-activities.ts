@@ -18,13 +18,22 @@ log('Oak', 4);
 function ore(name: string, tier: number) {
   const id = name.toLowerCase();
   gathering(`mine_ore_${id}`, 'mining', `Mine ${name} ore`, 5000, tier + 1, `ore_${id}`, tier * 10);
-  processing(`smith_ore_${id}`, 'smithing', `Smith ${name} ore`, 5000, tier + 1, `ore_${id}`, tier * 10);
+  processing(`refine_${id}`, 'refining', `Refine ${name}`, 5000, tier + 1, `ore_${id}`, `${id}`, tier * 10);
 }
 
 function log(name: string, tier: number) {
   const id = name.toLowerCase();
   gathering(`cut_log_${id}`, 'lumberjacking', `Cut ${name} log`, 5000, tier + 1, `log_${id}`, tier * 10);
-  processing(`carve_log_${id}`, 'carpentry', `Carve ${name} log`, 5000, tier + 1, `log_${id}`, tier * 10);
+  processing(
+    `carve_plank_${id}`,
+    'carpentry',
+    `Carve ${name} plank`,
+    5000,
+    tier + 1,
+    `log_${id}`,
+    `plank_${id}`,
+    tier * 10,
+  );
 }
 
 function gathering(
@@ -46,9 +55,10 @@ function processing(
   time: number,
   xpAmount: number,
   costId: ItemId,
+  resultId: ItemId,
   levelRequirement: number,
 ) {
-  activities.set(id, { type: 'processing', id, skill, display, time, xpAmount, costId, levelRequirement });
+  activities.set(id, { type: 'processing', id, skill, display, time, xpAmount, costId, resultId, levelRequirement });
 }
 
 export type ActivityDef = GatheringActivityDef | ProcessingActivityDef;
@@ -60,7 +70,7 @@ export type GatheringActivityDef = {
   display: string;
   time: number;
   xpAmount: number;
-  resultId: string;
+  resultId: ItemId;
   levelRequirement: number;
 };
 
@@ -71,7 +81,8 @@ export type ProcessingActivityDef = {
   display: string;
   time: number;
   xpAmount: number;
-  costId: string;
+  costId: ItemId;
+  resultId: ItemId;
   levelRequirement: number;
 };
 

@@ -16,12 +16,12 @@ export async function proccessGatheringActivity(
   activity: GatheringActivityDef,
   profileInterface: ProfileInterface,
 ) {
+  const skill = await profileInterface.getSkill(activity.skill);
+  const item = await profileInterface.getItem(activity.resultId);
   const actionCount = Math.floor(getActionCount(activityStart, activity.time, activityEnd));
 
-  const skill = await profileInterface.getSkill(activity.skill);
   addXp(skill, actionCount * activity.xpAmount);
 
-  const item = await profileInterface.getItem(activity.resultId);
   addItems(item, actionCount);
 }
 
@@ -31,13 +31,15 @@ export async function processProcessingActivity(
   activity: ProcessingActivityDef,
   profileInterface: ProfileInterface,
 ) {
-  const item = await profileInterface.getItem(activity.costId);
-
-  const actionCount = Math.min(Math.floor(getActionCount(activityStart, activity.time, activityEnd)), item.count);
-
-  subItems(item, actionCount);
-
+  const costItem = await profileInterface.getItem(activity.costId);
+  const resultItem = await profileInterface.getItem(activity.resultId);
   const skill = await profileInterface.getSkill(activity.skill);
+
+  const actionCount = Math.min(Math.floor(getActionCount(activityStart, activity.time, activityEnd)), costItem.count);
+
+  subItems(costItem, actionCount);
+  addItems(resultItem, actionCount);
+
   addXp(skill, actionCount * activity.xpAmount);
 }
 
