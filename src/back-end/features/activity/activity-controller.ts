@@ -60,7 +60,6 @@ export class ActivityController implements SocketOpenEventListener {
     const profileId = this.socketHub.requireProfileId(socket.id);
     const { activityId, activityStart } = await this.profileService.getProfileById(profileId);
     if (!activityId || !activityStart) return socket.send('Activity/NoActivity', {});
-    const activity = this.getActivity(activityId);
     socket.send('Activity/ActivityStarted', { activityId, activityStart });
   }
 
