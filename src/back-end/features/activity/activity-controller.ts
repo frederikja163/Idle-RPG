@@ -7,15 +7,19 @@ import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 import { SocketHub } from '@/back-end/core/server/sockets/socket-hub';
 import { ProfileService } from '../profile/profile-service';
 import type { ServerSocket } from '@/back-end/core/server/sockets/server-socket';
-import { SkillService } from '../skill/skill-service';
-import { ItemService } from '../item/item-service';
-import { activities, type ActivityId, type GatheringActivityDef } from '@/shared/definition/definition-activities';
-import { getActionCount } from '@/shared/util/util-activities';
-import { addXp } from '@/shared/util/util-skills';
+import {
+  activities,
+  type ActivityId,
+  type GatheringActivityDef,
+  type ProcessingActivityDef,
+} from '@/shared/definition/definition-activities';
 import type { ServerData } from '@/shared/socket/socket-types';
-import type { Profile, ProfileId } from '@/shared/definition/schema/types/types-profiles';
+import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
 import { ErrorType, ServerError } from '@/shared/socket/socket-errors';
 import type { GatheringService } from './gathering-service';
+import type { ItemService } from '../item/item-service';
+import type { SkillService } from '../skill/skill-service';
+import type { ProcessingService } from './processing-service';
 
 @injectableSingleton(SocketOpenEventToken)
 export class ActivityController implements SocketOpenEventListener {
@@ -23,6 +27,7 @@ export class ActivityController implements SocketOpenEventListener {
     private readonly socketHub: SocketHub,
     private readonly profileService: ProfileService,
     private readonly gatheringService: GatheringService,
+    private readonly processingService: ProcessingService,
   ) {}
 
   public onSocketOpen({ socketId }: SocketOpenEventData): void | Promise<void> {
@@ -44,6 +49,10 @@ export class ActivityController implements SocketOpenEventListener {
     switch (activity.type) {
       case 'gathering':
         await this.gatheringService.startActivity(profileId, activity as GatheringActivityDef);
+        break;
+      case 'processing':
+        await this.processingService.startActivity(profileId, activity as ProcessingActivityDef);
+        break;
       default:
         throw new ServerError(ErrorType.InternalError);
     }
@@ -54,10 +63,7 @@ export class ActivityController implements SocketOpenEventListener {
     const { activityId, activityStart } = await this.profileService.getProfileById(profileId);
     if (!activityId || !activityStart) return socket.send('Activity/NoActivity', {});
     const activity = this.getActivity(activityId);
-    switch (activity.type) {
-      case 'gathering':
-        socket.send('Activity/ActivityStarted', { activityId, activityStart });
-    }
+    socket.send('Activity/ActivityStarted', { activityId, activityStart });
   }
 
   private async handleStopActivity(socket: ServerSocket, _: ServerData<'Activity/StopActivity'>) {
@@ -72,6 +78,10 @@ export class ActivityController implements SocketOpenEventListener {
     switch (activity.type) {
       case 'gathering':
         await this.gatheringService.stopActivity(profileId, activity as GatheringActivityDef);
+        break;
+      case 'processing':
+        await this.processingService.stopActivity(profileId, activity as ProcessingActivityDef);
+        break;
       default:
         throw new ServerError(ErrorType.InternalError);
     }
