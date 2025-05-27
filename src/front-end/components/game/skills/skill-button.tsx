@@ -10,6 +10,7 @@ import { CirclePlay } from 'lucide-react';
 import { useAtomValue } from 'jotai/index';
 import { activeActivityAtom } from '@/front-end/state/atoms.tsx';
 import { activities } from '@/shared/definition/definition-activities.ts';
+import { getActivitySkill } from '@/shared/util/util-activity-skill-map';
 
 interface Props {
   name: string;
@@ -19,15 +20,15 @@ interface Props {
 export const SkillButton: FC<Props> = React.memo(function SkillButton(props) {
   const { name, skill } = props;
 
-  const activeActivity = useAtomValue(activeActivityAtom);
-
-  const isActiveSkill = activities.get(activeActivity?.activityId ?? '')?.skill === skill.skillId;
+  const activeActivityId = useAtomValue(activeActivityAtom)?.activityId;
+  const activeActivity = activeActivityId ? activities.get(activeActivityId) : undefined;
+  const isActiveSkill = activeActivity && getActivitySkill(activeActivity) === skill.skillId;
   const targetXp = useMemo(() => xpAccum.at(skill.level + 1) ?? skill.xp, [skill.level, skill.xp]);
 
   return (
     <Column className="mt-2 items-center">
       <Row className="relative items-center">
-        {isActiveSkill && <CirclePlay size={16} className="text-primary absolute translate-x-[-20px]" />}
+        {/*isActiveSkill && <CirclePlay size={16} className="text-primary absolute translate-x-[-20px]" />*/}
         <Typography>{name}</Typography>
       </Row>
       <Row className="w-1/2">

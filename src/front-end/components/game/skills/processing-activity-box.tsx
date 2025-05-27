@@ -29,8 +29,8 @@ export const ProcessingActivityBox: FC<Props> = React.memo(function ProcessingAc
   const profileItems = new Map<ItemId, Item>(); // TODO: change to use atom when that branch is merged in
 
   const isActive = activeActivity?.activityId === activityDef.id;
-  const isUnlocked = skillLevel >= activityDef.levelRequirement;
-  const hasRequiredItems = (profileItems.get(activityDef.costId)?.count ?? 0) >= 1;
+  const isUnlocked = skillLevel >= activityDef.skillRequirement.level;
+  const hasRequiredItems = (profileItems.get(activityDef.cost.itemId)?.count ?? 0) >= 1;
 
   const handleClick = useCallback(() => {
     if (isActive) {
@@ -50,8 +50,8 @@ export const ProcessingActivityBox: FC<Props> = React.memo(function ProcessingAc
       <Column className="gap-2 relative">
         {isActive && <CirclePlay size={30} className="absolute right-0" />}
         <Image
-          src={`/assets/items/${activityDef.resultId}.svg`}
-          alt={activityDef.resultId}
+          src={`/assets/items/${activityDef.result.itemId}.svg`}
+          alt={activityDef.result.itemId}
           className="p-6 aspect-square"
         />
         <Typography className="text-lg">{activityDef.display}</Typography>
@@ -65,10 +65,10 @@ export const ProcessingActivityBox: FC<Props> = React.memo(function ProcessingAc
           <ActivityDetail top={activityDef.xpAmount.toString()} bottom="XP" />
           <Divider orientation="vertical" className="my-2" />
           <Row className={`w-full m-1 rounded-sm ${isUnlocked && !hasRequiredItems ? 'bg-red-300' : ''}`}>
-            <BasicTooltip tooltipContent={<ItemTooltip itemId={activityDef.costId} />}>
+            <BasicTooltip tooltipContent={<ItemTooltip itemId={activityDef.cost.itemId} />}>
               <Image
-                src={`/assets/items/${activityDef.costId}.svg`}
-                alt={activityDef.costId}
+                src={`/assets/items/${activityDef.cost.itemId}.svg`}
+                alt={activityDef.cost.itemId}
                 className="p-1 aspect-square"
               />
             </BasicTooltip>
