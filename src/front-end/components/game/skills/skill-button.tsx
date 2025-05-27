@@ -28,7 +28,7 @@ export const SkillButton: FC<Props> = React.memo(function SkillButton(props) {
   return (
     <Column className="mt-2 items-center">
       <Row className="relative items-center">
-        {/*isActiveSkill && <CirclePlay size={16} className="text-primary absolute translate-x-[-20px]" />*/}
+        {isActiveSkill && <CirclePlay size={16} className="text-primary absolute translate-x-[-20px]" />}
         <Typography>{name}</Typography>
       </Row>
       <Row className="w-1/2">
