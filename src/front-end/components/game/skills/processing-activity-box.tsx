@@ -10,9 +10,7 @@ import { CirclePlay, Clock } from 'lucide-react';
 import { ActivityDetail } from '@/front-end/components/game/skills/activity-detail.tsx';
 import { useSocket } from '@/front-end/state/socket-provider.tsx';
 import { useAtomValue } from 'jotai';
-import { activeActivityAtom } from '@/front-end/state/atoms.tsx';
-import type { ItemId } from '@/shared/definition/schema/types/types-items';
-import type { Item } from '@/shared/definition/schema/types/types-items.ts';
+import { activeActivityAtom, profileItemsAtom } from '@/front-end/state/atoms.tsx';
 import { BasicTooltip } from '@/front-end/components/ui/basic-tooltip.tsx';
 import { ItemTooltip } from '@/front-end/components/game/item-tooltip.tsx';
 
@@ -26,7 +24,7 @@ export const ProcessingActivityBox: FC<Props> = React.memo(function ProcessingAc
 
   const socket = useSocket();
   const activeActivity = useAtomValue(activeActivityAtom);
-  const profileItems = new Map<ItemId, Item>(); // TODO: change to use atom when that branch is merged in
+  const profileItems = useAtomValue(profileItemsAtom);
 
   const isActive = activeActivity?.activityId === activityDef.id;
   const isUnlocked = skillLevel >= activityDef.levelRequirement;
