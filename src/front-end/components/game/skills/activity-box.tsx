@@ -28,14 +28,19 @@ export const ActivityBox: FC<Props> = React.memo(function ActivityBox(props) {
   const isActive = activeActivity?.activityId === activityId;
   const isUnlocked = skillLevel >= (activity?.levelRequirement ?? 0);
 
-  const startActivity = useCallback(() => {
+  const handleClick = useCallback(() => {
+    if (isActive) {
+      socket?.send('Activity/StopActivity', { activityId });
+      return;
+    }
+
     socket?.send('Activity/StartActivity', { activityId });
-  }, [socket, activityId]);
+  }, [isActive, socket, activityId]);
 
   return (
     <Card
       className={`p-2 w-40 ${isUnlocked ? 'cursor-pointer' : 'opacity-50'}  ${isActive ? 'bg-primary' : 'bg-background'}`}
-      onClick={isUnlocked ? startActivity : undefined}>
+      onClick={isUnlocked ? handleClick : undefined}>
       <Column className="gap-2 relative">
         {isActive && <CirclePlay size={30} className="absolute right-0" />}
         <Image
