@@ -1,31 +1,45 @@
+import type { ItemId } from './schema/types/types-items';
+import type { SkillId } from './schema/types/types-skills';
+
 export const activities = new Map<string, ActivityDef>();
 
-mining('Talc', 5000, 1, 0);
-mining('Gypsum', 5000, 2, 10);
-mining('Calcite', 5000, 3, 20);
-mining('Flourite', 5000, 4, 30);
-mining('Apatite', 5000, 5, 40);
+ore('Talc', 0);
+ore('Gypsum', 1);
+ore('Calcite', 2);
+ore('Flourite', 3);
+ore('Apatite', 4);
 
-lumberjacking('Balsa', 5000, 1, 0);
-lumberjacking('Pine', 5000, 2, 10);
-lumberjacking('Cedar', 5000, 3, 20);
-lumberjacking('Cherry', 5000, 4, 30);
-lumberjacking('Oak', 5000, 5, 40);
+log('Balsa', 0);
+log('Pine', 1);
+log('Cedar', 2);
+log('Cherry', 3);
+log('Oak', 4);
 
-function mining(name: string, time: number, xpAmount: number, levelRequirement: number) {
+function ore(name: string, tier: number) {
   const id = name.toLowerCase();
-  gathering(`mine_ore_${id}`, `${name} ore`, 'mining', time, xpAmount, `ore_${id}`, levelRequirement);
+  gathering(`mine_ore_${id}`, 'mining', `Mine ${name} ore`, 5000, tier + 1, `ore_${id}`, tier * 10);
+  processing(`refine_${id}`, 'refining', `Refine ${name}`, 5000, tier + 1, `ore_${id}`, `${id}`, tier * 10);
 }
 
-function lumberjacking(name: string, time: number, xpAmount: number, levelRequirement: number) {
+function log(name: string, tier: number) {
   const id = name.toLowerCase();
-  gathering(`cut_log_${id}`, `${name} wood`, 'lumberjacking', time, xpAmount, `log_${id}`, levelRequirement);
+  gathering(`cut_log_${id}`, 'lumberjacking', `Cut ${name} log`, 5000, tier + 1, `log_${id}`, tier * 10);
+  processing(
+    `carve_plank_${id}`,
+    'carpentry',
+    `Carve ${name} plank`,
+    5000,
+    tier + 1,
+    `log_${id}`,
+    `plank_${id}`,
+    tier * 10,
+  );
 }
 
 function gathering(
-  id: string,
+  id: ActivityId,
+  skill: SkillId,
   display: string,
-  skill: string,
   time: number,
   xpAmount: number,
   resultId: string,
@@ -34,16 +48,41 @@ function gathering(
   activities.set(id, { type: 'gathering', id, skill, display, time, xpAmount, resultId, levelRequirement });
 }
 
-export type ActivityDef = GatheringActivityDef;
+function processing(
+  id: ActivityId,
+  skill: SkillId,
+  display: string,
+  time: number,
+  xpAmount: number,
+  costId: ItemId,
+  resultId: ItemId,
+  levelRequirement: number,
+) {
+  activities.set(id, { type: 'processing', id, skill, display, time, xpAmount, costId, resultId, levelRequirement });
+}
+
+export type ActivityDef = GatheringActivityDef | ProcessingActivityDef;
 
 export type GatheringActivityDef = {
   type: 'gathering';
   id: ActivityId;
-  skill: string;
+  skill: SkillId;
   display: string;
   time: number;
   xpAmount: number;
-  resultId: string;
+  resultId: ItemId;
+  levelRequirement: number;
+};
+
+export type ProcessingActivityDef = {
+  type: 'processing';
+  id: ActivityId;
+  skill: SkillId;
+  display: string;
+  time: number;
+  xpAmount: number;
+  costId: ItemId;
+  resultId: ItemId;
   levelRequirement: number;
 };
 

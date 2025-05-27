@@ -46,8 +46,8 @@ export class ItemController implements SocketOpenEventListener {
 
     [item1.index, item2.index] = [item2.index, item1.index];
 
-    this.itemService.updateItem(profileId, item1.itemId);
-    this.itemService.updateItem(profileId, item2.itemId);
+    this.itemService.update(profileId, item1.itemId);
+    this.itemService.update(profileId, item2.itemId);
 
     this.socketHub.broadcastToProfile(profileId, 'Item/UpdateItems', {
       items: [item1, item2],

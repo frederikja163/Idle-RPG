@@ -17,11 +17,13 @@ wood('Oak');
 function ore(name: string) {
   const id = name.toLowerCase();
   item(`ore_${id}`, `${name} ore`, ItemTag.Resource, ItemTag.Tool);
+  item(`refined_${id}`, `Refined ${id}`, ItemTag.Resource, ItemTag.Tool);
 }
 
 function wood(name: string) {
   const id = name.toLowerCase();
   item(`log_${id}`, `${name} log`, ItemTag.Resource);
+  item(`plank_${id}`, `${name} plank`, ItemTag.Resource);
 }
 
 function item(id: string, display: string, ...tags: ItemTag[]) {

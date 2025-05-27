@@ -3,7 +3,7 @@ import type { SkillId } from './schema/types/types-skills';
 export const skills = new Map<string, SkillDef>();
 
 addSkill('mining', 'Mining');
-addSkill('smithing', 'Smithing');
+addSkill('refining', 'Refining');
 addSkill('lumberjacking', 'Lumberjacking');
 addSkill('carpentry', 'Carpentry');
 
