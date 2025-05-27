@@ -148,7 +148,7 @@ export type CraftingActivityDef = {
   cost: ItemAmount[];
   result: ItemAmount[];
 };
-function craftingActivityDef(
+function _craftingActivityDef(
   id: ActivityId,
   display: string,
   time: number,
