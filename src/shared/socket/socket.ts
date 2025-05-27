@@ -14,7 +14,7 @@ function reviver<T>(_: string, value: T) {
 export class Socket<TIncoming extends AllEvents, TOutgoing extends AllEvents> {
   public static LogEvents: boolean = false;
   private readonly _send: (data: string) => void;
-  private readonly _events = new Map<EventType<TIncoming>, (data: object) => void>();
+  private readonly _events = new Map<EventType<TIncoming>, (data: object) => Promise<void> | void>();
   private readonly _typeCheck: TypeCheck<TIncoming>;
 
   constructor(typeCheck: TypeCheck<TIncoming>, send: (data: string) => void) {
@@ -26,7 +26,7 @@ export class Socket<TIncoming extends AllEvents, TOutgoing extends AllEvents> {
     this._events.clear();
   }
 
-  public handleMessage(message: string) {
+  public async handleMessage(message: string) {
     // if (Socket.LogEvents) {
     console.log(message);
     // }
@@ -43,7 +43,7 @@ export class Socket<TIncoming extends AllEvents, TOutgoing extends AllEvents> {
       };
       const event = this._events.get(type);
       if (event) {
-        event(data);
+        await event(data);
         return;
       }
 
