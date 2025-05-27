@@ -6,18 +6,30 @@ import type { Skill } from '@/shared/definition/schema/types/types-skills.ts';
 import { xpAccum } from '@/shared/util/util-skills.ts';
 import { Image } from '@/front-end/components/ui/image.tsx';
 import { Row } from '@/front-end/components/layout/row.tsx';
+import { CirclePlay } from 'lucide-react';
+import { useAtomValue } from 'jotai/index';
+import { activeActivityAtom } from '@/front-end/state/atoms.tsx';
+import { activities } from '@/shared/definition/definition-activities.ts';
 
 interface Props {
+  name: string;
   skill: Skill;
 }
 
 export const SkillButton: FC<Props> = React.memo(function SkillButton(props) {
-  const { skill } = props;
+  const { name, skill } = props;
 
+  const activeActivity = useAtomValue(activeActivityAtom);
+
+  const isActiveSkill = activities.get(activeActivity?.activityId ?? '')?.skill === skill.skillId;
   const targetXp = useMemo(() => xpAccum.at(skill.level + 1) ?? skill.xp, [skill.level, skill.xp]);
 
   return (
     <Column className="mt-2 items-center">
+      <Row className="relative items-center">
+        {isActiveSkill && <CirclePlay size={16} className="text-primary absolute translate-x-[-20px]" />}
+        <Typography>{name}</Typography>
+      </Row>
       <Row className="w-1/2">
         <Image src={`/assets/skills/${skill.skillId}.svg`} alt={skill.skillId} />
       </Row>

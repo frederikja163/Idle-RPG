@@ -27,9 +27,8 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
           };
 
           return {
-            label: skillDef.display,
             content: <ActivitiesGrid key={i} skill={profileSkill} />,
-            buttonContent: <SkillButton key={i} skill={profileSkill} />,
+            buttonContent: <SkillButton key={i} name={skillDef.display} skill={profileSkill} />,
           } as Tab;
         })
         .toArray(),
