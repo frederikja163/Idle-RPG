@@ -1,6 +1,6 @@
-﻿import React, { type FC, useCallback, useMemo } from 'react';
+import React, { type FC, useCallback } from 'react';
 import { Column } from '@/front-end/components/layout/column.tsx';
-import { activities as activityDefinitions } from '@/shared/definition/definition-activities';
+import { type GatheringActivityDef } from '@/shared/definition/definition-activities';
 import { Image } from '@/front-end/components/ui/image.tsx';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
 import { Card } from '@/front-end/components/ui/card.tsx';
@@ -13,50 +13,48 @@ import { useAtomValue } from 'jotai';
 import { activeActivityAtom } from '@/front-end/state/atoms.tsx';
 
 interface Props {
-  activityId: string;
+  activityDef: GatheringActivityDef;
   skillLevel: number;
 }
 
-export const ActivityBox: FC<Props> = React.memo(function ActivityBox(props) {
-  const { activityId, skillLevel } = props;
+export const GatheringActivityBox: FC<Props> = React.memo(function GatheringActivityBox(props) {
+  const { activityDef, skillLevel } = props;
 
   const socket = useSocket();
   const activeActivity = useAtomValue(activeActivityAtom);
 
-  const activity = useMemo(() => activityDefinitions.get(activityId), [activityId]);
-
-  const isActive = activeActivity?.activityId === activityId;
-  const isUnlocked = skillLevel >= (activity?.levelRequirement ?? 0);
+  const isActive = activeActivity?.activityId === activityDef.id;
+  const isUnlocked = skillLevel >= activityDef.levelRequirement;
 
   const handleClick = useCallback(() => {
     if (isActive) {
-      socket?.send('Activity/StopActivity', { activityId });
+      socket?.send('Activity/StopActivity', { activityId: activityDef.id });
       return;
     }
-
-    socket?.send('Activity/StartActivity', { activityId });
-  }, [isActive, socket, activityId]);
+    
+    socket?.send('Activity/StartActivity', { activityId: activityDef.id });
+  }, [activityDef.id, isActive, socket]);
 
   return (
     <Card
-      className={`p-2 w-40 ${isUnlocked ? 'cursor-pointer' : 'opacity-50'}  ${isActive ? 'bg-primary' : 'bg-background'}`}
+      className={`p-2 w-48 ${isUnlocked ? 'cursor-pointer' : 'opacity-50'}  ${isActive ? 'bg-primary' : 'bg-background'}`}
       onClick={isUnlocked ? handleClick : undefined}>
       <Column className="gap-2 relative">
         {isActive && <CirclePlay size={30} className="absolute right-0" />}
         <Image
-          src={`/assets/items/${activity?.resultId}.svg`}
-          alt={activity?.resultId ?? 'Not found'}
-          className="p-2 aspect-square"
+          src={`/assets/items/${activityDef.resultId}.svg`}
+          alt={activityDef.resultId}
+          className="p-6 aspect-square"
         />
-        <Typography className="text-lg">{activity?.display}</Typography>
+        <Typography className="text-lg">{activityDef.display}</Typography>
         <Divider />
         <Row>
           <ActivityDetail
-            top={`${Math.round((activity?.time ?? 0) / 1000)}s`}
+            top={`${Math.round(activityDef.time / 1000)}s`}
             bottom={<Clock className="stroke-muted-foreground" />}
           />
           <Divider orientation="vertical" className="my-2" />
-          <ActivityDetail top={activity?.xpAmount.toString()} bottom="XP" />
+          <ActivityDetail top={activityDef.xpAmount.toString()} bottom="XP" />
         </Row>
       </Column>
     </Card>
