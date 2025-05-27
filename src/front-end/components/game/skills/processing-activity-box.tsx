@@ -32,14 +32,21 @@ export const ProcessingActivityBox: FC<Props> = React.memo(function ProcessingAc
   const isUnlocked = skillLevel >= activityDef.levelRequirement;
   const hasRequiredItems = (profileItems.get(activityDef.costId)?.count ?? 0) >= 1;
 
-  const startActivity = useCallback(() => {
+  const handleClick = useCallback(() => {
+    if (isActive) {
+      socket?.send('Activity/StopActivity', { activityId: activityDef.id });
+      return;
+    }
+
+    if (!hasRequiredItems) return;
+
     socket?.send('Activity/StartActivity', { activityId: activityDef.id });
-  }, [activityDef.id, socket]);
+  }, [activityDef.id, hasRequiredItems, isActive, socket]);
 
   return (
     <Card
       className={`p-2 w-48 ${isUnlocked ? (hasRequiredItems ? 'cursor-pointer' : 'opacity-70') : 'opacity-40'}  ${isActive ? 'bg-primary' : 'bg-background'}`}
-      onClick={isUnlocked && hasRequiredItems ? startActivity : undefined}>
+      onClick={isUnlocked ? handleClick : undefined}>
       <Column className="gap-2 relative">
         {isActive && <CirclePlay size={30} className="absolute right-0" />}
         <Image

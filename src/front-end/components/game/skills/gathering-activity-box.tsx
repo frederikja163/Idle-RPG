@@ -28,12 +28,12 @@ export const GatheringActivityBox: FC<Props> = React.memo(function GatheringActi
 
   const handleClick = useCallback(() => {
     if (isActive) {
-      socket?.send('Activity/StopActivity', { activityId });
-	return;
+      socket?.send('Activity/StopActivity', { activityId: activityDef.id });
+      return;
     }
-        socket?.send('Activity/StartActivity', { activityId: activityDef.id });
-     }, [activityDef.id, socket]);
-
+    
+    socket?.send('Activity/StartActivity', { activityId: activityDef.id });
+  }, [activityDef.id, isActive, socket]);
 
   return (
     <Card
