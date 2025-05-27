@@ -1,26 +1,19 @@
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '@/front-end/state/auth-provider.tsx';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Column } from '@/front-end/components/layout/column.tsx';
-import { useSocket } from '@/front-end/state/socket-provider.tsx';
+import React, { type FC, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { routes } from '@/front-end/router/routes.ts';
 
-export function Login() {
-  const socket = useSocket();
+export const Login: FC = React.memo(function Login() {
+  const { login, isLoggedIn } = useAuth();
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   useEffect(() => {
-    if (!socket) return;
-
-    socket.on('Auth/LoginSuccess', () => {
-      navigate('/profiles');
-    });
-
-    socket.on('Auth/LogoutSuccess', () => {
-      navigate('/login');
-    });
-  }, [navigate, socket]);
+    if (isLoggedIn) {
+      navigate(routes.profiles);
+    }
+  }, [isLoggedIn, navigate]);
 
   return (
     <Column className="justify-center items-center p-6">
@@ -28,4 +21,4 @@ export function Login() {
       {login ? <GoogleLogin onSuccess={login} /> : <p>Establishing connection.</p>}
     </Column>
   );
-}
+});

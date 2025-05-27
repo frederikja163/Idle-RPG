@@ -26,14 +26,19 @@ export const GatheringActivityBox: FC<Props> = React.memo(function GatheringActi
   const isActive = activeActivity?.activityId === activityDef.id;
   const isUnlocked = skillLevel >= activityDef.levelRequirement;
 
-  const startActivity = useCallback(() => {
-    socket?.send('Activity/StartActivity', { activityId: activityDef.id });
-  }, [activityDef.id, socket]);
+  const handleClick = useCallback(() => {
+    if (isActive) {
+      socket?.send('Activity/StopActivity', { activityId });
+	return;
+    }
+        socket?.send('Activity/StartActivity', { activityId: activityDef.id });
+     }, [activityDef.id, socket]);
+
 
   return (
     <Card
       className={`p-2 w-48 ${isUnlocked ? 'cursor-pointer' : 'opacity-50'}  ${isActive ? 'bg-primary' : 'bg-background'}`}
-      onClick={isUnlocked ? startActivity : undefined}>
+      onClick={isUnlocked ? handleClick : undefined}>
       <Column className="gap-2 relative">
         {isActive && <CirclePlay size={30} className="absolute right-0" />}
         <Image
