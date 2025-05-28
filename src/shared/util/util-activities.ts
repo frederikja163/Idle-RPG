@@ -23,6 +23,11 @@ export async function proccessGatheringActivity(
   addXp(skill, actionCount * activity.xpAmount);
 
   addItems(item, actionCount);
+
+  if (!profileInterface.setItem || !profileInterface.setSkill) return;
+
+  profileInterface.setItem(item);
+  profileInterface.setSkill(skill);
 }
 
 export async function processProcessingActivity(
@@ -41,9 +46,20 @@ export async function processProcessingActivity(
   addItems(resultItem, actionCount);
 
   addXp(skill, actionCount * activity.xpAmount);
+
+  if (!profileInterface.setItem || !profileInterface.setSkill) return;
+
+  profileInterface.setItem(costItem);
+  profileInterface.setItem(resultItem);
+  profileInterface.setSkill(skill);
 }
 
 export interface ProfileInterface {
   getItem(itemId: ItemId): Item | Promise<Item>;
+
   getSkill(skillId: SkillId): Skill | Promise<Skill>;
+
+  setItem?(item: Item): void;
+
+  setSkill?(skill: Skill): void;
 }

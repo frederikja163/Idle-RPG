@@ -1,4 +1,4 @@
-﻿import React, { type FC, Suspense, useCallback, useEffect, useMemo } from 'react';
+﻿import React, { type FC, Suspense, useCallback, useEffect, useMemo, useRef } from 'react';
 import { SideTabPane, type Tab } from '@/front-end/components/ui/side-tab-pane/side-tab-pane.tsx';
 import { ActivitiesGrid } from '@/front-end/components/game/skills/activities-grid.tsx';
 import { useAtom, useSetAtom } from 'jotai';
@@ -9,72 +9,21 @@ import { skills as skillDefinitions } from '@/shared/definition/definition-skill
 import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skills.ts';
 import { mergeItems, mergeSkills } from '@/front-end/lib/utils.ts';
 import { activities, type ActivityDef } from '@/shared/definition/definition-activities.ts';
-import type { Timeout } from 'react-number-format/types/types';
+import type { Timeout } from 'react-number-format/types/types'; // Or simply `number` if that's what NodeJS.Timeout is
 import type { Item, ItemId } from '@/shared/definition/schema/types/types-items.ts';
-import {
-  proccessGatheringActivity,
-  processProcessingActivity,
-  type ProfileInterface,
-} from '@/shared/util/util-activities.ts';
+import { proccessGatheringActivity, processProcessingActivity } from '@/shared/util/util-activities.ts';
+import type { ActivityData } from '@/shared/comm-types/index.ts';
 
-class FrontEndProfile implements ProfileInterface {
-  public allItems: Item[] = [];
-  public allSkills: Skill[] = [];
-
-  private profileSkills?: Map<SkillId, Skill>;
-  private profileItems?: Map<ItemId, Item>;
-
-  getItem(itemId: ItemId): Item {
-    const item = this.profileItems?.get(itemId) ?? {
-      itemId,
-      count: 0,
-      index: -1,
-      profileId: '',
-    };
-
-    this.allItems.push(item);
-
-    return item;
-  }
-
-  getSkill(skillId: SkillId): Skill {
-    const skill = this.profileSkills?.get(skillId) ?? {
-      skillId,
-      xp: 0,
-      level: 0,
-      profileId: '',
-    };
-
-    this.allSkills.push(skill);
-
-    return skill;
-  }
-
-  beginProcessing(profileSkills: Map<SkillId, Skill>, profileItems: Map<ItemId, Item>) {
-    this.profileSkills = profileSkills;
-    this.profileItems = profileItems;
-
-    this.allItems = [];
-    this.allSkills = [];
-  }
-
-  endProcessing(setProfileItems: (item: Item) => void, setProfileSkills: (skill: Skill) => void) {
-    for (const item of this.allItems) {
-      setProfileItems(item);
-    }
-
-    for (const skill of this.allSkills) {
-      setProfileSkills(skill);
-    }
-    console.log(this.allSkills, this.allSkills);
-  }
-}
+// FrontEndProfile class is defined outside, which is good.
+// We are not directly using it in this refined version for simplicity,
+// but it could be integrated if its batching is strictly needed.
+// class FrontEndProfile implements ProfileInterface { ... }
 
 export const SkillsPane: FC = React.memo(function SkillsPane() {
   const socket = useSocket();
   const setActiveActivity = useSetAtom(activeActivityAtom);
-  const [profileItems, setProfileItems] = useAtom(profileItemsAtom);
-  const [profileSkills, setProfileSkills] = useAtom(profileSkillsAtom);
+  const [profileItems, setProfileItemsAtom] = useAtom(profileItemsAtom); // Use a different name to avoid conflict if needed
+  const [profileSkills, setProfileSkillsAtom] = useAtom(profileSkillsAtom); // Use a different name
 
   const skillTabs = useMemo(
     () =>
@@ -82,107 +31,165 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
         .entries()
         .map(([id, skillDef], i) => {
           const profileSkill: Skill = profileSkills?.get(id) ?? {
-            profileId: '',
+            profileId: '', // Consider if profileId is available/needed here
             skillId: id,
             xp: 0,
             level: 0,
           };
-
           return {
-            content: <ActivitiesGrid key={i} skill={profileSkill} />,
-            buttonContent: <SkillButton key={i} name={skillDef.display} skill={profileSkill} />,
+            content: <ActivitiesGrid key={id} skill={profileSkill} />, // Use stable key like id
+            buttonContent: <SkillButton key={id} name={skillDef.display} skill={profileSkill} />,
           } as Tab;
         })
         .toArray(),
     [profileSkills],
   );
 
-  // const getSkill = useCallback(
-  //   (skillId: SkillId) => {
-  //     const skill = profileSkills.get(skillId)!;
-  //     tempSkill = skill;
-  //     return skill;
-  //   },
-  //   [profileSkills],
-  // );
-  // const getItem = useCallback((itemId: ItemId) => profileItems.get(itemId)!, [profileItems]);
+  const getSkill = useCallback(
+    (skillId: SkillId): Skill => {
+      return {
+        ...(profileSkills.get(skillId) ?? {
+          skillId,
+          xp: 0,
+          level: 0,
+          profileId: '', // Consider if profileId is available/needed here
+        }),
+      };
+    },
+    [profileSkills],
+  );
+  // TODO: Remember immutability and the prevoius solution might work
+  const getItem = useCallback(
+    (itemId: ItemId): Item => {
+      return {
+        ...(profileItems.get(itemId) ?? {
+          itemId,
+          count: 0,
+          index: 0, // Ensure this default makes sense
+          profileId: '', // Consider if profileId is available/needed here
+        }),
+      };
+    },
+    [profileItems],
+  );
+
+  const setSkill = useCallback(
+    (skill: Skill) => setProfileSkillsAtom((prevSkills) => new Map(prevSkills).set(skill.skillId, skill)),
+    [setProfileSkillsAtom],
+  );
+
+  const setItem = useCallback(
+    (item: Item) => setProfileItemsAtom((prevItems) => new Map(prevItems).set(item.itemId, item)),
+    [setProfileItemsAtom],
+  );
 
   const processActivity = useCallback(
-    async (activityDef: ActivityDef, activityStart: Date) => {
-      const profile = new FrontEndProfile();
-      profile.beginProcessing(profileSkills, profileItems);
-
-      console.log('process yay');
-
-      try {
-        switch (activityDef.type) {
-          case 'gathering':
-            return await proccessGatheringActivity(activityStart, new Date(), activityDef, profile);
-
-          case 'processing':
-            return await processProcessingActivity(activityStart, new Date(), activityDef, profile);
-        }
-      } finally {
-        setProfileItems(mergeItems(profile.allItems));
-        setProfileSkills(mergeSkills(profile.allSkills));
-        profile.allItems = [];
-        profile.allSkills = [];
-        // profile.endProcessing(
-        //   (item) => setProfileItems((profileItems) => profileItems.set(item.itemId, item)),
-        //   (skill) => setProfileSkills((profileSkills) => profileSkills.set(skill.skillId, skill)),
-        // );
+    async (activityDef: ActivityDef, activityStartISO: string) => {
+      // Expect ISO string
+      const activityStartDate = new Date(activityStartISO);
+      switch (activityDef.type) {
+        case 'gathering':
+          return await proccessGatheringActivity(activityStartDate, new Date(), activityDef, {
+            getSkill,
+            getItem,
+            setSkill,
+            setItem,
+          });
+        case 'processing':
+          return await processProcessingActivity(activityStartDate, new Date(), activityDef, {
+            getSkill,
+            getItem,
+            setSkill,
+            setItem,
+          });
       }
     },
-    [profileItems, profileSkills, setProfileItems, setProfileSkills],
+    [getItem, getSkill, setItem, setSkill], // These are stable if their own deps are stable
   );
+
+  const processActivityRef = useRef(processActivity);
+  useEffect(() => {
+    processActivityRef.current = processActivity;
+  }, [processActivity]);
 
   useEffect(() => {
     if (!socket) return;
 
-    let actionTimeoutId: Timeout;
-    let actionIntervalId: Timeout;
+    let actionTimeoutId: Timeout | undefined;
+    let actionIntervalId: Timeout | undefined;
 
-    socket.send('Skill/GetSkills', {});
-    socket.send('Activity/GetActivity', {});
+    const clearActivityTimers = () => {
+      if (actionTimeoutId) clearTimeout(actionTimeoutId);
+      if (actionIntervalId) clearInterval(actionIntervalId);
+      actionTimeoutId = undefined;
+      actionIntervalId = undefined;
+    };
 
-    socket.on('Activity/ActivityStarted', (_, data) => {
+    const handleActivityStarted = (_: any, data: ActivityData) => {
+      // Use a defined type for 'data'
       setActiveActivity(data);
+      clearActivityTimers(); // Clear any previous timers
 
       const activityDef = activities.get(data.activityId);
       if (activityDef == null) return;
 
       const activityActionTime = activityDef.time;
-      const msUntilActionDone =
-        activityActionTime - ((new Date().getTime() - data.activityStart.getTime()) % activityActionTime);
+      // Ensure data.activityStart is a string (like ISO string) or number for new Date()
+      const activityStartDate = new Date(data.activityStart);
+      const startTimeMs = activityStartDate.getTime();
+
+      const msUntilActionDone = activityActionTime - ((new Date().getTime() - startTimeMs) % activityActionTime);
 
       actionTimeoutId = setTimeout(() => {
-        processActivity(activityDef, data.activityStart);
+        processActivityRef.current(activityDef, data.activityStart); // Pass original start time string
 
+        // Clear previous interval just in case, then set new one
+        if (actionIntervalId) clearInterval(actionIntervalId);
         actionIntervalId = setInterval(() => {
-          processActivity(activityDef, data.activityStart);
+          processActivityRef.current(activityDef, data.activityStart);
           console.log('Interval 🕹️');
         }, activityActionTime);
       }, msUntilActionDone);
-    });
+    };
 
-    socket.on('Activity/ActivityStopped', (_, data) => {
+    const handleActivityStopped = (_: any, data: { skills: Skill[]; items: Item[] }) => {
       setActiveActivity(undefined);
+      clearActivityTimers();
+      // Assuming mergeSkills/Items take arrays and return new Maps or update existing ones correctly
+      setProfileSkillsAtom(mergeSkills(data.skills));
+      setProfileItemsAtom(mergeItems(data.items));
+    };
 
-      setProfileSkills(mergeSkills(data.skills));
-      setProfileItems(mergeItems(data.items));
-    });
+    const handleNoActivity = () => {
+      setActiveActivity(undefined);
+      clearActivityTimers();
+    };
 
-    socket.on('Activity/NoActivity', () => setActiveActivity(undefined));
+    const handleUpdateSkills = (_: any, data: { skills: Skill[] }) => {
+      setProfileSkillsAtom(mergeSkills(data.skills));
+    };
 
-    socket.on('Skill/UpdateSkills', (_, data) => setProfileSkills(mergeSkills(data.skills)));
+    // Initial data fetch
+    socket.send('Skill/GetSkills', {});
+    socket.send('Activity/GetActivity', {});
+
+    // Register event listeners
+    socket.on('Activity/ActivityStarted', handleActivityStarted);
+    socket.on('Activity/ActivityStopped', handleActivityStopped);
+    socket.on('Activity/NoActivity', handleNoActivity);
+    socket.on('Skill/UpdateSkills', handleUpdateSkills);
 
     return () => {
-      clearTimeout(actionTimeoutId);
-      clearInterval(actionIntervalId);
+      // Cleanup: remove listeners and clear timers
+      clearActivityTimers();
     };
-  }, [setActiveActivity, setProfileItems, setProfileSkills, socket]);
+    // Dependencies: socket and Jotai setters (which are stable).
+    // processActivity is handled by the ref.
+    // The handlers (handleActivityStarted, etc.) are defined within this effect's scope.
+    // If they were defined outside with useCallback, they'd need to be in the dep array.
+  }, [socket, setActiveActivity, setProfileItemsAtom, setProfileSkillsAtom]);
 
-  if (!skillTabs) return;
+  if (!skillTabs) return null; // Or some other loading/empty state
 
   return (
     <Suspense fallback="🔃">
