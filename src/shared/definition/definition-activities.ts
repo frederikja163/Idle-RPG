@@ -4,29 +4,29 @@ import type { SkillId } from './schema/types/types-skills';
 export type ActivityId = string;
 export const activities = new Map<ActivityId, ActivityDef>();
 
-mine('Talc', 0);
-mine('Gypsum', 1);
-mine('Calcite', 2);
-mine('Flourite', 3);
-mine('Apatite', 4);
+mine('talc', 0);
+mine('gypsum', 1);
+mine('calcite', 2);
+mine('flourite', 3);
+mine('apatite', 4);
 
-refine('Talc', 0);
-refine('Gypsum', 1);
-refine('Calcite', 2);
-refine('Flourite', 3);
-refine('Apatite', 4);
+refine('talc', 0);
+refine('gypsum', 1);
+refine('calcite', 2);
+refine('flourite', 3);
+refine('apatite', 4);
 
-cut('Balsa', 0);
-cut('Pine', 1);
-cut('Cedar', 2);
-cut('Cherry', 3);
-cut('Oak', 4);
+cut('balsa', 0);
+cut('pine', 1);
+cut('cedar', 2);
+cut('cherry', 3);
+cut('oak', 4);
 
-carve('Balsa', 0);
-carve('Pine', 1);
-carve('Cedar', 2);
-carve('Cherry', 3);
-carve('Oak', 4);
+carve('balsa', 0);
+carve('pine', 1);
+carve('cedar', 2);
+carve('cherry', 3);
+carve('oak', 4);
 
 function mine(name: string, tier: number) {
   const id = `mine_ore_${name}`;
@@ -146,8 +146,7 @@ export type CraftingActivityDef = {
   time: number;
   skillRequirements: SkillRequirement[];
   cost: ItemAmount[];
-  result: ItemAmount[];
-  singleUse?: ItemId;
+  result: ItemAmount & { maxItems?: number }[];
 };
 function _craftingActivityDef(
   id: ActivityId,
@@ -155,10 +154,9 @@ function _craftingActivityDef(
   time: number,
   skillRequirements: SkillRequirement[],
   cost: ItemAmount[],
-  result: ItemAmount[],
-  singleUse?: ItemId,
+  result: ItemAmount & { maxItems?: number }[],
 ): CraftingActivityDef {
-  return { type: 'crafting', id, display, time, skillRequirements, cost, result, singleUse };
+  return { type: 'crafting', id, display, time, skillRequirements, cost, result };
 }
 
 export type ActivityDef = GatheringActivityDef | ProcessingActivityDef | CraftingActivityDef;
