@@ -75,12 +75,13 @@ function carve(name: string, tier: number) {
   const id = `carve_log_${name}`;
   activities.set(
     id,
-    gatheringActivityDef(
+    processingActivityDef(
       id,
       `Carve ${name} log`,
       5000,
       tier + 1,
       skillRequirement('carpentry', tier * 10),
+      itemAmount(`log_${name}`, 1),
       itemAmount(`plank_${name}`, 1),
     ),
   );
@@ -143,21 +144,21 @@ export type CraftingActivityDef = {
   id: ActivityId;
   display: string;
   time: number;
-  singleUse: boolean;
   skillRequirements: SkillRequirement[];
   cost: ItemAmount[];
   result: ItemAmount[];
+  singleUse?: ItemId;
 };
 function _craftingActivityDef(
   id: ActivityId,
   display: string,
   time: number,
-  singleUse: boolean,
   skillRequirements: SkillRequirement[],
   cost: ItemAmount[],
   result: ItemAmount[],
+  singleUse?: ItemId,
 ): CraftingActivityDef {
-  return { type: 'crafting', id, display, time, singleUse, skillRequirements, cost, result };
+  return { type: 'crafting', id, display, time, skillRequirements, cost, result, singleUse };
 }
 
 export type ActivityDef = GatheringActivityDef | ProcessingActivityDef | CraftingActivityDef;
