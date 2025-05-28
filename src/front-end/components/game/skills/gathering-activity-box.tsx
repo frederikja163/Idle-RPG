@@ -24,14 +24,14 @@ export const GatheringActivityBox: FC<Props> = React.memo(function GatheringActi
   const activeActivity = useAtomValue(activeActivityAtom);
 
   const isActive = activeActivity?.activityId === activityDef.id;
-  const isUnlocked = skillLevel >= activityDef.levelRequirement;
+  const isUnlocked = skillLevel >= activityDef.skillRequirement.level;
 
   const handleClick = useCallback(() => {
     if (isActive) {
       socket?.send('Activity/StopActivity', { activityId: activityDef.id });
       return;
     }
-    
+
     socket?.send('Activity/StartActivity', { activityId: activityDef.id });
   }, [activityDef.id, isActive, socket]);
 
@@ -42,8 +42,8 @@ export const GatheringActivityBox: FC<Props> = React.memo(function GatheringActi
       <Column className="gap-2 relative">
         {isActive && <CirclePlay size={30} className="absolute right-0" />}
         <Image
-          src={`/assets/items/${activityDef.resultId}.svg`}
-          alt={activityDef.resultId}
+          src={`/assets/items/${activityDef.result.itemId}.svg`}
+          alt={activityDef.result.itemId}
           className="p-6 aspect-square"
         />
         <Typography className="text-lg">{activityDef.display}</Typography>
