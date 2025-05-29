@@ -10,8 +10,8 @@ import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skil
 import { mergeItems, mergeSkills } from '@/front-end/lib/utils.ts';
 import { activities, type ActivityDef } from '@/shared/definition/definition-activities.ts';
 import type { Timeout } from 'react-number-format/types/types';
-import type { Item, ItemId } from '@/shared/definition/schema/types/types-items.ts';
-import { processGatheringActivity, processProcessingActivity } from '@/shared/util/util-activities.ts';
+import type { ItemId } from '@/shared/definition/schema/types/types-items.ts';
+import { processActivity } from '@/shared/util/util-activities.ts';
 
 export const SkillsPane: FC = React.memo(function SkillsPane() {
   const socket = useSocket();
@@ -66,41 +66,32 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
     },
     [profileItems],
   );
-  const setSkill = useCallback(
-    (skill: Skill) => setProfileSkills((profileSkills) => new Map(profileSkills).set(skill.skillId, skill)),
-    [setProfileSkills],
-  );
-  const setItem = useCallback(
-    (item: Item) => setProfileItems((profileItems) => new Map(profileItems).set(item.itemId, item)),
-    [setProfileItems],
-  );
 
-  const processActivity = useCallback(
+  const processActivityLocal = useCallback(
     async (activityDef: ActivityDef, activityTimeMs: number) => {
       const now = new Date();
       const start = new Date(now.getTime() - activityTimeMs);
 
-      switch (activityDef.type) {
-        case 'gathering':
-          return await processGatheringActivity(start, now, activityDef, {
-            getSkill,
-            getItem,
-          });
+      const { items, skills } = await processActivity(start, now, activityDef, {
+        getSkill,
+        getItem,
+      });
 
-        case 'processing':
-          return await processProcessingActivity(start, now, activityDef, {
-            getSkill,
-            getItem,
-          });
-      }
+      setProfileSkills(mergeSkills(skills));
+      setProfileItems(mergeItems(items));
     },
-    [getItem, getSkill, setItem, setSkill],
+    [getItem, getSkill, setProfileItems, setProfileSkills],
   );
 
-  const processActivityRef = useRef(processActivity);
+  const processActivityRef = useRef(processActivityLocal);
   useEffect(() => {
-    processActivityRef.current = processActivity;
-  }, [processActivity]);
+    processActivityRef.current = processActivityLocal;
+  }, [processActivityLocal]);
+
+  useEffect(() => {
+    socket?.send('Skill/GetSkills', {});
+    socket?.send('Activity/GetActivity', {});
+  }, [socket]);
 
   useEffect(() => {
     let actionTimeoutId: Timeout;
@@ -110,9 +101,6 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
       clearTimeout(actionTimeoutId);
       clearInterval(actionIntervalId);
     };
-
-    socket?.send('Skill/GetSkills', {});
-    socket?.send('Activity/GetActivity', {});
 
     socket?.on('Skill/UpdateSkills', (_, data) => setProfileSkills(mergeSkills(data.skills)));
 
@@ -157,7 +145,8 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
     return () => {
       clearTimeouts();
     };
-  }, [activeActivity?.activityId, setActiveActivity, setProfileItems, setProfileSkills, socket]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!skillTabs) return;
 
