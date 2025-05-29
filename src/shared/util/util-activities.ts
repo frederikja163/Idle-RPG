@@ -20,7 +20,7 @@ export function getActionCount(activityStart: Date, activityTime: number, activi
 export async function canStartActivity(
   activity: ActivityDef,
   profileInterface: ProfileInterface,
-): Promise<true | ErrorType> {
+): Promise<ErrorType | undefined> {
   switch (activity.type) {
     case 'gathering':
       return await canStartGatheringActivity(activity, profileInterface);
@@ -45,7 +45,7 @@ export async function processActivity(
 
     case 'processing':
       return await processProcessingActivity(activityStart, activityEnd, activity, profileInterface);
-      
+
     default:
       return { items: [], skills: [] };
   }
@@ -55,8 +55,6 @@ async function canStartGatheringActivity(activity: GatheringActivityDef, profile
   const skill = await profileInterface.getSkill(activity.skillRequirement.skillId);
 
   if (skill.level < activity.skillRequirement.level) return ErrorType.InsufficientLevel;
-
-  return true;
 }
 
 export async function processGatheringActivity(
@@ -82,8 +80,6 @@ async function canStartProcessingActivity(activity: ProcessingActivityDef, profi
 
   if (skill.level < activity.skillRequirement.level) return ErrorType.InsufficientLevel;
   if (costItem.count < activity.cost.amount) return ErrorType.InsufficientItems;
-
-  return true;
 }
 
 export async function processProcessingActivity(
