@@ -19,11 +19,18 @@ export const ActivitiesGrid: FC<Props> = React.memo(function ActivitiesGrid(prop
         const activityDef = activityDefinitions.get(activityId);
         if (!activityDef) return;
 
-        return activityDef.type === 'gathering' ? (
-          <GatheringActivityBox key={i} activityDef={activityDef} skillLevel={skill.level} />
-        ) : (
-          <ProcessingActivityBox key={i} activityDef={activityDef} skillLevel={skill.level} />
-        );
+        switch (activityDef.type) {
+          case 'gathering':
+            return <GatheringActivityBox key={i} activityDef={activityDef} skillLevel={skill.level} />;
+          case 'processing':
+            return <ProcessingActivityBox key={i} activityDef={activityDef} skillLevel={skill.level} />;
+          case 'crafting':
+            console.error('Crafting does not belong to a skill.');
+            return;
+          default:
+            console.error(`Activity ${activityDef} not yet managed in activity grid.`);
+            return;
+        }
       }),
     [skill.level, skill.skillId],
   );

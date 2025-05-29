@@ -21,8 +21,8 @@ export class GatheringService implements ActivityService<GatheringActivityDef> {
 
   public async startActivity(profileId: ProfileId, activity: GatheringActivityDef) {
     const profile = await this.profileService.getProfileById(profileId);
-    const skill = await this.skillService.getSkillById(profileId, activity.skill);
-    if (skill.level < activity.levelRequirement) throw new ServerError(ErrorType.InsufficientLevel);
+    const skill = await this.skillService.getSkillById(profileId, activity.skillRequirement.skillId);
+    if (skill.level < activity.skillRequirement.level) throw new ServerError(ErrorType.InsufficientLevel);
 
     const activityStart = new Date();
     profile.activityId = activity.id;
@@ -39,9 +39,9 @@ export class GatheringService implements ActivityService<GatheringActivityDef> {
     if (!profile.activityStart) throw new ServerError(ErrorType.InternalError);
 
     const activityEnd = new Date();
-    const updater = new ServerProfileInterface(profileId, this.skillService, this.itemService);
-    await processGatheringActivity(profile.activityStart, activityEnd, activity, updater);
-    updater.save();
+    const profileInterface = new ServerProfileInterface(profileId, this.skillService, this.itemService);
+    await processGatheringActivity(profile.activityStart, activityEnd, activity, profileInterface);
+    profileInterface.save();
 
     profile.activityId = null;
     profile.activityStart = null;
@@ -49,8 +49,8 @@ export class GatheringService implements ActivityService<GatheringActivityDef> {
     this.socketHub.broadcastToProfile(profile.id, 'Activity/ActivityStopped', {
       activityId: activity.id,
       activityStop: activityEnd,
-      items: updater.allItems,
-      skills: updater.allSkills,
+      items: profileInterface.allItems,
+      skills: profileInterface.allSkills,
     });
   }
 }

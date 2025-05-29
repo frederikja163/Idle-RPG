@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { foreignKey, int, primaryKey, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
+import { foreignKey, int, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { profilesTable } from './db-profiles';
 
 export const itemsTable = sqliteTable(
@@ -11,8 +11,7 @@ export const itemsTable = sqliteTable(
     index: int('index', { mode: 'number' }).notNull(),
   },
   (table) => [
-    primaryKey({ name: 'index_idx', columns: [table.profileId, table.index] }),
-    unique('item_idx').on(table.profileId, table.itemId),
+    primaryKey({ name: 'index_idx', columns: [table.profileId, table.itemId] }),
     foreignKey({
       columns: [table.profileId],
       foreignColumns: [profilesTable.id],

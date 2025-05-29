@@ -16,11 +16,11 @@ export async function proccessGatheringActivity(
   activity: GatheringActivityDef,
   profileInterface: ProfileInterface,
 ) {
-  const skill = await profileInterface.getSkill(activity.skill);
-  const item = await profileInterface.getItem(activity.resultId);
+  const skill = await profileInterface.getSkill(activity.skillRequirement.skillId);
+  const item = await profileInterface.getItem(activity.result.itemId);
   const actionCount = Math.floor(getActionCount(activityStart, activity.time, activityEnd));
 
-  addXp(skill, actionCount * activity.xpAmount);
+  addXp(skill, actionCount * activity.result.amount * activity.xpAmount);
 
   addItems(item, actionCount);
 
@@ -36,14 +36,17 @@ export async function processProcessingActivity(
   activity: ProcessingActivityDef,
   profileInterface: ProfileInterface,
 ) {
-  const costItem = await profileInterface.getItem(activity.costId);
-  const resultItem = await profileInterface.getItem(activity.resultId);
-  const skill = await profileInterface.getSkill(activity.skill);
+  const costItem = await profileInterface.getItem(activity.cost.itemId);
+  const resultItem = await profileInterface.getItem(activity.result.itemId);
+  const skill = await profileInterface.getSkill(activity.skillRequirement.skillId);
 
-  const actionCount = Math.min(Math.floor(getActionCount(activityStart, activity.time, activityEnd)), costItem.count);
+  const actionCount = Math.min(
+    Math.floor(getActionCount(activityStart, activity.time, activityEnd) / activity.cost.amount),
+    costItem.count,
+  );
 
-  subItems(costItem, actionCount);
-  addItems(resultItem, actionCount);
+  subItems(costItem, actionCount * activity.cost.amount);
+  addItems(resultItem, actionCount * activity.result.amount);
 
   addXp(skill, actionCount * activity.xpAmount);
 

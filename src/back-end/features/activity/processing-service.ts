@@ -21,10 +21,10 @@ export class ProcessingService implements ActivityService<ProcessingActivityDef>
 
   public async startActivity(profileId: ProfileId, activity: ProcessingActivityDef) {
     const profile = await this.profileService.getProfileById(profileId);
-    const skill = await this.skillService.getSkillById(profileId, activity.skill);
-    const item = await this.itemService.getItemById(profileId, activity.costId);
-    if (skill.level < activity.levelRequirement) throw new ServerError(ErrorType.InsufficientLevel);
-    if (item.count < 1) throw new ServerError(ErrorType.InsufficientItems);
+    const skill = await this.skillService.getSkillById(profileId, activity.skillRequirement.skillId);
+    const costItem = await this.itemService.getItemById(profileId, activity.cost.itemId);
+    if (skill.level < activity.skillRequirement.level) throw new ServerError(ErrorType.InsufficientLevel);
+    if (costItem.count < 1) throw new ServerError(ErrorType.InsufficientItems);
 
     const activityStart = new Date();
     profile.activityId = activity.id;
