@@ -2,7 +2,12 @@
 import { SideTabPane, type Tab } from '@/front-end/components/ui/side-tab-pane/side-tab-pane.tsx';
 import { ActivitiesGrid } from '@/front-end/components/game/skills/activities-grid.tsx';
 import { useAtom } from 'jotai';
-import { activeActivityAtom, profileItemsAtom, profileSkillsAtom } from '@/front-end/state/atoms.tsx';
+import {
+  activeActivityAtom,
+  activityProgressPercentAtom,
+  profileItemsAtom,
+  profileSkillsAtom,
+} from '@/front-end/state/atoms.tsx';
 import { useSocket } from '@/front-end/state/socket-provider.tsx';
 import { SkillButton } from './skill-button';
 import { skills as skillDefinitions } from '@/shared/definition/definition-skills.ts';
@@ -12,12 +17,14 @@ import { activities, type ActivityDef } from '@/shared/definition/definition-act
 import type { Timeout } from 'react-number-format/types/types';
 import type { ItemId } from '@/shared/definition/schema/types/types-items.ts';
 import { processActivity } from '@/shared/util/util-activities.ts';
+import { useSetAtom } from 'jotai/index';
 
 export const SkillsPane: FC = React.memo(function SkillsPane() {
   const socket = useSocket();
   const [activeActivity, setActiveActivity] = useAtom(activeActivityAtom);
   const [profileItems, setProfileItems] = useAtom(profileItemsAtom);
   const [profileSkills, setProfileSkills] = useAtom(profileSkillsAtom);
+  const setActivityProgressPercent = useSetAtom(activityProgressPercentAtom);
 
   const skillTabs = useMemo(
     () =>
@@ -69,6 +76,8 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
 
   const processActivityLocal = useCallback(
     async (activityDef: ActivityDef, activityTimeMs: number) => {
+      setActivityProgressPercent(undefined);
+
       const now = new Date();
       const start = new Date(now.getTime() - activityTimeMs);
 
@@ -80,7 +89,7 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
       setProfileSkills(mergeSkills(skills));
       setProfileItems(mergeItems(items));
     },
-    [getItem, getSkill, setProfileItems, setProfileSkills],
+    [getItem, getSkill, setActivityProgressPercent, setProfileItems, setProfileSkills],
   );
 
   const processActivityRef = useRef(processActivityLocal);
@@ -118,6 +127,8 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
       const activityActionTime = activityDef.time;
       const msUntilActionDone =
         activityActionTime - ((new Date().getTime() - data.activityStart.getTime()) % activityActionTime);
+
+      setActivityProgressPercent((msUntilActionDone / activityActionTime) * 100);
 
       clearTimeouts();
 
