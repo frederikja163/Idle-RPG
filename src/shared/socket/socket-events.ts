@@ -52,9 +52,13 @@ export const clientServerEvent = Type.Union([
 ]);
 
 export const serverClientEvent = Type.Union([
-  event('Error', {
+  event('System/Error', {
     errorType: Type.Enum(ErrorType),
     message: Type.Optional(Type.String()),
+  }),
+  event('System/Shutdown', {
+    reason: Type.String(),
+    time: Type.Date(),
   }),
   event('Auth/LoginSuccess', {}),
   event('Auth/LogoutSuccess', {}),

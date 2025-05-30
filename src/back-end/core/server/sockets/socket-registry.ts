@@ -14,6 +14,10 @@ export class SocketRegistry {
     return this._sockets.get(socketId);
   }
 
+  public getAllSockets() {
+    return this._sockets.values();
+  }
+
   public removeSocket(socketId: SocketId) {
     this._sockets.delete(socketId);
   }
