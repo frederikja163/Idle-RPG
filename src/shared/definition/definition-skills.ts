@@ -2,13 +2,10 @@ import type { SkillId } from './schema/types/types-skills';
 
 export const skills = new Map<string, SkillDef>();
 
-addSkill('mining', 'Mining');
-addSkill('refining', 'Refining');
-addSkill('lumberjacking', 'Lumberjacking');
-addSkill('carpentry', 'Carpentry');
-
-function addSkill(id: SkillId, display: string) {
-  skills.set(id, { id, display });
+export function skillDef(name: string) {
+  const skill = { id: name, display: name };
+  skills.set(name, skill);
+  return skill;
 }
 
 export type SkillDef = {
