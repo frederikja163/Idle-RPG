@@ -1,4 +1,4 @@
-import React, { type FC, type ReactNode, useCallback, useEffect } from 'react';
+import React, { type CSSProperties, type FC, type ReactNode, useCallback, useEffect } from 'react';
 import { Column } from '@/front-end/components/layout/column.tsx';
 import { type GatheringActivityDef, type ProcessingActivityDef } from '@/shared/definition/definition-activities.ts';
 import { Image } from '@/front-end/components/ui/image.tsx';
@@ -38,35 +38,45 @@ export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
   }, [activityDef.id, handleStart, isActive, socket]);
 
   useEffect(() => {
+    if (!isActive) {
+      animationControls.stop();
+      animationControls.set({ x: '-100%' });
+      return;
+    }
+
+    const initialProgressPercent = activityProgressPercent ?? 0;
     const duration = activityDef.time / 1000;
-    const firstDuration = duration * (1 - (activityProgressPercent ?? 0));
+    const firstDuration = duration * (1 - initialProgressPercent / 100);
+    const startX = `${-100 + Math.round(initialProgressPercent)}%`;
 
     animationControls
       .start({
-        x: ['calc(-100% + ' + (activityProgressPercent ?? 0) * 100 + '%)', '0%'],
+        x: [startX, '0%'],
         transition: {
           duration: firstDuration,
           ease: 'linear',
         },
       })
-      .then(() => {
+      .then(() =>
         animationControls.start({
-          x: ['0%'],
+          x: ['-100%', '0%'],
           transition: {
             duration,
             ease: 'linear',
             repeat: Infinity,
             repeatType: 'loop',
           },
-        });
-      });
-  }, []);
+        }),
+      );
+  });
 
   return (
     <Card className={`p-2 w-48 bg-background relative overflow-hidden ${className}`} onClick={handleClick}>
-      {isActive && (
-        <motion.div animate={animationControls} initial={false} className="absolute w-full h-full -m-2 bg-primary" />
-      )}
+      <motion.div
+        animate={animationControls}
+        className="absolute h-full w-full -m-2 bg-primary"
+        style={styles.animatedBackground}
+      />
       <Column className="gap-2 relative">
         {isActive && <CirclePlay size={30} className="absolute right-0" />}
         <Image
@@ -81,3 +91,9 @@ export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
     </Card>
   );
 });
+
+const styles: { [key: string]: CSSProperties } = {
+  animatedBackground: {
+    transform: 'translateX(-100%)',
+  },
+};

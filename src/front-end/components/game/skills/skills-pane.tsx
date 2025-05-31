@@ -99,7 +99,6 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
 
   useEffect(() => {
     socket?.send('Skill/GetSkills', {});
-    socket?.send('Activity/GetActivity', {});
   }, [socket]);
 
   useEffect(() => {
@@ -125,10 +124,11 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
       if (activityDef == null) return;
 
       const activityActionTime = activityDef.time;
-      const msUntilActionDone =
-        activityActionTime - ((new Date().getTime() - data.activityStart.getTime()) % activityActionTime);
-
-      setActivityProgressPercent((msUntilActionDone / activityActionTime) * 100);
+      const activityElapsedMs = new Date().getTime() - data.activityStart.getTime();
+      const actionElapsedMs = activityElapsedMs % activityActionTime;
+      const progressPercent = (actionElapsedMs / activityActionTime) * 100;
+      const msUntilActionDone = activityActionTime - actionElapsedMs;
+      setActivityProgressPercent(progressPercent);
 
       clearTimeouts();
 
