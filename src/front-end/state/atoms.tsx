@@ -17,11 +17,15 @@ profileSkillsAtom.debugLabel = 'profileSkillsAtom';
 export const activeActivityAtom = atomWithReset<{ activityId: ActivityId; activityStart: Date } | undefined>(undefined);
 activeActivityAtom.debugLabel = 'activeActivityAtom';
 
+export const activityProgressPercentAtom = atomWithReset<number | undefined>(undefined);
+activityProgressPercentAtom.debugLabel = 'activityProgressPercentAtom';
+
+// When adding new atoms, remember to add them to reset below
 export const resetAtomsAtom = atom(null, (_, set) => {
-  console.log('RESET ATOMS');
   set(profileItemsAtom, RESET);
   set(selectedInventoryTabAtom, RESET);
   set(profileSkillsAtom, RESET);
   set(activeActivityAtom, RESET);
+  set(activityProgressPercentAtom, RESET);
 });
 resetAtomsAtom.debugLabel = 'resetAtomsAtom';

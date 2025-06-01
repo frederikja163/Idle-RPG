@@ -1,8 +1,15 @@
-import type { GatheringActivityDef, ProcessingActivityDef } from '../definition/definition-activities';
+import type { ActivityDef, GatheringActivityDef, ProcessingActivityDef } from '../definition/definition-activities';
 import type { Item, ItemId } from '../definition/schema/types/types-items';
 import type { Skill, SkillId } from '../definition/schema/types/types-skills';
 import { addItems, subItems } from './util-items';
 import { addXp } from './util-skills';
+import { ErrorType } from '@/shared/socket/socket-errors.ts';
+
+export interface ProfileInterface {
+  getItem(itemId: ItemId): Item | Promise<Item>;
+
+  getSkill(skillId: SkillId): Skill | Promise<Skill>;
+}
 
 export function getActionCount(activityStart: Date, activityTime: number, activityEnd: Date) {
   const start = activityStart.getTime();
@@ -10,7 +17,47 @@ export function getActionCount(activityStart: Date, activityTime: number, activi
   return Math.abs(start - time) / activityTime;
 }
 
-export async function proccessGatheringActivity(
+export async function canStartActivity(
+  activity: ActivityDef,
+  profileInterface: ProfileInterface,
+): Promise<ErrorType | undefined> {
+  switch (activity.type) {
+    case 'gathering':
+      return await canStartGatheringActivity(activity, profileInterface);
+
+    case 'processing':
+      return await canStartProcessingActivity(activity, profileInterface);
+
+    default:
+      return ErrorType.InternalError;
+  }
+}
+
+export async function processActivity(
+  activityStart: Date,
+  activityEnd: Date,
+  activity: ActivityDef,
+  profileInterface: ProfileInterface,
+): Promise<{ items: Item[]; skills: Skill[] }> {
+  switch (activity.type) {
+    case 'gathering':
+      return await processGatheringActivity(activityStart, activityEnd, activity, profileInterface);
+
+    case 'processing':
+      return await processProcessingActivity(activityStart, activityEnd, activity, profileInterface);
+
+    default:
+      return { items: [], skills: [] };
+  }
+}
+
+async function canStartGatheringActivity(activity: GatheringActivityDef, profileInterface: ProfileInterface) {
+  const skill = await profileInterface.getSkill(activity.skillRequirement.skillId);
+
+  if (skill.level < activity.skillRequirement.level) return ErrorType.InsufficientLevel;
+}
+
+export async function processGatheringActivity(
   activityStart: Date,
   activityEnd: Date,
   activity: GatheringActivityDef,
@@ -23,6 +70,16 @@ export async function proccessGatheringActivity(
   addXp(skill, actionCount * activity.result.amount * activity.xpAmount);
 
   addItems(item, actionCount);
+
+  return { items: [item], skills: [skill] };
+}
+
+async function canStartProcessingActivity(activity: ProcessingActivityDef, profileInterface: ProfileInterface) {
+  const costItem = await profileInterface.getItem(activity.cost.itemId);
+  const skill = await profileInterface.getSkill(activity.skillRequirement.skillId);
+
+  if (skill.level < activity.skillRequirement.level) return ErrorType.InsufficientLevel;
+  if (costItem.count < activity.cost.amount) return ErrorType.InsufficientItems;
 }
 
 export async function processProcessingActivity(
@@ -44,9 +101,6 @@ export async function processProcessingActivity(
   addItems(resultItem, actionCount * activity.result.amount);
 
   addXp(skill, actionCount * activity.xpAmount);
-}
 
-export interface ProfileInterface {
-  getItem(itemId: ItemId): Item | Promise<Item>;
-  getSkill(skillId: SkillId): Skill | Promise<Skill>;
+  return { items: [costItem, resultItem], skills: [skill] };
 }

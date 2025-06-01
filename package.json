@@ -38,6 +38,7 @@
     "google-auth-library": "^9.15.1",
     "jotai": "^2.12.4",
     "lucide-react": "^0.475.0",
+    "motion": "^12.15.0",
     "prettier": "^3.5.3",
     "radix-ui": "^1.4.1",
     "react": "^19.1.0",
