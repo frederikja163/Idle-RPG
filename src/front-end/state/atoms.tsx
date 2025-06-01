@@ -8,7 +8,7 @@ import type { ActivityId } from '@/shared/definition/definition-activities.ts';
 export const profileItemsAtom = atomWithReset<Map<ItemId, Item>>(new Map<ItemId, Item>());
 profileItemsAtom.debugLabel = 'profileItemsAtom';
 
-export const selectedInventoryTabAtom = atomWithReset(ItemTag.Resource);
+export const selectedInventoryTabAtom = atomWithReset<string>('All');
 selectedInventoryTabAtom.debugLabel = 'selectedInventoryTabAtom';
 
 export const profileSkillsAtom = atomWithReset<Map<SkillId, Skill>>(new Map<SkillId, Skill>());

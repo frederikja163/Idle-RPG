@@ -46,6 +46,7 @@ function plank(name: string) {
 
 export enum ItemTag {
   Resource,
+  Tool,
 }
 
 export const itemTagDisplayMap = new Map<ItemTag, string>([[ItemTag.Resource, 'Resource']]);

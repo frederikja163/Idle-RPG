@@ -9,6 +9,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { profileItemsAtom, selectedInventoryTabAtom } from '@/front-end/state/atoms.tsx';
 import { items as itemDefinitions, ItemTag } from '@/shared/definition/definition-items.ts';
 import { mergeItems } from '@/front-end/lib/utils.ts';
+import { inventoryTabMap } from '@/front-end/lib/inventory-consts.ts';
 
 export const Inventory: FC = React.memo(function Inventory() {
   const socket = useSocket();
@@ -23,21 +24,25 @@ export const Inventory: FC = React.memo(function Inventory() {
     });
   }, [setProfileItems, socket]);
 
-  const shownItems = useMemo(
-    () =>
-      profileItems
-        .entries()
-        .filter(([itemId, _]) => itemDefinitions.get(itemId)?.tags.includes(selectedTab))
-        .map(([_, item], i) => <InventoryItem key={i} item={item} />),
-    [selectedTab, profileItems],
-  );
+  const shownItems = useMemo(() => {
+    const tags = inventoryTabMap.get(selectedTab);
+    return profileItems
+      .entries()
+      .filter(
+        ([itemId, item]) =>
+          item.count > 0 &&
+          (tags?.length == 0 || itemDefinitions.get(itemId)?.tags.find((t) => tags?.includes(t)) !== undefined),
+      )
+      .map(([_, item], i) => <InventoryItem key={i} item={item} />);
+  }, [selectedTab, profileItems]);
 
   return (
     <Card className="bg-card w-full overflow-hidden">
       <Column>
         <Row className="h-12" style={styles.itemContainer}>
-          <InventoryTab itemCategory={ItemTag.Resource} label="Items" />
-          <InventoryTab itemCategory={ItemTag.Tool} label="Tools" />
+          {inventoryTabMap.keys().map((label) => (
+            <InventoryTab label={label} />
+          ))}
         </Row>
         <Row className="gap-2 p-4 h-80 overflow-y-scroll flex-wrap">{shownItems}</Row>
       </Column>
