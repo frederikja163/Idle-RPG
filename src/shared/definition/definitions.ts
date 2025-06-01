@@ -1,6 +1,6 @@
 import { gatheringDef, processingDef } from './definition-activities';
-import { itemDef, ItemTag, type ItemDef } from './definition-items';
-import { skillDef, type SkillDef } from './definition-skills';
+import { itemDef, ItemTag } from './definition-items';
+import { skillDef } from './definition-skills';
 
 const mining = skillDef('Mining');
 const lumberjacking = skillDef('Lumberjacking');

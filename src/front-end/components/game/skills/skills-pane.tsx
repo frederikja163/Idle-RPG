@@ -1,8 +1,13 @@
-﻿import React, { type FC, Suspense, useCallback, useEffect, useMemo, useRef } from 'react';
+﻿import React, { type FC, useCallback, useEffect, useMemo, useRef } from 'react';
 import { SideTabPane, type Tab } from '@/front-end/components/ui/side-tab-pane/side-tab-pane.tsx';
 import { ActivitiesGrid } from '@/front-end/components/game/skills/activities-grid.tsx';
 import { useAtom } from 'jotai';
-import { activeActivityAtom, profileItemsAtom, profileSkillsAtom } from '@/front-end/state/atoms.tsx';
+import {
+  activeActivityAtom,
+  activityProgressPercentAtom,
+  profileItemsAtom,
+  profileSkillsAtom,
+} from '@/front-end/state/atoms.tsx';
 import { useSocket } from '@/front-end/state/socket-provider.tsx';
 import { SkillButton } from './skill-button';
 import { skills as skillDefinitions } from '@/shared/definition/definition-skills.ts';
@@ -10,14 +15,16 @@ import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skil
 import { mergeItems, mergeSkills } from '@/front-end/lib/utils.ts';
 import { activities, type ActivityDef } from '@/shared/definition/definition-activities.ts';
 import type { Timeout } from 'react-number-format/types/types';
-import type { Item, ItemId } from '@/shared/definition/schema/types/types-items.ts';
-import { processGatheringActivity, processProcessingActivity } from '@/shared/util/util-activities.ts';
+import type { ItemId } from '@/shared/definition/schema/types/types-items.ts';
+import { processActivity } from '@/shared/util/util-activities.ts';
+import { useSetAtom } from 'jotai/index';
 
 export const SkillsPane: FC = React.memo(function SkillsPane() {
   const socket = useSocket();
-  const [activeActivity, setActiveActivity] = useAtom(activeActivityAtom);
+  const [_, setActiveActivity] = useAtom(activeActivityAtom);
   const [profileItems, setProfileItems] = useAtom(profileItemsAtom);
   const [profileSkills, setProfileSkills] = useAtom(profileSkillsAtom);
+  const setActivityProgressPercent = useSetAtom(activityProgressPercentAtom);
 
   const skillTabs = useMemo(
     () =>
@@ -66,41 +73,31 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
     },
     [profileItems],
   );
-  const setSkill = useCallback(
-    (skill: Skill) => setProfileSkills((profileSkills) => new Map(profileSkills).set(skill.skillId, skill)),
-    [setProfileSkills],
-  );
-  const setItem = useCallback(
-    (item: Item) => setProfileItems((profileItems) => new Map(profileItems).set(item.itemId, item)),
-    [setProfileItems],
-  );
 
-  const processActivity = useCallback(
+  const processActivityLocal = useCallback(
     async (activityDef: ActivityDef, activityTimeMs: number) => {
       const now = new Date();
       const start = new Date(now.getTime() - activityTimeMs);
 
-      switch (activityDef.type) {
-        case 'gathering':
-          return await processGatheringActivity(start, now, activityDef, {
-            getSkill,
-            getItem,
-          });
+      const { items, skills } = await processActivity(start, now, activityDef, {
+        getSkill,
+        getItem,
+      });
 
-        case 'processing':
-          return await processProcessingActivity(start, now, activityDef, {
-            getSkill,
-            getItem,
-          });
-      }
+      setProfileSkills(mergeSkills(skills));
+      setProfileItems(mergeItems(items));
     },
-    [getItem, getSkill, setItem, setSkill],
+    [getItem, getSkill, setProfileItems, setProfileSkills],
   );
 
-  const processActivityRef = useRef(processActivity);
+  const processActivityRef = useRef(processActivityLocal);
   useEffect(() => {
-    processActivityRef.current = processActivity;
-  }, [processActivity]);
+    processActivityRef.current = processActivityLocal;
+  }, [processActivityLocal]);
+
+  useEffect(() => {
+    socket?.send('Skill/GetSkills', {});
+  }, [socket]);
 
   useEffect(() => {
     let actionTimeoutId: Timeout;
@@ -110,9 +107,6 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
       clearTimeout(actionTimeoutId);
       clearInterval(actionIntervalId);
     };
-
-    socket?.send('Skill/GetSkills', {});
-    socket?.send('Activity/GetActivity', {});
 
     socket?.on('Skill/UpdateSkills', (_, data) => setProfileSkills(mergeSkills(data.skills)));
 
@@ -128,15 +122,21 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
       if (activityDef == null) return;
 
       const activityActionTime = activityDef.time;
-      const msUntilActionDone =
-        activityActionTime - ((new Date().getTime() - data.activityStart.getTime()) % activityActionTime);
+      const activityElapsedMs = new Date().getTime() - data.activityStart.getTime();
+      const actionElapsedMs = activityElapsedMs % activityActionTime;
+      const progressPercent = (actionElapsedMs / activityActionTime) * 100;
+      const msUntilActionDone = activityActionTime - actionElapsedMs;
 
       clearTimeouts();
 
+      setActivityProgressPercent(progressPercent);
+      processActivityRef.current(activityDef, activityElapsedMs);
       actionTimeoutId = setTimeout(() => {
+        setActivityProgressPercent(undefined);
         processActivityRef.current(activityDef, activityActionTime);
 
         actionIntervalId = setInterval(() => {
+          setActivityProgressPercent(undefined);
           processActivityRef.current(activityDef, activityActionTime);
         }, activityActionTime);
       }, msUntilActionDone);
@@ -144,11 +144,7 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
 
     socket?.on('Activity/ActivityStopped', (_, data) => {
       clearTimeouts();
-
-      // If ActivityStopped is received after ActivityStarted this check is needed to not clear the new activeActivity
-      if (data.activityId === activeActivity?.activityId) {
-        setActiveActivity(undefined);
-      }
+      setActiveActivity(undefined);
 
       setProfileSkills(mergeSkills(data.skills));
       setProfileItems(mergeItems(data.items));
@@ -157,13 +153,10 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
     return () => {
       clearTimeouts();
     };
-  }, [activeActivity?.activityId, setActiveActivity, setProfileItems, setProfileSkills, socket]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!skillTabs) return;
 
-  return (
-    <Suspense fallback="🔃">
-      <SideTabPane title="Skills" tabs={skillTabs} />
-    </Suspense>
-  );
+  return <SideTabPane title="Skills" tabs={skillTabs} />;
 });
