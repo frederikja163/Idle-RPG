@@ -1,4 +1,4 @@
-﻿import React, { type FC, Suspense, useCallback, useEffect, useMemo, useRef } from 'react';
+﻿import React, { type FC, useCallback, useEffect, useMemo, useRef } from 'react';
 import { SideTabPane, type Tab } from '@/front-end/components/ui/side-tab-pane/side-tab-pane.tsx';
 import { ActivitiesGrid } from '@/front-end/components/game/skills/activities-grid.tsx';
 import { useAtom } from 'jotai';
@@ -161,9 +161,5 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
 
   if (!skillTabs) return;
 
-  return (
-    <Suspense fallback="🔃">
-      <SideTabPane title="Skills" tabs={skillTabs} />
-    </Suspense>
-  );
+  return <SideTabPane title="Skills" tabs={skillTabs} />;
 });
