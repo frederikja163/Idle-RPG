@@ -7,7 +7,7 @@ import { Card } from '@/front-end/components/ui/card.tsx';
 import { InventoryTab } from '@/front-end/components/game/inventory/inventory-tab.tsx';
 import { useAtom, useAtomValue } from 'jotai';
 import { profileItemsAtom, selectedInventoryTabAtom } from '@/front-end/state/atoms.tsx';
-import { items as itemDefinitions, ItemTag } from '@/shared/definition/definition-items.ts';
+import { items as itemDefinitions } from '@/shared/definition/definition-items.ts';
 import { mergeItems } from '@/front-end/lib/utils.ts';
 import { inventoryTabMap } from '@/front-end/lib/inventory-consts.ts';
 
@@ -41,7 +41,7 @@ export const Inventory: FC = React.memo(function Inventory() {
       <Column>
         <Row className="h-12" style={styles.itemContainer}>
           {inventoryTabMap.keys().map((label) => (
-            <InventoryTab label={label} />
+            <InventoryTab label={label} key={label} />
           ))}
         </Row>
         <Row className="gap-2 p-4 h-80 overflow-y-scroll flex-wrap">{shownItems}</Row>

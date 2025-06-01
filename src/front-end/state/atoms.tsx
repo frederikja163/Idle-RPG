@@ -1,6 +1,5 @@
 ﻿import { atom } from 'jotai';
 import { atomWithReset, RESET } from 'jotai/utils';
-import { ItemTag } from '@/shared/definition/definition-items';
 import type { Item, ItemId } from '@/shared/definition/schema/types/types-items.ts';
 import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skills.ts';
 import type { ActivityId } from '@/shared/definition/definition-activities.ts';

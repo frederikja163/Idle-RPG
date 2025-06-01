@@ -3,7 +3,6 @@ import { Typography } from '@/front-end/components/ui/typography.tsx';
 import { selectedInventoryTabAtom } from '@/front-end/state/atoms.tsx';
 import { useAtom } from 'jotai';
 import { Row } from '@/front-end/components/layout/row.tsx';
-import type { ItemTag } from '@/shared/definition/definition-items';
 
 interface Props {
   label: string;
