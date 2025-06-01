@@ -47,7 +47,7 @@ export const SocketProvider: FC<Props> = React.memo(function SocketProvider(prop
     clientSocket(ws).then(
       (s) => {
         setSocket(s);
-        s.on('Error', (s, data) => s.onError(data.errorType, data.message));
+        s.on('System/Error', (s, data) => s.onError(data.errorType, data.message));
       },
       [socket],
     );

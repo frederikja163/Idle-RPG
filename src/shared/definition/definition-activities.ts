@@ -69,8 +69,8 @@ function processingActivityDef(
 }
 export function processingDef(cost: ItemDef, result: ItemDef, skill: SkillDef, activityName: string, tier: number) {
   processingActivityDef(
-    `${activityName}${cost.id}`,
-    `${activityName} ${cost.display}`,
+    `${activityName}${result.id}`,
+    `${activityName} ${result.display}`,
     5000,
     tier + 1,
     skillRequirement(skill.id, tier * 10),
@@ -94,7 +94,7 @@ function craftingActivityDef(
   time: number,
   skillRequirements: SkillRequirement[],
   cost: ItemAmount[],
-  result: (ItemAmount & { maxItems?: number })[],
+  result: ItemAmount[],
 ) {
   activities.set(id, { type: 'crafting', id, display, time, skillRequirements, cost, result });
 }
@@ -105,7 +105,7 @@ export function craftingToolDef(cost: ItemDef, result: ItemDef, skill: SkillDef,
     1000 * Math.pow(2, tier + 1),
     [skillRequirement(skill.id, tier * 10)],
     [itemAmount(cost.id, 1)],
-    [{ maxItems: 1, ...itemAmount(result.id, 1) }],
+    [itemAmount(result.id, 1)],
   );
 }
 
