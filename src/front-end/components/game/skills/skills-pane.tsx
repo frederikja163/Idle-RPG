@@ -143,11 +143,7 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
 
     socket?.on('Activity/ActivityStopped', (_, data) => {
       clearTimeouts();
-
-      // If ActivityStopped is received after ActivityStarted this check is needed to not clear the new activeActivity
-      if (data.activityId === activeActivity?.activityId) {
-        setActiveActivity(undefined);
-      }
+      setActiveActivity(undefined);
 
       setProfileSkills(mergeSkills(data.skills));
       setProfileItems(mergeItems(data.items));
