@@ -47,9 +47,8 @@ export const clientServerEvent = Type.Union([
   event('Item/GetItems', { itemIds: Type.Optional(Type.Array(Type.String())) }),
   // Item/UpdateItems
   // Error: RequiresProfile, ArgumentOutOfRange
-  event('Item/SwapItems', {
-    itemId1: Type.String(),
-    itemId2: Type.String(),
+  event('Item/ChangeIndicies', {
+    itemIndicies: Type.Array(Type.Object({ itemId: Type.String(), index: Type.Number() })),
   }),
   // Skill/UpdateSkills
   // Error: RequiresProfile
