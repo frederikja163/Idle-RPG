@@ -77,7 +77,7 @@ export class UserController implements SocketOpenEventListener {
     });
   }
 
-  private async handleGetUser(socket: ServerSocket, {}: ServerData<'User/GetUser'>) {
+  private async handleGetUser(socket: ServerSocket, _: ServerData<'User/GetUser'>) {
     const userId = await this.socketHub.requireUserId(socket.id);
     const user = await this.userService.getByUserId(userId);
 
