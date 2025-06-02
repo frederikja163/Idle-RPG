@@ -17,6 +17,12 @@ export class SocketHub {
     return this.socketRegistry.getSocket(socketId);
   }
 
+  public requireSocket(socketId: SocketId) {
+    const socket = this.socketRegistry.getSocket(socketId);
+    if (!socket) throw new ServerError(ErrorType.InternalError);
+    return socket;
+  }
+
   public getUserId(socketId: SocketId) {
     return this.socketSessionStore.getUserId(socketId);
   }
@@ -51,6 +57,15 @@ export class SocketHub {
 
   public anySocketsForProfile(profileId: ProfileId) {
     return this.socketSessionStore.getSocketsForProfile(profileId);
+  }
+
+  public broadcastToSocket<TEvent extends ClientEvent>(
+    socketId: SocketId,
+    event: TEvent,
+    data: DataType<ServerClientEvent, TEvent>,
+  ) {
+    const socket = this.requireSocket(socketId);
+    socket.send(event, data);
   }
 
   public broadcastToProfile<TEvent extends ClientEvent>(

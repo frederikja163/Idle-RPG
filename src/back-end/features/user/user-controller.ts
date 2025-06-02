@@ -7,10 +7,10 @@ import {
 import { UserEventDispatcher } from '@/back-end/core/events/user-dispatcher';
 import { SocketHub } from '@/back-end/core/server/sockets/socket-hub';
 import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
-import type { ServerData } from '@/shared/socket/socket-types';
+import type { ServerData, SocketId } from '@/shared/socket/socket-types';
 import { UserService } from './user-service';
 import { OAuth2Client } from 'google-auth-library';
-import { ErrorType } from '@/shared/socket/socket-errors';
+import { ErrorType, ServerError } from '@/shared/socket/socket-errors';
 
 @injectableSingleton(SocketOpenEventToken)
 export class UserController implements SocketOpenEventListener {
@@ -25,48 +25,48 @@ export class UserController implements SocketOpenEventListener {
   ) {}
 
   public onSocketOpen({ socketId }: SocketOpenEventData): void | Promise<void> {
-    const socket = this.socketHub.getSocket(socketId)!;
+    const socket = this.socketHub.requireSocket(socketId)!;
     socket.on('User/Logout', this.handleLogout.bind(this));
     socket.on('User/GoogleLogin', this.handleGoogleLogin.bind(this));
     socket.on('User/GetUser', this.handleGetUser.bind(this));
     socket.on('User/SetSettings', this.handleSetSettings.bind(this));
   }
 
-  private handleLogout(socket: ServerSocket, _: ServerData<'User/Logout'>) {
-    const userId = this.socketHub.requireUserId(socket.id);
+  private handleLogout(socketId: SocketId, _: ServerData<'User/Logout'>) {
+    const userId = this.socketHub.requireUserId(socketId);
     this.userDispatch.emitUserLoggedOut({ userId });
-    this.socketHub.setUserId(socket.id);
-    socket.send('User/LogoutSuccess', {});
+    this.socketHub.setUserId(socketId);
+    this.socketHub.broadcastToSocket(socketId, 'User/LogoutSuccess', {});
   }
 
-  private async handleGoogleLogin(socket: ServerSocket, data: ServerData<'User/GoogleLogin'>) {
+  private async handleGoogleLogin(socketId: SocketId, data: ServerData<'User/GoogleLogin'>) {
     const ticket = await this._googleOauthClient.verifyIdToken({
       idToken: data.token,
       audience: '758890044013-qq2amlba21ic2fb7drsjavpa16mmkons.apps.googleusercontent.com',
     });
 
     const payload = ticket.getPayload();
-    if (!payload) return socket.error(ErrorType.InvalidInput);
+    if (!payload) throw new ServerError(ErrorType.InvalidInput);
 
     const { sub: googleId, email: email, picture: profilePicture, email_verified: emailVerified } = payload;
 
-    if (!email) return socket.error(ErrorType.InvalidInput);
-    if (!emailVerified) return socket.error(ErrorType.EmailNotVerified);
+    if (!email) throw new ServerError(ErrorType.InvalidInput);
+    if (!emailVerified) throw new ServerError(ErrorType.EmailNotVerified);
 
-    const oldUserId = this.socketHub.getUserId(socket.id);
+    const oldUserId = this.socketHub.getUserId(socketId);
     if (oldUserId) {
       this.userDispatch.emitUserLoggedOut({ userId: oldUserId });
-      socket.send('User/LogoutSuccess', {});
+      this.socketHub.broadcastToSocket(socketId, 'User/LogoutSuccess', {});
     }
 
     const user = await this.userService.getOrCreateByGoogle(googleId, email, profilePicture ?? '');
     this.userDispatch.emitUserLoggedIn({ userId: user.id });
-    this.socketHub.setUserId(socket.id, user.id);
-    socket.send('User/LoginSuccess', {});
+    this.socketHub.setUserId(socketId, user.id);
+    this.socketHub.broadcastToSocket(socketId, 'User/LoginSuccess', {});
   }
 
-  private async handleSetSettings(socket: ServerSocket, { settings }: ServerData<'Profile/SetSettings'>) {
-    const userId = this.socketHub.requireProfileId(socket.id);
+  private async handleSetSettings(socketId: SocketId, { settings }: ServerData<'Profile/SetSettings'>) {
+    const userId = this.socketHub.requireProfileId(socketId);
     const user = await this.userService.getByUserId(userId);
 
     user.settings = settings;
@@ -77,10 +77,10 @@ export class UserController implements SocketOpenEventListener {
     });
   }
 
-  private async handleGetUser(socket: ServerSocket, _: ServerData<'User/GetUser'>) {
-    const userId = await this.socketHub.requireUserId(socket.id);
+  private async handleGetUser(socketId: SocketId, _: ServerData<'User/GetUser'>) {
+    const userId = await this.socketHub.requireUserId(socketId);
     const user = await this.userService.getByUserId(userId);
 
-    socket.send('User/UpdateUser', { user });
+    this.socketHub.broadcastToSocket(socketId, 'User/UpdateUser', { user });
   }
 }

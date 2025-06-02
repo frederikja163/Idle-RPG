@@ -8,7 +8,7 @@ import { SocketHub } from '@/back-end/core/server/sockets/socket-hub';
 import { ProfileService } from '../profile/profile-service';
 import type { ServerSocket } from '@/back-end/core/server/sockets/server-socket';
 import { activities, type ActivityId } from '@/shared/definition/definition-activities';
-import type { ServerData } from '@/shared/socket/socket-types';
+import type { ServerData, SocketId } from '@/shared/socket/socket-types';
 import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
 import { ErrorType, ServerError } from '@/shared/socket/socket-errors';
 import { canStartActivity as getActivityStartError, processActivity } from '@/shared/util/util-activities';
@@ -26,31 +26,31 @@ export class ActivityController implements SocketOpenEventListener {
   ) {}
 
   public onSocketOpen({ socketId }: SocketOpenEventData): void | Promise<void> {
-    const socket = this.socketHub.getSocket(socketId);
+    const socket = this.socketHub.requireSocket(socketId);
     socket?.on('Activity/StartActivity', this.handleStartActivity.bind(this));
     socket?.on('Activity/GetActivity', this.handleGetActivity.bind(this));
     socket?.on('Activity/StopActivity', this.handleStopActivity.bind(this));
   }
 
-  private async handleStartActivity(socket: ServerSocket, { activityId }: ServerData<'Activity/StartActivity'>) {
-    const profileId = this.socketHub.requireProfileId(socket.id);
+  private async handleStartActivity(socketId: SocketId, { activityId }: ServerData<'Activity/StartActivity'>) {
+    const profileId = this.socketHub.requireProfileId(socketId);
 
     await this.stopActivity(profileId);
 
     await this.startActivity(profileId, activityId);
   }
 
-  private async handleGetActivity(socket: ServerSocket, _: ServerData<'Activity/GetActivity'>) {
-    const profileId = this.socketHub.requireProfileId(socket.id);
+  private async handleGetActivity(socketId: SocketId, _: ServerData<'Activity/GetActivity'>) {
+    const profileId = this.socketHub.requireProfileId(socketId);
     const { activityId, activityStart } = await this.profileService.getProfileById(profileId);
-    if (!activityId || !activityStart) return socket.send('Activity/NoActivity', {});
-    socket.send('Activity/ActivityStarted', { activityId, activityStart });
+    if (!activityId || !activityStart) return this.socketHub.broadcastToSocket(socketId, 'Activity/NoActivity', {});
+    this.socketHub.broadcastToSocket(socketId, 'Activity/ActivityStarted', { activityId, activityStart });
   }
 
-  private async handleStopActivity(socket: ServerSocket, _: ServerData<'Activity/StopActivity'>) {
-    const profileId = this.socketHub.requireProfileId(socket.id);
+  private async handleStopActivity(socketId: SocketId, _: ServerData<'Activity/StopActivity'>) {
+    const profileId = this.socketHub.requireProfileId(socketId);
     if (!(await this.stopActivity(profileId))) {
-      socket.send('Activity/NoActivity', {});
+      this.socketHub.broadcastToSocket(socketId, 'Activity/NoActivity', {});
     }
   }
 

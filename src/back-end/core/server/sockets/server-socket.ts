@@ -8,8 +8,6 @@ import { ErrorType } from '@/shared/socket/socket-errors';
 const typeCheck = TypeCompiler.Compile(clientServerEvent);
 
 export class ServerSocket extends Socket<ClientServerEvent, ServerClientEvent> {
-  public readonly id: SocketId = crypto.randomUUID();
-
   constructor(ws: ServerWebSocket<unknown>) {
     super(typeCheck, ws.send.bind(ws));
   }
