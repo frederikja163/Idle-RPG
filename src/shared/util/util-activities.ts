@@ -1,4 +1,9 @@
-import type { ActivityDef, GatheringActivityDef, ProcessingActivityDef } from '../definition/definition-activities';
+import type {
+  ActivityDef,
+  CraftingActivityDef,
+  GatheringActivityDef,
+  ProcessingActivityDef,
+} from '../definition/definition-activities';
 import type { Item, ItemId } from '../definition/schema/types/types-items';
 import type { Skill, SkillId } from '../definition/schema/types/types-skills';
 import { addItems, subItems } from './util-items';
@@ -24,10 +29,10 @@ export async function canStartActivity(
   switch (activity.type) {
     case 'gathering':
       return await canStartGatheringActivity(activity, profileInterface);
-
     case 'processing':
       return await canStartProcessingActivity(activity, profileInterface);
-
+    case 'crafting':
+      return await canStartCraftingActivity(activity, profileInterface);
     default:
       return ErrorType.InternalError;
   }
@@ -42,10 +47,10 @@ export async function processActivity(
   switch (activity.type) {
     case 'gathering':
       return await processGatheringActivity(activityStart, activityEnd, activity, profileInterface);
-
     case 'processing':
       return await processProcessingActivity(activityStart, activityEnd, activity, profileInterface);
-
+    case 'crafting':
+      return await processCraftingActivity(activityStart, activityEnd, activity, profileInterface);
     default:
       return { items: [], skills: [] };
   }
@@ -91,11 +96,9 @@ export async function processProcessingActivity(
   const costItem = await profileInterface.getItem(activity.cost.itemId);
   const resultItem = await profileInterface.getItem(activity.result.itemId);
   const skill = await profileInterface.getSkill(activity.skillRequirement.skillId);
+  const actions = Math.floor(getActionCount(activityStart, activity.time, activityEnd));
 
-  const actionCount = Math.min(
-    Math.floor(getActionCount(activityStart, activity.time, activityEnd) / activity.cost.amount),
-    costItem.count,
-  );
+  const actionCount = Math.min(actions, costItem.count / activity.cost.amount);
 
   subItems(costItem, actionCount * activity.cost.amount);
   addItems(resultItem, actionCount * activity.result.amount);
@@ -103,4 +106,32 @@ export async function processProcessingActivity(
   addXp(skill, actionCount * activity.xpAmount);
 
   return { items: [costItem, resultItem], skills: [skill] };
+}
+
+async function canStartCraftingActivity(activity: CraftingActivityDef, profileInterface: ProfileInterface) {
+  const skills = await Promise.all(activity.skillRequirements.map((skill) => profileInterface.getSkill(skill.skillId)));
+  const cost = await Promise.all(activity.cost.map((c) => profileInterface.getItem(c.itemId)));
+
+  if (activity.skillRequirements.find((s, i) => skills[i].level < s.level)) return ErrorType.InsufficientLevel;
+  if (activity.cost.find((c, i) => cost[i].count < c.amount)) return ErrorType.InsufficientLevel;
+}
+
+async function processCraftingActivity(
+  activityStart: Date,
+  activityEnd: Date,
+  activity: CraftingActivityDef,
+  profileInterface: ProfileInterface,
+) {
+  const costItems = await Promise.all(activity.cost.map((i) => profileInterface.getItem(i.itemId)));
+  const resultItems = await Promise.all(activity.result.map((i) => profileInterface.getItem(i.itemId)));
+  const actions = Math.floor(getActionCount(activityStart, activity.time, activityEnd));
+
+  const maxActionCount = activity.cost.map((c, i) => costItems[i].count / c.amount).reduce((l, r) => Math.min(l, r));
+
+  const actionCount = Math.min(actions, maxActionCount);
+
+  activity.cost.forEach((c, i) => subItems(costItems[i], actionCount * c.amount));
+  activity.result.forEach((c, i) => addItems(resultItems[i], actionCount * c.amount));
+
+  return { items: [...costItems, ...resultItems], skills: [] };
 }

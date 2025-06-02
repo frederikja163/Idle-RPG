@@ -1,3 +1,4 @@
+import '@/shared/definition/definitions';
 import './index.css';
 import { RouterProvider } from 'react-router-dom';
 import { AuthProvider } from '@/front-end/state/auth-provider.tsx';
