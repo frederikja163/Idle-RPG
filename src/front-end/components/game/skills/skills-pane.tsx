@@ -21,7 +21,7 @@ import { useSetAtom } from 'jotai/index';
 
 export const SkillsPane: FC = React.memo(function SkillsPane() {
   const socket = useSocket();
-  const [activeActivity, setActiveActivity] = useAtom(activeActivityAtom);
+  const setActiveActivity = useSetAtom(activeActivityAtom);
   const [profileItems, setProfileItems] = useAtom(profileItemsAtom);
   const [profileSkills, setProfileSkills] = useAtom(profileSkillsAtom);
   const setActivityProgressPercent = useSetAtom(activityProgressPercentAtom);
@@ -76,8 +76,6 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
 
   const processActivityLocal = useCallback(
     async (activityDef: ActivityDef, activityTimeMs: number) => {
-      setActivityProgressPercent(undefined);
-
       const now = new Date();
       const start = new Date(now.getTime() - activityTimeMs);
 
@@ -89,7 +87,7 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
       setProfileSkills(mergeSkills(skills));
       setProfileItems(mergeItems(items));
     },
-    [getItem, getSkill, setActivityProgressPercent, setProfileItems, setProfileSkills],
+    [getItem, getSkill, setProfileItems, setProfileSkills],
   );
 
   const processActivityRef = useRef(processActivityLocal);
@@ -128,14 +126,17 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
       const actionElapsedMs = activityElapsedMs % activityActionTime;
       const progressPercent = (actionElapsedMs / activityActionTime) * 100;
       const msUntilActionDone = activityActionTime - actionElapsedMs;
-      setActivityProgressPercent(progressPercent);
 
       clearTimeouts();
 
+      setActivityProgressPercent(progressPercent);
+      processActivityRef.current(activityDef, activityElapsedMs);
       actionTimeoutId = setTimeout(() => {
+        setActivityProgressPercent(undefined);
         processActivityRef.current(activityDef, activityActionTime);
 
         actionIntervalId = setInterval(() => {
+          setActivityProgressPercent(undefined);
           processActivityRef.current(activityDef, activityActionTime);
         }, activityActionTime);
       }, msUntilActionDone);

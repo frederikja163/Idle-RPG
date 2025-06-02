@@ -1,6 +1,5 @@
 ﻿import { atom } from 'jotai';
 import { atomWithReset, RESET } from 'jotai/utils';
-import { ItemTag } from '@/shared/definition/definition-items';
 import type { Item, ItemId } from '@/shared/definition/schema/types/types-items.ts';
 import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skills.ts';
 import type { ActivityId } from '@/shared/definition/definition-activities.ts';
@@ -8,7 +7,7 @@ import type { ActivityId } from '@/shared/definition/definition-activities.ts';
 export const profileItemsAtom = atomWithReset<Map<ItemId, Item>>(new Map<ItemId, Item>());
 profileItemsAtom.debugLabel = 'profileItemsAtom';
 
-export const selectedInventoryTabAtom = atomWithReset(ItemTag.Resource);
+export const selectedInventoryTabAtom = atomWithReset<string>('All');
 selectedInventoryTabAtom.debugLabel = 'selectedInventoryTabAtom';
 
 export const profileSkillsAtom = atomWithReset<Map<SkillId, Skill>>(new Map<SkillId, Skill>());
