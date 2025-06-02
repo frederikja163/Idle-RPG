@@ -20,7 +20,7 @@ export class ItemController implements SocketOpenEventListener {
   public onSocketOpen({ socketId }: SocketOpenEventData): void | Promise<void> {
     const socket = this.socketHub.getSocket(socketId)!;
     socket.on('Item/GetItems', this.handleGetItems.bind(this));
-    socket.on('Item/SwapItems', this.handleSwapItems.bind(this));
+    socket.on('Item/ChangeIndicies', this.handleSwapItems.bind(this));
   }
 
   private async handleGetItems(socket: ServerSocket, { itemIds }: ServerData<'Item/GetItems'>) {
@@ -38,19 +38,19 @@ export class ItemController implements SocketOpenEventListener {
     socket.send('Item/UpdateItems', { items });
   }
 
-  private async handleSwapItems(socket: ServerSocket, { itemId1, itemId2 }: ServerData<'Item/SwapItems'>) {
+  private async handleSwapItems(socket: ServerSocket, { itemIndicies }: ServerData<'Item/ChangeIndicies'>) {
     const profileId = this.socketHub.requireProfileId(socket.id);
 
-    const item1 = await this.itemService.getItemById(profileId, itemId1);
-    const item2 = await this.itemService.getItemById(profileId, itemId2);
-
-    [item1.index, item2.index] = [item2.index, item1.index];
-
-    this.itemService.update(profileId, item1.itemId);
-    this.itemService.update(profileId, item2.itemId);
+    const items: Item[] = [];
+    for (const { itemId, index } of itemIndicies) {
+      const item = await this.itemService.getItemById(profileId, itemId);
+      item.index = index;
+      items.push(item);
+      this.itemService.update(profileId, itemId);
+    }
 
     this.socketHub.broadcastToProfile(profileId, 'Item/UpdateItems', {
-      items: [item1, item2],
+      items,
     });
   }
 }
