@@ -24,7 +24,7 @@ export function Test() {
   }, [socket]);
 
   const handleSuccess = (r: CredentialResponse) => {
-    socket?.send('Auth/GoogleLogin', { token: r.credential! });
+    socket?.send('User/GoogleLogin', { token: r.credential! });
   };
 
   const send = (form: FormData) => {
