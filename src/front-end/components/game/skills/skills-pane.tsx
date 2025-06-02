@@ -21,7 +21,7 @@ import { useSetAtom } from 'jotai/index';
 
 export const SkillsPane: FC = React.memo(function SkillsPane() {
   const socket = useSocket();
-  const [_, setActiveActivity] = useAtom(activeActivityAtom);
+  const setActiveActivity = useSetAtom(activeActivityAtom);
   const [profileItems, setProfileItems] = useAtom(profileItemsAtom);
   const [profileSkills, setProfileSkills] = useAtom(profileSkillsAtom);
   const setActivityProgressPercent = useSetAtom(activityProgressPercentAtom);
