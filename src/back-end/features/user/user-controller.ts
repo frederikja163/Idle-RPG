@@ -27,17 +27,19 @@ export class UserController implements SocketOpenEventListener {
   public onSocketOpen({ socketId }: SocketOpenEventData): void | Promise<void> {
     const socket = this.socketHub.getSocket(socketId)!;
     socket.on('User/Logout', this.handleLogout.bind(this));
-    socket.on('User/GoogleLogin', this.authenticateGoogle.bind(this));
+    socket.on('User/GoogleLogin', this.handleGoogleLogin.bind(this));
+    socket.on('User/GetUser', this.handleGetUser.bind(this));
+    socket.on('User/SetSettings', this.handleSetSettings.bind(this));
   }
 
   private handleLogout(socket: ServerSocket, _: ServerData<'User/Logout'>) {
-    const userId = this.socketHub.requiresUserId(socket.id);
+    const userId = this.socketHub.requireUserId(socket.id);
     this.userDispatch.emitUserLoggedOut({ userId });
     this.socketHub.setUserId(socket.id);
     socket.send('User/LogoutSuccess', {});
   }
 
-  private async authenticateGoogle(socket: ServerSocket, data: ServerData<'User/GoogleLogin'>) {
+  private async handleGoogleLogin(socket: ServerSocket, data: ServerData<'User/GoogleLogin'>) {
     const ticket = await this._googleOauthClient.verifyIdToken({
       idToken: data.token,
       audience: '758890044013-qq2amlba21ic2fb7drsjavpa16mmkons.apps.googleusercontent.com',
@@ -60,6 +62,25 @@ export class UserController implements SocketOpenEventListener {
     const user = await this.userService.getOrCreateByGoogle(googleId, email, profilePicture ?? '');
     this.userDispatch.emitUserLoggedIn({ userId: user.id });
     this.socketHub.setUserId(socket.id, user.id);
-    socket.send('Auth/LoginSuccess', {});
+    socket.send('User/LoginSuccess', {});
+  }
+
+  private async handleSetSettings(socket: ServerSocket, { settings }: ServerData<'Profile/SetSettings'>) {
+    const userId = this.socketHub.requireProfileId(socket.id);
+    const user = await this.userService.getByUserId(userId);
+
+    user.settings = settings;
+    this.userService.updateUser(userId);
+
+    this.socketHub.broadcastToUser(userId, 'User/UpdateUser', {
+      user,
+    });
+  }
+
+  private async handleGetUser(socket: ServerSocket, {}: ServerData<'User/GetUser'>) {
+    const userId = await this.socketHub.requireUserId(socket.id);
+    const user = await this.userService.getByUserId(userId);
+
+    socket.send('User/UpdateUser', { user });
   }
 }

@@ -12,12 +12,15 @@ const itemDto = createSelectSchema(itemsTable);
 const skillDto = createSelectSchema(skillsTable);
 
 export const clientServerEvent = Type.Union([
-  // Auth/LoginSuccess
+  // User/LoginSuccess
   // Error: EmailNotVerified
   event('User/GoogleLogin', { token: Type.String() }),
   // User/LogoutSuccess
   // Error: RequiresLogin
   event('User/Logout', {}),
+  // User/UpdateUser
+  // Error: RequiresLogin
+  event('User/SetSettings', { settings: Type.String() }),
   // User/UpdateUser
   // Error: RequiresLogin
   event('User/GetUser', {}),
@@ -71,7 +74,7 @@ export const serverClientEvent = Type.Union([
     reason: Type.String(),
     time: Type.Date(),
   }),
-  event('Auth/LoginSuccess', {}),
+  event('User/LoginSuccess', {}),
   event('User/LogoutSuccess', {}),
   event('User/UpdateUser', { user: userDto }),
   event('Profile/UpdateProfiles', { profiles: Type.Array(profileDto) }),

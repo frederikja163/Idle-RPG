@@ -2,6 +2,9 @@
 import { Socket } from '@/shared/socket/socket.ts';
 import { clientServerEvent, serverClientEvent } from '@/shared/socket/socket-events';
 import { TypeCompiler } from '@sinclair/typebox/compiler';
+import { useAtom } from 'jotai';
+import { profileItemsAtom } from './atoms';
+import { mergeItems } from '../lib/utils';
 
 const SocketContext = createContext<ClientSocket | null>(null);
 export const useSocket = () => useContext(SocketContext);

@@ -15,6 +15,7 @@ export const usersTable = sqliteTable(
     lastLogin: int('last_login', { mode: 'timestamp_ms' })
       .notNull()
       .default(sql`(current_timestamp)`),
+    settings: text('settings').notNull().default(''),
   },
   (table) => [uniqueIndex('google_idx').on(table.googleId), uniqueIndex('email__idx').on(table.email)],
 );
