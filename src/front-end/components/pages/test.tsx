@@ -20,11 +20,11 @@ export function Test() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    socket?.on('Auth/LoginSuccess', () => setLoggedIn(true));
+    socket?.on('User/LoginSuccess', () => setLoggedIn(true));
   }, [socket]);
 
   const handleSuccess = (r: CredentialResponse) => {
-    socket?.send('Auth/GoogleLogin', { token: r.credential! });
+    socket?.send('User/GoogleLogin', { token: r.credential! });
   };
 
   const send = (form: FormData) => {

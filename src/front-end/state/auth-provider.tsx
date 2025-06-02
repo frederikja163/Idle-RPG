@@ -31,24 +31,24 @@ export const AuthProvider: FC<Props> = React.memo(function AuthProvider(props) {
   const login = useCallback(
     (credentialResponse: CredentialResponse) => {
       if (!socket || !credentialResponse.credential) return;
-      socket.send('Auth/GoogleLogin', { token: credentialResponse.credential });
+      socket.send('User/GoogleLogin', { token: credentialResponse.credential });
     },
     [socket],
   );
 
   const logout = useCallback(() => {
     if (!socket) return;
-    socket.send('Auth/Logout', {});
+    socket.send('User/Logout', {});
   }, [socket]);
 
   useEffect(() => {
     if (!socket) return;
 
-    socket.on('Auth/LoginSuccess', (_, __) => {
+    socket.on('User/LoginSuccess', (_, __) => {
       setIsLoggedIn(true);
     });
 
-    socket.on('Auth/LogoutSuccess', (_, __) => {
+    socket.on('User/LogoutSuccess', (_, __) => {
       setIsLoggedIn(false);
     });
   }, [socket]);
