@@ -3,6 +3,7 @@ import { twMerge } from 'tailwind-merge';
 import type { FormEvent } from 'react';
 import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skills.ts';
 import type { Item, ItemId } from '@/shared/definition/schema/types/types-items.ts';
+import { activities, type ActivityId } from '@/shared/definition/definition-activities.ts';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -31,4 +32,14 @@ export const mergeItems = (updatedItems: Item[]) => (existingItems: Map<ItemId, 
   }
 
   return items;
+};
+
+export const getMsUntilActionDone = (activityId: ActivityId, activityStart: Date) => {
+  const activityDef = activities.get(activityId);
+  if (!activityDef) return 0;
+
+  const activityActionTime = activityDef.time;
+  const activityElapsedMs = new Date().getTime() - activityStart.getTime();
+  const actionElapsedMs = activityElapsedMs % activityActionTime;
+  return activityActionTime - actionElapsedMs;
 };
