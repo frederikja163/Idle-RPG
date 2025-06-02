@@ -1,4 +1,3 @@
-import { ServerSocket } from '@/back-end/core/server/sockets/server-socket';
 import { ProfileEventDispatcher } from '@/back-end/core/events/profile-dispatcher';
 import {
   SocketOpenEventToken,

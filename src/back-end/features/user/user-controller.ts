@@ -1,4 +1,3 @@
-import type { ServerSocket } from '@/back-end/core/server/sockets/server-socket';
 import {
   SocketOpenEventToken,
   type SocketOpenEventData,

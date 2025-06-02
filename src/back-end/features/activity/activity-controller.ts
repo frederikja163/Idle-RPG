@@ -6,7 +6,6 @@ import {
 import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 import { SocketHub } from '@/back-end/core/server/sockets/socket-hub';
 import { ProfileService } from '../profile/profile-service';
-import type { ServerSocket } from '@/back-end/core/server/sockets/server-socket';
 import { activities, type ActivityId } from '@/shared/definition/definition-activities';
 import type { ServerData, SocketId } from '@/shared/socket/socket-types';
 import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
