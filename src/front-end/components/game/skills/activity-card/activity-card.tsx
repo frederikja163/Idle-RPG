@@ -7,9 +7,10 @@ import { Card } from '@/front-end/components/ui/card.tsx';
 import { Divider } from '@/front-end/components/ui/divider.tsx';
 import { CirclePlay } from 'lucide-react';
 import { useAtomValue } from 'jotai';
-import { activeActivityAtom, activityProgressPercentAtom } from '@/front-end/state/atoms.tsx';
+import { activeActivityAtom } from '@/front-end/state/atoms.tsx';
 import { motion, useAnimation } from 'framer-motion';
 import { useSocket } from '@/front-end/state/socket-provider.tsx';
+import { getMsUntilActionDone } from '@/front-end/lib/utils.ts';
 
 interface Props {
   activityDef: GatheringActivityDef | ProcessingActivityDef;
@@ -24,7 +25,6 @@ export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
   const socket = useSocket();
   const animationControls = useAnimation();
   const activeActivity = useAtomValue(activeActivityAtom);
-  const activityProgressPercent = useAtomValue(activityProgressPercentAtom);
 
   const isActive = activeActivity?.activityId === activityDef.id;
 
@@ -38,22 +38,20 @@ export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
   }, [activityDef.id, handleStart, isActive, socket]);
 
   useEffect(() => {
-    if (!isActive) {
+    if (!isActive || !activeActivity) {
       animationControls.stop();
       animationControls.set({ x: '-100%' });
       return;
     }
 
-    const initialProgressPercent = activityProgressPercent ?? 0;
-    const duration = activityDef.time / 1000;
-    const firstDuration = duration * (1 - initialProgressPercent / 100);
-    const startX = `${-100 + Math.round(initialProgressPercent)}%`;
+    const msUntilActionDone = getMsUntilActionDone(activeActivity.activityId, activeActivity.activityStart);
+    const startX = `${-100 + Math.round(((activityDef.time - msUntilActionDone) / activityDef.time) * 100)}%`;
 
     animationControls
       .start({
         x: [startX, '0%'],
         transition: {
-          duration: firstDuration,
+          duration: msUntilActionDone / 1000,
           ease: 'linear',
         },
       })
@@ -61,14 +59,14 @@ export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
         animationControls.start({
           x: ['-100%', '0%'],
           transition: {
-            duration,
+            duration: activityDef.time / 1000,
             ease: 'linear',
             repeat: Infinity,
             repeatType: 'loop',
           },
         }),
       );
-  });
+  }, [activeActivity, activityDef.time, animationControls, isActive]);
 
   return (
     <Card className={`p-2 w-48 bg-background relative overflow-hidden ${className}`} onClick={handleClick}>
@@ -84,7 +82,8 @@ export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
           alt={activityDef.result.itemId}
           className="p-6 aspect-square"
         />
-        <Typography className="text-lg">{activityDef.display}</Typography>
+        {/* The min-h-16 below is not the ideal way to make equal heights. Should maybe use grids, but it's a big refactor */}
+        <Typography className="text-lg min-h-16">{activityDef.display}</Typography>
         <Divider />
         {children}
       </Column>

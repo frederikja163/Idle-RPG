@@ -1,28 +1,17 @@
-﻿import React, { type CSSProperties, type FC, useEffect, useMemo } from 'react';
-import { useSocket } from '@/front-end/state/socket-provider.tsx';
+﻿import React, { type CSSProperties, type FC, useMemo } from 'react';
 import { Column } from '@/front-end/components/layout/column.tsx';
 import { Row } from '../../layout/row.tsx';
 import { InventoryItem } from '@/front-end/components/game/inventory/inventory-item.tsx';
 import { Card } from '@/front-end/components/ui/card.tsx';
 import { InventoryTab } from '@/front-end/components/game/inventory/inventory-tab.tsx';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { profileItemsAtom, selectedInventoryTabAtom } from '@/front-end/state/atoms.tsx';
 import { items as itemDefinitions } from '@/shared/definition/definition-items.ts';
-import { mergeItems } from '@/front-end/lib/utils.ts';
 import { inventoryTabMap } from '@/front-end/lib/inventory-consts.ts';
 
 export const Inventory: FC = React.memo(function Inventory() {
-  const socket = useSocket();
   const selectedTab = useAtomValue(selectedInventoryTabAtom);
-  const [profileItems, setProfileItems] = useAtom(profileItemsAtom);
-
-  useEffect(() => {
-    socket?.send('Item/GetItems', {});
-
-    socket?.on('Item/UpdateItems', (_, data) => {
-      setProfileItems(mergeItems(data.items));
-    });
-  }, [setProfileItems, socket]);
+  const profileItems = useAtomValue(profileItemsAtom);
 
   const shownItems = useMemo(() => {
     const tags = inventoryTabMap.get(selectedTab);
@@ -33,7 +22,7 @@ export const Inventory: FC = React.memo(function Inventory() {
           item.count >= 1 &&
           (tags?.length == 0 || itemDefinitions.get(itemId)?.tags.find((t) => tags?.includes(t)) !== undefined),
       )
-      .map(([_, item], i) => <InventoryItem key={i} item={item} />);
+      .map(([itemId, item]) => <InventoryItem key={itemId} item={item} />);
   }, [selectedTab, profileItems]);
 
   return (
