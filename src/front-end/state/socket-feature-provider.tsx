@@ -165,6 +165,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
 
   const handleError = useCallback(
     (socket: ClientSocket, data: DataType<ServerClientEvent, 'System/Error'>) => {
+      // TODO: dont use this socket anymore, just use hook
       socket.onError(data.errorType, data.message);
 
       switch (data.errorType) {
