@@ -19,8 +19,8 @@ export const ItemTooltip: FC<Props> = React.memo(function ItemTooltip(props) {
       <Column>
         <Typography className="font-bold text-center">{item?.display}</Typography>
         <Row className="gap-2">
-          {item?.tags.map((tag, i) => (
-            <Typography key={i} className="p-1 rounded bg-gray-200 leading-tight">
+          {item?.tags.map((tag) => (
+            <Typography key={tag + Date.now()} className="p-1 rounded bg-gray-200 leading-tight">
               {tag}
             </Typography>
           ))}

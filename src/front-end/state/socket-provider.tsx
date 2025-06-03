@@ -1,10 +1,46 @@
-﻿import React, { createContext, type FC, type ReactNode, useContext, useEffect, useState } from 'react';
+﻿import React, { createContext, type FC, useContext, useEffect, useState } from 'react';
 import { Socket } from '@/shared/socket/socket.ts';
 import { clientServerEvent, serverClientEvent } from '@/shared/socket/socket-events';
 import { TypeCompiler } from '@sinclair/typebox/compiler';
+import type {
+  ClientEvent,
+  ClientServerEvent,
+  DataType,
+  ServerClientEvent,
+  ServerEvent,
+} from '@/shared/socket/socket-types.ts';
+import type { ProviderProps } from '@/front-end/lib/types.ts';
 
 const SocketContext = createContext<ClientSocket | null>(null);
 export const useSocket = () => useContext(SocketContext);
+
+export const useSendSocket = <TEvent extends ServerEvent>(
+  event: TEvent,
+  data: DataType<ClientServerEvent, TEvent>,
+  skip: boolean = false,
+) => {
+  const socket = useSocket();
+
+  useEffect(() => {
+    if (skip) return;
+
+    socket?.send(event, data);
+  }, [data, event, skip, socket]);
+};
+
+export const useOnSocket = <TEvent extends ClientEvent>(
+  type: TEvent,
+  callback: (socket: ClientSocket, data: DataType<ServerClientEvent, TEvent>) => void,
+  skip: boolean = false,
+) => {
+  const socket = useSocket();
+
+  useEffect(() => {
+    if (skip) return;
+
+    socket?.on(type, callback);
+  }, [callback, skip, socket, type]);
+};
 
 type ClientSocket = Socket<typeof serverClientEvent, typeof clientServerEvent>;
 
@@ -24,11 +60,7 @@ async function clientSocket(ws: WebSocket) {
   return socket;
 }
 
-interface Props {
-  children: ReactNode | ReactNode[];
-}
-
-export const SocketProvider: FC<Props> = React.memo(function SocketProvider(props) {
+export const SocketProvider: FC<ProviderProps> = React.memo(function SocketProvider(props) {
   const { children } = props;
 
   const [socket, setSocket] = useState<ClientSocket | null>(null);
@@ -44,14 +76,8 @@ export const SocketProvider: FC<Props> = React.memo(function SocketProvider(prop
     }
 
     const ws = new WebSocket(url);
-    clientSocket(ws).then(
-      (s) => {
-        setSocket(s);
-        s.on('System/Error', (s, data) => s.onError(data.errorType, data.message));
-      },
-      [socket],
-    );
-  });
+    clientSocket(ws).then(setSocket);
+  }, [socket]);
 
   return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;
 });

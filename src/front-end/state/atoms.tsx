@@ -3,7 +3,15 @@ import { atomWithReset, RESET } from 'jotai/utils';
 import type { Item, ItemId } from '@/shared/definition/schema/types/types-items.ts';
 import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skills.ts';
 import type { ActivityId } from '@/shared/definition/definition-activities.ts';
+import type { Profile } from '@/shared/definition/schema/types/types-profiles.ts';
 
+export const profilesAtom = atomWithReset<Profile[]>([]);
+profilesAtom.debugLabel = 'profilesAtom';
+
+export const selectedProfileIdAtom = atomWithReset<string | undefined>(undefined);
+selectedProfileIdAtom.debugLabel = 'selectedProfileIdAtom';
+
+// TODO: consider adding getter to atoms with map in here
 export const profileItemsAtom = atomWithReset<Map<ItemId, Item>>(new Map<ItemId, Item>());
 profileItemsAtom.debugLabel = 'profileItemsAtom';
 
@@ -16,15 +24,10 @@ profileSkillsAtom.debugLabel = 'profileSkillsAtom';
 export const activeActivityAtom = atomWithReset<{ activityId: ActivityId; activityStart: Date } | undefined>(undefined);
 activeActivityAtom.debugLabel = 'activeActivityAtom';
 
-export const activityProgressPercentAtom = atomWithReset<number | undefined>(undefined);
-activityProgressPercentAtom.debugLabel = 'activityProgressPercentAtom';
-
-// When adding new atoms, remember to add them to reset below
 export const resetAtomsAtom = atom(null, (_, set) => {
   set(profileItemsAtom, RESET);
   set(selectedInventoryTabAtom, RESET);
   set(profileSkillsAtom, RESET);
   set(activeActivityAtom, RESET);
-  set(activityProgressPercentAtom, RESET);
 });
 resetAtomsAtom.debugLabel = 'resetAtomsAtom';

@@ -1,11 +1,10 @@
-﻿import React, { type FC, useEffect, useMemo } from 'react';
+﻿import React, { type FC, useMemo } from 'react';
 import { Row } from '@/front-end/components/layout/row.tsx';
 import { activitySkillMap } from '@/shared/util/util-activity-skill-map.ts';
 import type { Skill } from '@/shared/definition/schema/types/types-skills.ts';
 import { activities as activityDefinitions } from '@/shared/definition/definition-activities.ts';
 import { GatheringActivityCard } from '@/front-end/components/game/skills/activity-card/gathering-activity-card.tsx';
 import { ProcessingActivityCard } from '@/front-end/components/game/skills/activity-card/processing-activity-card.tsx';
-import { useSocket } from '@/front-end/state/socket-provider.tsx';
 
 interface Props {
   skill: Skill;
@@ -14,24 +13,17 @@ interface Props {
 export const ActivitiesGrid: FC<Props> = React.memo(function ActivitiesGrid(props) {
   const { skill } = props;
 
-  const socket = useSocket();
-
-  //TODO: at some point move this call into skills-pane to save calls, and deal with animation sync which will then be a problem
-  useEffect(() => {
-    socket?.send('Activity/GetActivity', {});
-  }, [socket]);
-
   const activityBoxes = useMemo(
     () =>
-      activitySkillMap.get(skill.skillId)?.map((activityId, i) => {
+      activitySkillMap.get(skill.skillId)?.map((activityId) => {
         const activityDef = activityDefinitions.get(activityId);
         if (!activityDef) return;
 
         switch (activityDef.type) {
           case 'gathering':
-            return <GatheringActivityCard key={i} activityDef={activityDef} skillLevel={skill.level} />;
+            return <GatheringActivityCard key={activityId} activityDef={activityDef} skillLevel={skill.level} />;
           case 'processing':
-            return <ProcessingActivityCard key={i} activityDef={activityDef} skillLevel={skill.level} />;
+            return <ProcessingActivityCard key={activityId} activityDef={activityDef} skillLevel={skill.level} />;
           case 'crafting':
             console.error('Crafting does not belong to a skill.');
             return;
@@ -43,5 +35,5 @@ export const ActivitiesGrid: FC<Props> = React.memo(function ActivitiesGrid(prop
     [skill.level, skill.skillId],
   );
 
-  return <Row className="p-6 gap-6 items-start">{activityBoxes}</Row>;
+  return <Row className="p-6 gap-6 items-start flex-wrap">{activityBoxes}</Row>;
 });

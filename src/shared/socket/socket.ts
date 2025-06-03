@@ -60,20 +60,17 @@ export class Socket<TIncoming extends AllEvents, TOutgoing extends AllEvents> {
     }
   }
 
-  public send<TEvent extends EventType<TOutgoing>, TData extends DataType<TOutgoing, TEvent>>(
-    event: TEvent,
-    data: TData,
-  ) {
+  public send<TEvent extends EventType<TOutgoing>>(event: TEvent, data: DataType<TOutgoing, TEvent>) {
     const obj = { type: event, data: data };
     const json = JSON.stringify(obj);
     this._send(json);
   }
 
-  public on<TEvent extends EventType<TIncoming>, TData extends DataType<TIncoming, TEvent>>(
+  public on<TEvent extends EventType<TIncoming>>(
     type: TEvent,
-    callback: (socket: SocketId, data: TData) => void,
+    callback: (socket: SocketId, data: DataType<TIncoming, TEvent>) => void,
   ) {
-    this._events.set(type, (d) => callback(this.id, d as TData));
+    this._events.set(type, (d) => callback(this.id, d as DataType<TIncoming, TEvent>));
   }
 
   public onError(errorType?: ErrorType, message?: string) {
