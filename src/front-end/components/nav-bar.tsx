@@ -8,6 +8,7 @@ import { routes } from '@/front-end/router/routes.ts';
 import { useSocket } from '@/front-end/state/socket-provider.tsx';
 import { Column } from '@/front-end/components/layout/column.tsx';
 import { Divider } from '@/front-end/components/ui/divider.tsx';
+import { Banner } from '@/front-end/components/banner.tsx';
 
 export function NavBar() {
   const socket = useSocket();
@@ -32,6 +33,7 @@ export function NavBar() {
 
   return (
     <Column>
+      <Banner />
       <Row className="justify-between p-4">
         <Typography className="text-2xl">Idle-RPG</Typography>
         <Row className="gap-4">
