@@ -21,7 +21,7 @@ export class SocketHub {
     return this.socketSessionStore.getUserId(socketId);
   }
 
-  public requiresUserId(socketId: SocketId) {
+  public requireUserId(socketId: SocketId) {
     const userId = this.socketSessionStore.getUserId(socketId);
     if (!userId) throw new ServerError(ErrorType.RequiresLogin);
     return userId;

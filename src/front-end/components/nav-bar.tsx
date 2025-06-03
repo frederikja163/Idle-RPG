@@ -1,18 +1,18 @@
-import {useCallback} from 'react';
-import {Button} from './ui/button.tsx';
-import {useAuth} from '@/front-end/state/auth-provider.tsx';
-import {Row} from '@/front-end/components/layout/row.tsx';
-import {Typography} from '@/front-end/components/ui/typography.tsx';
-import {useNavigate} from 'react-router-dom';
-import {routes} from '@/front-end/router/routes.ts';
-import {useSocket} from '@/front-end/state/socket-provider.tsx';
-import {Column} from "@/front-end/components/layout/column.tsx";
-import {Divider} from "@/front-end/components/ui/divider.tsx";
+import { useCallback } from 'react';
+import { Button } from './ui/button.tsx';
+import { useAuth } from '@/front-end/state/auth-provider.tsx';
+import { Row } from '@/front-end/components/layout/row.tsx';
+import { Typography } from '@/front-end/components/ui/typography.tsx';
+import { useNavigate } from 'react-router-dom';
+import { routes } from '@/front-end/router/routes.ts';
+import { useSocket } from '@/front-end/state/socket-provider.tsx';
+import { Column } from '@/front-end/components/layout/column.tsx';
+import { Divider } from '@/front-end/components/ui/divider.tsx';
 
 export function NavBar() {
   const socket = useSocket();
   const navigate = useNavigate();
-  const {isLoggedIn} = useAuth();
+  const { isLoggedIn } = useAuth();
 
   const navigateToTest = useCallback(() => {
     navigate(routes.test);
@@ -51,7 +51,7 @@ export function NavBar() {
             </>
           )}
           {isLoggedIn ? (
-            <Button onClick={() => socket?.send('Auth/Logout', {})}>Log out</Button>
+            <Button onClick={() => socket?.send('User/Logout', {})}>Log out</Button>
           ) : (
             <Button onClick={navigateToLogin}>
               <Typography>Login</Typography>
@@ -59,7 +59,7 @@ export function NavBar() {
           )}
         </Row>
       </Row>
-      <Divider/>
+      <Divider />
     </Column>
   );
 }
