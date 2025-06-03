@@ -16,7 +16,7 @@ import { activities, type ActivityDef } from '@/shared/definition/definition-act
 import type { Timeout } from 'react-number-format/types/types';
 import { processActivity } from '@/shared/util/util-activities.ts';
 import type { useNavigate } from 'react-router-dom';
-import type { DataType, ServerClientEvent } from '@/shared/socket/socket-types.ts';
+import type { ClientData, DataType, ServerClientEvent } from '@/shared/socket/socket-types.ts';
 import { Socket } from '@/shared/socket/socket.ts';
 import { clientServerEvent, serverClientEvent } from '@/shared/socket/socket-events.ts';
 import { ErrorType } from '@/shared/socket/socket-errors.ts';
@@ -103,9 +103,10 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
     navigate(routes.game);
   }, [navigate, resetAtoms, socket]);
 
+  // TODO: add to all handlers: ClientData and deconstruct data
   const handleUpdateItems = useCallback(
-    (_: ClientSocket, data: DataType<ServerClientEvent, 'Item/UpdateItems'>) => {
-      setProfileItems(updateItems(data.items));
+    (_: ClientSocket, { items, name }: ClientData<'Item/UpdateItems'>) => {
+      setProfileItems(updateItems(items));
       setUpdateItemsFinished(true);
     },
     [setProfileItems],
