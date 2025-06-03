@@ -14,7 +14,7 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
     () =>
       skillDefinitions
         .entries()
-        .map(([id, skillDef], i) => {
+        .map(([id, skillDef]) => {
           const profileSkill: Skill = profileSkills?.get(id) ?? {
             profileId: '',
             skillId: id,
@@ -23,8 +23,8 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
           };
 
           return {
-            content: <ActivitiesGrid key={i} skill={profileSkill} />,
-            buttonContent: <SkillButton key={i} name={skillDef.display} skill={profileSkill} />,
+            content: <ActivitiesGrid key={id} skill={profileSkill} />,
+            buttonContent: <SkillButton key={id} name={skillDef.display} skill={profileSkill} />,
           } as Tab;
         })
         .toArray(),

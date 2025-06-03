@@ -15,15 +15,15 @@ export const ActivitiesGrid: FC<Props> = React.memo(function ActivitiesGrid(prop
 
   const activityBoxes = useMemo(
     () =>
-      activitySkillMap.get(skill.skillId)?.map((activityId, i) => {
+      activitySkillMap.get(skill.skillId)?.map((activityId) => {
         const activityDef = activityDefinitions.get(activityId);
         if (!activityDef) return;
 
         switch (activityDef.type) {
           case 'gathering':
-            return <GatheringActivityCard key={i} activityDef={activityDef} skillLevel={skill.level} />;
+            return <GatheringActivityCard key={activityId} activityDef={activityDef} skillLevel={skill.level} />;
           case 'processing':
-            return <ProcessingActivityCard key={i} activityDef={activityDef} skillLevel={skill.level} />;
+            return <ProcessingActivityCard key={activityId} activityDef={activityDef} skillLevel={skill.level} />;
           case 'crafting':
             console.error('Crafting does not belong to a skill.');
             return;

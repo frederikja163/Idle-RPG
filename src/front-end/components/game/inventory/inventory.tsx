@@ -22,7 +22,7 @@ export const Inventory: FC = React.memo(function Inventory() {
           item.count >= 1 &&
           (tags?.length == 0 || itemDefinitions.get(itemId)?.tags.find((t) => tags?.includes(t)) !== undefined),
       )
-      .map(([_, item], i) => <InventoryItem key={i} item={item} />);
+      .map(([itemId, item]) => <InventoryItem key={itemId} item={item} />);
   }, [selectedTab, profileItems]);
 
   return (

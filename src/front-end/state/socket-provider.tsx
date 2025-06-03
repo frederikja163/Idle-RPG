@@ -76,14 +76,8 @@ export const SocketProvider: FC<ProviderProps> = React.memo(function SocketProvi
     }
 
     const ws = new WebSocket(url);
-    clientSocket(ws).then(
-      (s) => {
-        setSocket(s);
-        s.on('System/Error', (s, data) => s.onError(data.errorType, data.message));
-      },
-      [socket],
-    );
-  });
+    clientSocket(ws).then(setSocket);
+  }, [socket]);
 
   return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;
 });

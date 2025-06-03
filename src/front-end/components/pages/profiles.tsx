@@ -14,7 +14,7 @@ export const Profiles: FC = React.memo(function Profiles() {
 
   return (
     <Row className="w-full justify-center flex-wrap gap-6 m-6">
-      {profiles?.map((profile, i) => <ProfileCard key={i} profile={profile} />)}
+      {profiles?.map((profile) => <ProfileCard key={profile.id} profile={profile} />)}
       {profiles?.length < 10 && <ProfileCreator />}
     </Row>
   );
