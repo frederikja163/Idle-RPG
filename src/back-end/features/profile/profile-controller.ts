@@ -1,4 +1,3 @@
-import { ServerSocket } from '@/back-end/core/server/sockets/server-socket';
 import { ProfileEventDispatcher } from '@/back-end/core/events/profile-dispatcher';
 import {
   SocketOpenEventToken,
@@ -8,8 +7,8 @@ import {
 import { SocketHub } from '@/back-end/core/server/sockets/socket-hub';
 import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 import { ProfileService } from './profile-service';
-import type { ServerData } from '@/shared/socket/socket-types';
-import { ErrorType } from '@/shared/socket/socket-errors';
+import type { ServerData, SocketId } from '@/shared/socket/socket-types';
+import { ErrorType, ServerError } from '@/shared/socket/socket-errors';
 
 @injectableSingleton(SocketOpenEventToken)
 export class ProfileController implements SocketOpenEventListener {
@@ -20,7 +19,7 @@ export class ProfileController implements SocketOpenEventListener {
   ) {}
 
   public onSocketOpen({ socketId }: SocketOpenEventData): void | Promise<void> {
-    const socket = this.socketHub.getSocket(socketId)!;
+    const socket = this.socketHub.requireSocket(socketId)!;
     socket.on('Profile/GetProfiles', this.handleGetProfiles.bind(this));
     socket.on('Profile/GetProfile', this.handleGetProfile.bind(this));
     socket.on('Profile/SetSettings', this.handleSetSettings.bind(this));
@@ -29,26 +28,26 @@ export class ProfileController implements SocketOpenEventListener {
     socket.on('Profile/SelectProfile', this.handleSelectProfile.bind(this));
   }
 
-  private async handleGetProfiles(socket: ServerSocket, _: ServerData<'Profile/GetProfiles'>) {
-    const userId = this.socketHub.requireUserId(socket.id);
+  private async handleGetProfiles(socketId: SocketId, _: ServerData<'Profile/GetProfiles'>) {
+    const userId = this.socketHub.requireUserId(socketId);
     const profiles = await this.profileService.getProfilesByUserId(userId);
 
-    socket.send('Profile/UpdateProfiles', {
+    this.socketHub.broadcastToSocket(socketId, 'Profile/UpdateProfiles', {
       profiles,
     });
   }
 
-  private async handleGetProfile(socket: ServerSocket, _: ServerData<'Profile/GetProfile'>) {
-    const profileId = this.socketHub.requireProfileId(socket.id);
+  private async handleGetProfile(socketId: SocketId, _: ServerData<'Profile/GetProfile'>) {
+    const profileId = this.socketHub.requireProfileId(socketId);
     const profile = await this.profileService.getProfileById(profileId);
 
-    socket.send('Profile/UpdateProfile', {
+    this.socketHub.broadcastToSocket(socketId, 'Profile/UpdateProfile', {
       profile,
     });
   }
 
-  private async handleSetSettings(socket: ServerSocket, { settings }: ServerData<'Profile/SetSettings'>) {
-    const profileId = this.socketHub.requireProfileId(socket.id);
+  private async handleSetSettings(socketId: SocketId, { settings }: ServerData<'Profile/SetSettings'>) {
+    const profileId = this.socketHub.requireProfileId(socketId);
     const profile = await this.profileService.getProfileById(profileId);
 
     profile.settings = settings;
@@ -59,8 +58,8 @@ export class ProfileController implements SocketOpenEventListener {
     });
   }
 
-  private async handleCreateProfile(socket: ServerSocket, { name }: ServerData<'Profile/CreateProfile'>) {
-    const userId = this.socketHub.requireUserId(socket.id);
+  private async handleCreateProfile(socketId: SocketId, { name }: ServerData<'Profile/CreateProfile'>) {
+    const userId = this.socketHub.requireUserId(socketId);
 
     await this.profileService.create(userId, {
       name,
@@ -74,11 +73,11 @@ export class ProfileController implements SocketOpenEventListener {
     });
   }
 
-  private async handleDeleteProfile(socket: ServerSocket, { profileId }: ServerData<'Profile/DeleteProfile'>) {
-    const userId = this.socketHub.requireUserId(socket.id);
+  private async handleDeleteProfile(socketId: SocketId, { profileId }: ServerData<'Profile/DeleteProfile'>) {
+    const userId = this.socketHub.requireUserId(socketId);
     await this.profileService.requireUserHasAccess(userId, profileId);
 
-    if (this.socketHub.anySocketsForProfile(profileId)) return socket.error(ErrorType.ProfileInUse);
+    if (this.socketHub.anySocketsForProfile(profileId)) throw new ServerError(ErrorType.ProfileInUse);
 
     const profile = await this.profileService.getProfileById(profileId);
     await this.profileService.delete(userId, profile.id);
@@ -88,11 +87,11 @@ export class ProfileController implements SocketOpenEventListener {
     });
   }
 
-  private async handleSelectProfile(socket: ServerSocket, { profileId }: ServerData<'Profile/SelectProfile'>) {
-    const userId = this.socketHub.requireUserId(socket.id);
+  private async handleSelectProfile(socketId: SocketId, { profileId }: ServerData<'Profile/SelectProfile'>) {
+    const userId = this.socketHub.requireUserId(socketId);
     await this.profileService.requireUserHasAccess(userId, profileId);
 
-    const oldProfileId = this.socketHub.getProfileId(socket.id);
+    const oldProfileId = this.socketHub.getProfileId(socketId);
     if (oldProfileId) {
       this.profileEventDispatcher.emitProfileDeselected({
         userId,
@@ -101,11 +100,11 @@ export class ProfileController implements SocketOpenEventListener {
     }
 
     const profile = await this.profileService.getProfileById(profileId);
-    this.socketHub.setProfileId(socket.id, profile.id);
+    this.socketHub.setProfileId(socketId, profile.id);
     this.profileEventDispatcher.emitProfileSelected({
       userId,
       profileId: profile.id,
     });
-    socket.send('Profile/SelectProfileSuccess', {});
+    this.socketHub.broadcastToSocket(socketId, 'Profile/SelectProfileSuccess', {});
   }
 }

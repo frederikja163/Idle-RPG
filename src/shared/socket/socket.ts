@@ -1,5 +1,5 @@
 import { TypeCheck } from '@sinclair/typebox/compiler';
-import type { AllEvents, DataType, EventType } from './socket-types';
+import type { AllEvents, DataType, EventType, SocketId } from './socket-types';
 import { errorMessages, ErrorType, ServerError } from './socket-errors';
 
 const dateFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
@@ -16,6 +16,8 @@ export class Socket<TIncoming extends AllEvents, TOutgoing extends AllEvents> {
   private readonly _send: (data: string) => void;
   private readonly _events = new Map<EventType<TIncoming>, (data: object) => Promise<void> | void>();
   private readonly _typeCheck: TypeCheck<TIncoming>;
+
+  public readonly id: SocketId = crypto.randomUUID();
 
   constructor(typeCheck: TypeCheck<TIncoming>, send: (data: string) => void) {
     this._send = send;
@@ -66,9 +68,9 @@ export class Socket<TIncoming extends AllEvents, TOutgoing extends AllEvents> {
 
   public on<TEvent extends EventType<TIncoming>>(
     type: TEvent,
-    callback: (socket: typeof this, data: DataType<TIncoming, TEvent>) => void,
+    callback: (socket: SocketId, data: DataType<TIncoming, TEvent>) => void,
   ) {
-    this._events.set(type, (d) => callback(this, d as DataType<TIncoming, TEvent>));
+    this._events.set(type, (d) => callback(this.id, d as DataType<TIncoming, TEvent>));
   }
 
   public onError(errorType?: ErrorType, message?: string) {
