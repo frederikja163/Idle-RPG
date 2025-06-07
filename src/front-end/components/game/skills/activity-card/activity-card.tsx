@@ -11,6 +11,7 @@ import { activeActivityAtom } from '@/front-end/state/atoms.tsx';
 import { motion, useAnimation } from 'framer-motion';
 import { useSocket } from '@/front-end/state/socket-provider.tsx';
 import { getMsUntilActionDone } from '@/front-end/lib/utils.ts';
+import { useToast } from '@/front-end/state/toast-provider.tsx';
 
 interface Props {
   activityDef: GatheringActivityDef | ProcessingActivityDef;
@@ -23,6 +24,7 @@ export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
   const { activityDef, className, handleStart, children } = props;
 
   const socket = useSocket();
+  const { displayToast } = useToast();
   const animationControls = useAnimation();
   const activeActivity = useAtomValue(activeActivityAtom);
 
@@ -35,7 +37,7 @@ export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
     }
 
     handleStart();
-  }, [activityDef.id, handleStart, isActive, socket]);
+  }, [activityDef.id, displayToast, handleStart, isActive, socket]);
 
   useEffect(() => {
     if (!isActive || !activeActivity) {

@@ -13,6 +13,8 @@ interface Props {
 export const ActivitiesGrid: FC<Props> = React.memo(function ActivitiesGrid(props) {
   const { skill } = props;
 
+  // TODO: deep question for this and other components: better to have component itself in useState or useMemo, or better to only have data in useState or useMemo and map to component down in the return?
+
   const activityBoxes = useMemo(
     () =>
       activitySkillMap.get(skill.skillId)?.map((activityId) => {
