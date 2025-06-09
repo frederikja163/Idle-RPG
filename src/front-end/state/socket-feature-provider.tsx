@@ -103,7 +103,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
 
   // TODO: add to all handlers: ClientData and deconstruct data
   const handleUpdateItems = useCallback(
-    (_: string, { items, name }: ClientData<'Item/UpdateItems'>) => {
+    (_: string, { items }: ClientData<'Item/UpdateItems'>) => {
       setProfileItems(updateItems(items));
       setUpdateItemsFinished(true);
     },
