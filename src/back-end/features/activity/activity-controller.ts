@@ -26,12 +26,11 @@ export class ActivityController implements SocketOpenEventListener {
 
   public onSocketOpen({ socketId }: SocketOpenEventData): void | Promise<void> {
     const socket = this.socketHub.requireSocket(socketId);
-    socket?.on('Activity/StartActivity', this.handleStartActivity.bind(this));
-    socket?.on('Activity/GetActivity', this.handleGetActivity.bind(this));
-    socket?.on('Activity/StopActivity', this.handleStopActivity.bind(this));
+    socket?.on('Profile/StartActivity', this.handleStartActivity.bind(this));
+    socket?.on('Profile/StopActivity', this.handleStopActivity.bind(this));
   }
 
-  private async handleStartActivity(socketId: SocketId, { activityId }: ServerData<'Activity/StartActivity'>) {
+  private async handleStartActivity(socketId: SocketId, { activityId }: ServerData<'Profile/StartActivity'>) {
     const profileId = this.socketHub.requireProfileId(socketId);
 
     await this.stopActivity(profileId);
@@ -39,14 +38,7 @@ export class ActivityController implements SocketOpenEventListener {
     await this.startActivity(profileId, activityId);
   }
 
-  private async handleGetActivity(socketId: SocketId, _: ServerData<'Activity/GetActivity'>) {
-    const profileId = this.socketHub.requireProfileId(socketId);
-    const { activityId, activityStart } = await this.profileService.getProfileById(profileId);
-    if (!activityId || !activityStart) return this.socketHub.broadcastToSocket(socketId, 'Activity/NoActivity', {});
-    this.socketHub.broadcastToSocket(socketId, 'Activity/ActivityStarted', { activityId, activityStart });
-  }
-
-  private async handleStopActivity(socketId: SocketId, _: ServerData<'Activity/StopActivity'>) {
+  private async handleStopActivity(socketId: SocketId, _: ServerData<'Profile/StopActivity'>) {
     const profileId = this.socketHub.requireProfileId(socketId);
     if (!(await this.stopActivity(profileId))) {
       this.socketHub.broadcastToSocket(socketId, 'Activity/NoActivity', {});
@@ -68,13 +60,13 @@ export class ActivityController implements SocketOpenEventListener {
       new ServerProfileInterface(profileId, this.skillService, this.itemService),
     );
 
-    skills.forEach((s) => this.skillService.update(profileId, s.skillId));
-    items.forEach((i) => this.itemService.update(profileId, i.itemId));
+    skills.forEach((s) => this.skillService.update(profileId, s.id));
+    items.forEach((i) => this.itemService.update(profileId, i.id));
 
     profile.activityId = null;
     profile.activityStart = null;
     this.profileService.update(profile.id);
-    this.socketHub.broadcastToProfile(profile.id, 'Activity/ActivityStopped', {
+    this.socketHub.broadcastToProfile(profile.id, 'Profile/ActivityStopped', {
       activityId: activity.id,
       activityStop: activityEnd,
       items,
@@ -97,7 +89,7 @@ export class ActivityController implements SocketOpenEventListener {
     profile.activityId = activity.id;
     profile.activityStart = activityStart;
     this.profileService.update(profile.id);
-    this.socketHub.broadcastToProfile(profile.id, 'Activity/ActivityStarted', {
+    this.socketHub.broadcastToProfile(profile.id, 'Profile/ActivityStarted', {
       activityId: activity.id,
       activityStart,
     });

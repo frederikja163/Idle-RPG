@@ -5,13 +5,13 @@ import { profilesTable } from './db-profiles';
 export const itemsTable = sqliteTable(
   'items',
   {
-    profileId: text('id').notNull(),
-    itemId: text('item_id').notNull(),
+    profileId: text('profile_id').notNull(),
+    id: text('id').notNull(),
     count: int('count', { mode: 'number' }).notNull().default(0),
     index: int('index', { mode: 'number' }).notNull(),
   },
   (table) => [
-    primaryKey({ name: 'index_idx', columns: [table.profileId, table.itemId] }),
+    primaryKey({ name: 'index_idx', columns: [table.profileId, table.id] }),
     foreignKey({
       columns: [table.profileId],
       foreignColumns: [profilesTable.id],

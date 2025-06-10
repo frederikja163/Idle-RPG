@@ -15,11 +15,12 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
       skillDefinitions
         .entries()
         .map(([id, skillDef]) => {
-          const profileSkill: Skill = profileSkills?.get(id) ?? {
+          const profileSkill = {
             profileId: '',
-            skillId: id,
+            id,
             xp: 0,
             level: 0,
+            ...profileSkills?.get(id),
           };
 
           return {

@@ -6,12 +6,12 @@ export const skillsTable = sqliteTable(
   'skills',
   {
     profileId: text('profile_id').notNull(),
-    skillId: text('skill_id').notNull(),
+    id: text('id').notNull(),
     xp: int('xp', { mode: 'number' }).notNull().default(0),
     level: int('level', { mode: 'number' }).notNull().default(0),
   },
   (table) => [
-    primaryKey({ name: 'idx', columns: [table.profileId, table.skillId] }),
+    primaryKey({ name: 'idx', columns: [table.profileId, table.id] }),
     foreignKey({
       columns: [table.profileId],
       foreignColumns: [profilesTable.id],

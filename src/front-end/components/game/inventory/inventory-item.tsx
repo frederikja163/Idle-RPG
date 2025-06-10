@@ -7,17 +7,19 @@ import { ItemTooltip } from '@/front-end/components/game/item-tooltip.tsx';
 import type { Item } from '@/shared/definition/schema/types/types-items.ts';
 
 interface Props {
-  item: Item;
+  item: Partial<Item>;
 }
 
 export const InventoryItem: FC<Props> = React.memo(function InventoryItem(props) {
   const { item } = props;
 
+  if (!item.id) return;
+
   return (
-    <BasicTooltip tooltipContent={<ItemTooltip itemId={item.itemId} />}>
+    <BasicTooltip tooltipContent={<ItemTooltip itemId={item.id} />}>
       <Column className="bg-gray-200 rounded w-16 h-16 p-1 select-none">
         <Row className="aspect-square overflow-hidden justify-center">
-          <img src={`/assets/items/${item.itemId}.svg`} alt={item.itemId} />
+          <img src={`/assets/items/${item.id}.svg`} alt={item.id} />
         </Row>
         <Typography className="row-start-2 col-span-2 text-center">{item.count}</Typography>
       </Column>

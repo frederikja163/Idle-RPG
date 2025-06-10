@@ -8,6 +8,7 @@ import type {
   DataType,
   ServerClientEvent,
   ServerEvent,
+  SocketId,
 } from '@/shared/socket/socket-types.ts';
 import type { ProviderProps } from '@/front-end/lib/types.ts';
 
@@ -30,7 +31,7 @@ export const useSendSocket = <TEvent extends ServerEvent>(
 
 export const useOnSocket = <TEvent extends ClientEvent>(
   type: TEvent,
-  callback: (socket: ClientSocket, data: DataType<ServerClientEvent, TEvent>) => void,
+  callback: (socketId: SocketId, data: DataType<ServerClientEvent, TEvent>) => void,
   skip: boolean = false,
 ) => {
   const socket = useSocket();

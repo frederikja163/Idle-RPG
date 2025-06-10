@@ -1,6 +1,10 @@
 import React, { type CSSProperties, type FC, type ReactNode, useCallback, useEffect } from 'react';
 import { Column } from '@/front-end/components/layout/column.tsx';
-import { type GatheringActivityDef, type ProcessingActivityDef } from '@/shared/definition/definition-activities.ts';
+import {
+  NoActivity,
+  type GatheringActivityDef,
+  type ProcessingActivityDef,
+} from '@/shared/definition/definition-activities.ts';
 import { Image } from '@/front-end/components/ui/image.tsx';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
 import { Card } from '@/front-end/components/ui/card.tsx';
@@ -30,12 +34,12 @@ export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
 
   const handleClick = useCallback(() => {
     if (isActive) {
-      socket?.send('Activity/StopActivity', { activityId: activityDef.id });
+      socket?.send('Profile/ActivityReplace', { activityId: NoActivity });
       return;
     }
 
     handleStart();
-  }, [activityDef.id, handleStart, isActive, socket]);
+  }, [handleStart, isActive, socket]);
 
   useEffect(() => {
     if (!isActive || !activeActivity) {

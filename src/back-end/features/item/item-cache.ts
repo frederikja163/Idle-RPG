@@ -1,10 +1,7 @@
-import { injectableSingleton } from "@/back-end/core/lib/lib-tsyringe";
-import type {
-  Item,
-  ItemId,
-} from "@/shared/definition/schema/types/types-items";
-import type { ProfileId } from "@/shared/definition/schema/types/types-profiles";
-import { Table } from "@/shared/lib/table";
+import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
+import type { Item, ItemId } from '@/shared/definition/schema/types/types-items';
+import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
+import { Table } from '@/shared/lib/table';
 
 @injectableSingleton()
 export class ItemCache {
@@ -14,16 +11,23 @@ export class ItemCache {
     return this.profileToItems.getColumn(profileId);
   }
 
-  public getItemById(profileId: ProfileId, itemId: ItemId) {
-    return this.profileToItems.getCell(profileId, itemId);
+  public getItemById(profileId: ProfileId, id: ItemId) {
+    return this.profileToItems.getCell(profileId, id);
+  }
+
+  public *getMany(profileId: ProfileId, ids: ItemId) {
+    const profileItems = this.profileToItems.getColumn(profileId);
+    for (const id of ids) {
+      yield profileItems?.get(id);
+    }
   }
 
   public hasProfileId(profileId: ProfileId) {
     return this.profileToItems.hasColumn(profileId);
   }
 
-  public hasItem(profileId: ProfileId, itemId: ItemId) {
-    return this.profileToItems.hasCell(profileId, itemId);
+  public hasItem(profileId: ProfileId, id: ItemId) {
+    return this.profileToItems.hasCell(profileId, id);
   }
 
   public getItemCount(profileId: string) {
@@ -35,6 +39,6 @@ export class ItemCache {
   }
 
   public store(item: Item) {
-    this.profileToItems.add(item.profileId, item.itemId, item);
+    this.profileToItems.add(item.profileId, item.id, item);
   }
 }

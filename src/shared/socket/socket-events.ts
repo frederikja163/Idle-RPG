@@ -1,4 +1,13 @@
-import { Type, type TLiteralValue, type TProperties } from '@sinclair/typebox';
+import {
+  Record,
+  Type,
+  type TBoolean,
+  type TLiteralValue,
+  type TObject,
+  type TOptional,
+  type TProperties,
+  type TSchema,
+} from '@sinclair/typebox';
 import { createSelectSchema } from 'drizzle-typebox';
 import { profilesTable } from '../definition/schema/db/db-profiles';
 import { itemsTable } from '../definition/schema/db/db-items';
@@ -6,62 +15,78 @@ import { skillsTable } from '../definition/schema/db/db-skills';
 import { ErrorType } from './socket-errors';
 import { usersTable } from '../definition/schema/db/db-users';
 
-const userDto = createSelectSchema(usersTable);
-const profileDto = createSelectSchema(profilesTable);
-const itemDto = createSelectSchema(itemsTable);
-const skillDto = createSelectSchema(skillsTable);
+function createQuery<T extends TSchema>(schema: T) {
+  const props: Record<string, TSchema> = {};
+
+  for (const key in schema.properties) {
+    props[key] = Type.Optional(Type.Boolean());
+  }
+
+  return Type.Object(props) as TObject<{ [k in keyof T['properties']]: TOptional<TBoolean> }>;
+}
+
+function createDtos<
+  TObj extends TObject,
+  TPropUpdate extends keyof TObj['properties'],
+  TPropRemove extends keyof TObj['properties'],
+>(schema: TObj, updateableKeys: readonly TPropUpdate[], removedKeys: readonly TPropRemove[]) {
+  const type = Type.Partial(Type.Omit(schema, removedKeys));
+  const query = createQuery(Type.Omit(type, ['id']));
+  const update = Type.Pick(type, updateableKeys);
+  const result = type;
+  return { query, update, result };
+}
+
+function createMany<T extends TSchema>(schema: T) {
+  return Type.Composite([Type.Object({ id: Type.Union([Type.Boolean(), Type.Array(Type.String())]) }), schema]);
+}
+
+function createManyDtos<TQuery extends TSchema, TUpdate extends TSchema, TResult extends TSchema>(dtos: {
+  query: TQuery;
+  update: TUpdate;
+  result: TResult;
+}) {
+  const query = createMany(dtos.query);
+  const update = createMany(dtos.update);
+  const result = Type.Array(dtos.result);
+  return { result, query, update };
+}
+
+function createProfileDto<TProfile extends TSchema, TItem extends TSchema, TSkill extends TSchema>(
+  profileDto: TProfile,
+  itemDto: TItem,
+  skillDto: TSkill,
+) {
+  return { profile: Type.Optional(profileDto), items: Type.Optional(itemDto), skills: Type.Optional(skillDto) };
+}
+
+const usersSchema = createSelectSchema(usersTable);
+const userDtos = createDtos(usersSchema, ['settings'], ['googleId']);
+
+const profileSchema = createSelectSchema(profilesTable);
+const profileDtos = createDtos(profileSchema, ['settings'], []);
+const profileManyDtos = createManyDtos(profileDtos);
+
+const itemSchema = createSelectSchema(itemsTable);
+const itemDtos = createDtos(itemSchema, ['index'], ['profileId']);
+const itemManyDtos = createManyDtos(itemDtos);
+
+const skillSchema = createSelectSchema(skillsTable);
+const skillDtos = createDtos(skillSchema, [], ['profileId']);
+const skillManyDtos = createManyDtos(skillDtos);
 
 export const clientServerEvent = Type.Union([
-  // User/LoginSuccess
-  // Error: EmailNotVerified
   event('User/GoogleLogin', { token: Type.String() }),
-  // User/LogoutSuccess
-  // Error: RequiresLogin
   event('User/Logout', {}),
-  // User/UpdateUser
-  // Error: RequiresLogin
-  event('User/SetSettings', { settings: Type.String() }),
-  // User/UpdateUser
-  // Error: RequiresLogin
-  event('User/GetUser', {}),
-  // Profile/UpdateProfiles
-  // Error: RequiresLogin
-  event('Profile/GetProfiles', {}),
-  // Profile/UpdateProfile
-  // Error: RequiresProfile
-  event('Profile/GetProfile', {}),
-  // Profile/UpdateProfile
-  // Error: RequiresProfile
-  event('Profile/SetSettings', { settings: Type.String() }),
-  // Profile/UpdateProfiles
-  // Error: RequiresLogin, NameTaken
-  event('Profile/CreateProfile', { name: Type.String() }),
-  // Profile/SelectProfileSuccess
-  // Error: RequiresLogin, ArgumentOutOfRange
-  event('Profile/SelectProfile', { profileId: Type.String() }),
-  // Profile/UpdateProfiles
-  // Error: RequiresLogin, ProfileInUse, ArgumentOutOfRange
-  event('Profile/DeleteProfile', { profileId: Type.String() }),
-  // Item/UpdateItems
-  // Error: RequiresProfile
-  event('Item/GetItems', { itemIds: Type.Optional(Type.Array(Type.String())) }),
-  // Item/UpdateItems
-  // Error: RequiresProfile, ArgumentOutOfRange
-  event('Item/ChangeIndicies', {
-    itemIndicies: Type.Array(Type.Object({ itemId: Type.String(), index: Type.Number() })),
-  }),
-  // Skill/UpdateSkills
-  // Error: RequiresProfile
-  event('Skill/GetSkills', { skillIds: Type.Optional(Type.Array(Type.String())) }),
-  // Activity/ActivityStarted
-  // Error: RequiresProfile, InsufficientLevel, InsufficientItems
-  event('Activity/StartActivity', { activityId: Type.String() }),
-  // Activity/ActivityStopped
-  // Error: RequiresProfile, NoActivity
-  event('Activity/StopActivity', {}),
-  // Activity/ActivityStarted, Activity/NoActivity
-  // Error: RequiresProfile
-  event('Activity/GetActivity', {}),
+  event('User/Query', { user: userDtos.query }),
+  event('User/Update', { user: userDtos.update }),
+  event('Profile/QueryMany', { profiles: profileManyDtos.query }),
+  event('Profile/Query', createProfileDto(profileDtos.query, itemManyDtos.query, skillManyDtos.query)),
+  event('Profile/Update', createProfileDto(profileDtos.update, itemManyDtos.update, skillManyDtos.update)),
+  event('Profile/ActivityReplace', { activityId: Type.String() }),
+  event('Profile/Create', { name: Type.String() }),
+  event('Profile/Select', { profileId: Type.String() }),
+  event('Profile/Delete', { profileId: Type.String() }),
 ]);
 
 export const serverClientEvent = Type.Union([
@@ -73,25 +98,11 @@ export const serverClientEvent = Type.Union([
     reason: Type.String(),
     time: Type.Date(),
   }),
-  event('User/LoginSuccess', {}),
-  event('User/LogoutSuccess', {}),
-  event('User/UpdateUser', { user: userDto }),
-  event('Profile/UpdateProfiles', { profiles: Type.Array(profileDto) }),
-  event('Profile/UpdateProfile', { profile: profileDto }),
-  event('Profile/SelectProfileSuccess', {}),
-  event('Item/UpdateItems', { items: Type.Array(itemDto) }),
-  event('Skill/UpdateSkills', { skills: Type.Array(skillDto) }),
-  event('Activity/ActivityStarted', {
-    activityId: Type.String(),
-    activityStart: Type.Date(),
-  }),
-  event('Activity/ActivityStopped', {
-    activityId: Type.String(),
-    activityStop: Type.Date(),
-    items: Type.Array(itemDto),
-    skills: Type.Array(skillDto),
-  }),
-  event('Activity/NoActivity', {}),
+  event('User/LoggedIn', {}),
+  event('User/LoggedOut', {}),
+  event('User/Updated', { user: userDtos.result }),
+  event('Profile/UpdatedMany', { profiles: profileManyDtos.result }),
+  event('Profile/Updated', createProfileDto(profileDtos.result, itemManyDtos.result, skillManyDtos.result)),
 ]);
 
 function event<T1 extends TLiteralValue, T2 extends TProperties>(type: T1, data: T2) {

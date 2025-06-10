@@ -7,7 +7,7 @@ import { GatheringActivityCard } from '@/front-end/components/game/skills/activi
 import { ProcessingActivityCard } from '@/front-end/components/game/skills/activity-card/processing-activity-card.tsx';
 
 interface Props {
-  skill: Skill;
+  skill: Partial<Skill>;
 }
 
 export const ActivitiesGrid: FC<Props> = React.memo(function ActivitiesGrid(props) {
@@ -15,15 +15,16 @@ export const ActivitiesGrid: FC<Props> = React.memo(function ActivitiesGrid(prop
 
   const activityBoxes = useMemo(
     () =>
-      activitySkillMap.get(skill.skillId)?.map((activityId) => {
+      skill.id &&
+      activitySkillMap.get(skill.id)?.map((activityId) => {
         const activityDef = activityDefinitions.get(activityId);
         if (!activityDef) return;
 
         switch (activityDef.type) {
           case 'gathering':
-            return <GatheringActivityCard key={activityId} activityDef={activityDef} skillLevel={skill.level} />;
+            return <GatheringActivityCard key={activityId} activityDef={activityDef} skillLevel={skill.level ?? 0} />;
           case 'processing':
-            return <ProcessingActivityCard key={activityId} activityDef={activityDef} skillLevel={skill.level} />;
+            return <ProcessingActivityCard key={activityId} activityDef={activityDef} skillLevel={skill.level ?? 0} />;
           case 'crafting':
             console.error('Crafting does not belong to a skill.');
             return;
@@ -32,7 +33,7 @@ export const ActivitiesGrid: FC<Props> = React.memo(function ActivitiesGrid(prop
             return;
         }
       }),
-    [skill.level, skill.skillId],
+    [skill.level, skill.id],
   );
 
   return <Row className="p-6 gap-6 items-start flex-wrap">{activityBoxes}</Row>;
