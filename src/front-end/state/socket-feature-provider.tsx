@@ -16,12 +16,9 @@ import { activities, type ActivityDef } from '@/shared/definition/definition-act
 import type { Timeout } from 'react-number-format/types/types';
 import { processActivity } from '@/shared/util/util-activities.ts';
 import type { useNavigate } from 'react-router-dom';
-import type { DataType, ServerClientEvent } from '@/shared/socket/socket-types.ts';
-import { Socket } from '@/shared/socket/socket.ts';
-import { clientServerEvent, serverClientEvent } from '@/shared/socket/socket-events.ts';
+import type { ClientData, DataType, ServerClientEvent } from '@/shared/socket/socket-types.ts';
 import { ErrorType } from '@/shared/socket/socket-errors.ts';
-
-type ClientSocket = Socket<typeof serverClientEvent, typeof clientServerEvent>;
+import { useToast } from '@/front-end/state/toast-provider.tsx';
 
 const SocketFeatureContext = createContext(undefined);
 
@@ -33,6 +30,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   const { navigate, children } = props;
 
   const socket = useSocket();
+  const { displayToast } = useToast();
 
   const resetAtoms = useSetAtom(resetAtomsAtom);
   const setProfiles = useSetAtom(profilesAtom);
@@ -85,7 +83,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   );
 
   const handleUpdateProfiles = useCallback(
-    (_: ClientSocket, data: DataType<ServerClientEvent, 'Profile/UpdateProfiles'>) => {
+    (_: string, data: DataType<ServerClientEvent, 'Profile/UpdateProfiles'>) => {
       setProfiles(data.profiles);
     },
     [setProfiles],
@@ -103,16 +101,17 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
     navigate(routes.game);
   }, [navigate, resetAtoms, socket]);
 
+  // TODO: add to all handlers: ClientData and deconstruct data
   const handleUpdateItems = useCallback(
-    (_: ClientSocket, data: DataType<ServerClientEvent, 'Item/UpdateItems'>) => {
-      setProfileItems(updateItems(data.items));
+    (_: string, { items }: ClientData<'Item/UpdateItems'>) => {
+      setProfileItems(updateItems(items));
       setUpdateItemsFinished(true);
     },
     [setProfileItems],
   );
 
   const handleUpdateSkills = useCallback(
-    (_: ClientSocket, data: DataType<ServerClientEvent, 'Skill/UpdateSkills'>) => {
+    (_: string, data: DataType<ServerClientEvent, 'Skill/UpdateSkills'>) => {
       setProfileSkills(updateSkills(data.skills));
       setUpdateSkillsFinished(true);
     },
@@ -125,7 +124,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   }, [clearTimeouts, setActiveActivity]);
 
   const handleActivityStarted = useCallback(
-    (_: ClientSocket, data: DataType<ServerClientEvent, 'Activity/ActivityStarted'>) => {
+    (_: string, data: DataType<ServerClientEvent, 'Activity/ActivityStarted'>) => {
       setActiveActivity(data);
 
       const activityDef = activities.get(data.activityId);
@@ -153,7 +152,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   );
 
   const handleActivityStopped = useCallback(
-    (_: ClientSocket, data: DataType<ServerClientEvent, 'Activity/ActivityStopped'>) => {
+    (_: string, data: DataType<ServerClientEvent, 'Activity/ActivityStopped'>) => {
       clearTimeouts();
       setActiveActivity(undefined);
       setProfileSkills(updateSkills(data.skills));
@@ -163,8 +162,10 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   );
 
   const handleError = useCallback(
-    (socket: ClientSocket, data: DataType<ServerClientEvent, 'System/Error'>) => {
-      socket.onError(data.errorType, data.message);
+    (_: string, data: DataType<ServerClientEvent, 'System/Error'>) => {
+      socket?.onError(data.errorType, data.message);
+
+      displayToast(data.message ?? data.errorType.toString(), 'error');
 
       switch (data.errorType) {
         case ErrorType.RequiresLogin:
@@ -179,7 +180,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
           console.warn('No error handling implemented for: ', data.errorType, data.message);
       }
     },
-    [setSelectedProfileId],
+    [displayToast, setSelectedProfileId, socket],
   );
 
   useOnSocket('Profile/UpdateProfiles', handleUpdateProfiles);
