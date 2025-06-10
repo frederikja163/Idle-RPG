@@ -1,4 +1,4 @@
-import type { Many, Query, QueryMany, Update, UpdateMany } from '@/shared/socket/socket-types';
+import type { Query, QueryMany, Update, UpdateMany } from '@/shared/socket/socket-types';
 
 export function transformQuery<T extends { [key: string]: unknown }>(value: T, query: Query<T>): Partial<T> {
   const result: Record<string, unknown> = {};
