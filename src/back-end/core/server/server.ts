@@ -22,6 +22,7 @@ export class Server {
 
     this.server = serve({
       port: process.env.PORT,
+      hostname: '0.0.0.0',
       fetch: this.fetch,
       websocket: {
         open: this.socketOpen.bind(this),
