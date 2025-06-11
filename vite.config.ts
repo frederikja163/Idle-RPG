@@ -20,6 +20,6 @@ export default defineConfig(({ mode }) => {
       outDir: '../../dist',
       emptyOutDir: true,
     },
-    base: '/Idle-RPG/', // May be needed when deployed to GitHub pages
+    base: `${env.VITE_BASE_URL}/`, // May be needed when deployed to GitHub pages
   };
 });

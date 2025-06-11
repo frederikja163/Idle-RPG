@@ -17,7 +17,7 @@ export const InventoryItem: FC<Props> = React.memo(function InventoryItem(props)
     <BasicTooltip tooltipContent={<ItemTooltip itemId={item.itemId} />}>
       <Column className="bg-gray-200 rounded w-16 h-16 p-1 select-none">
         <Row className="aspect-square overflow-hidden justify-center">
-          <img src={`/assets/items/${item.itemId}.svg`} alt={item.itemId} />
+          <img src={`${import.meta.env.VITE_BASE_URL}/assets/items/${item.itemId}.svg`} alt={item.itemId} />
         </Row>
         <Typography className="row-start-2 col-span-2 text-center">{item.count}</Typography>
       </Column>
