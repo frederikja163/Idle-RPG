@@ -1,4 +1,4 @@
-import React, { type CSSProperties, type FC, type ReactNode, useCallback, useEffect } from 'react';
+import React, { type CSSProperties, type FC, type ReactNode, useCallback, useEffect, useMemo } from 'react';
 import { Column } from '@/front-end/components/layout/column.tsx';
 import { type GatheringActivityDef, type ProcessingActivityDef } from '@/shared/definition/definition-activities.ts';
 import { Image } from '@/front-end/components/ui/image.tsx';
@@ -11,6 +11,7 @@ import { activeActivityAtom } from '@/front-end/state/atoms.tsx';
 import { motion, useAnimation } from 'framer-motion';
 import { useSocket } from '@/front-end/state/socket-provider.tsx';
 import { getMsUntilActionDone } from '@/front-end/lib/utils.ts';
+import { useWindowSize } from '@/front-end/hooks/use-window-size.tsx';
 
 interface Props {
   activityDef: GatheringActivityDef | ProcessingActivityDef;
@@ -23,10 +24,13 @@ export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
   const { activityDef, className, handleStart, children } = props;
 
   const socket = useSocket();
+  const { width } = useWindowSize();
   const animationControls = useAnimation();
   const activeActivity = useAtomValue(activeActivityAtom);
 
   const isActive = activeActivity?.activityId === activityDef.id;
+
+  const cardWidth = useMemo(() => (width < 1000 ? 'w-30' : 'w-40'), [width]);
 
   const handleClick = useCallback(() => {
     if (isActive) {
@@ -69,7 +73,7 @@ export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
   }, [activeActivity, activityDef.time, animationControls, isActive]);
 
   return (
-    <Card className={`p-2 w-48 bg-background relative overflow-hidden ${className}`} onClick={handleClick}>
+    <Card className={`p-2 bg-background relative overflow-hidden ${cardWidth} ${className}`} onClick={handleClick}>
       <motion.div
         animate={animationControls}
         className="absolute h-full w-full -m-2 bg-primary"
@@ -83,7 +87,7 @@ export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
           className="p-6 aspect-square"
         />
         {/* The min-h-16 below is not the ideal way to make equal heights. Should maybe use grids, but it's a big refactor */}
-        <Typography className="text-lg min-h-16">{activityDef.display}</Typography>
+        <Typography className="min-h-16">{activityDef.display}</Typography>
         <Divider />
         {children}
       </Column>

@@ -19,7 +19,7 @@ export const InventoryItem: FC<Props> = React.memo(function InventoryItem(props)
         <Row className="aspect-square overflow-hidden justify-center">
           <img src={`/assets/items/${item.itemId}.svg`} alt={item.itemId} />
         </Row>
-        <Typography className="row-start-2 col-span-2 text-center">{item.count}</Typography>
+        <Typography className="text-sm row-start-2 col-span-2 text-center">{item.count}</Typography>
       </Column>
     </BasicTooltip>
   );
