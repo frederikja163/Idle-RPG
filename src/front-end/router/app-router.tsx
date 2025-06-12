@@ -1,4 +1,4 @@
-﻿import { createBrowserRouter, useNavigate } from 'react-router-dom';
+﻿import { createHashRouter, useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/front-end/router/app-layout.tsx';
 import { AuthRoute } from '@/front-end/router/auth-route.tsx';
 import { routes } from '@/front-end/router/routes.ts';
@@ -19,7 +19,7 @@ function AppProvidersWrapper() {
   );
 }
 
-export const AppRouter = createBrowserRouter(
+export const AppRouter = createHashRouter(
   [
     {
       path: '/',
