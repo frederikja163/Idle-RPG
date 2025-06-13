@@ -5,8 +5,6 @@ import { SocketRegistry } from './sockets/socket-registry';
 import { injectableSingleton } from '../lib/lib-tsyringe';
 import type { SocketId } from '@/shared/socket/socket-types';
 
-const forbiddenPathStrings = ['\\', '..', ':'];
-
 @injectableSingleton()
 export class Server {
   private readonly sockets = new Map<ServerWebSocket, SocketId>();
@@ -39,22 +37,6 @@ export class Server {
 
   public stop() {
     this.server?.stop();
-  }
-
-  private hostAssets(request: Bun.BunRequest<'/assets/*.svg'>) {
-    const url = request.url;
-    const fileName = url.split('/assets/')[1];
-    const path = `./src/front-end/assets/${fileName}`;
-
-    for (const str of forbiddenPathStrings) {
-      if (fileName.includes(str)) {
-        return new Response('Bad request', { status: 400 });
-      }
-    }
-
-    return new Response(file(path), {
-      headers: { 'Content-Type': 'image/svg+xml' },
-    });
   }
 
   private fetch(request: Request, server: Bun.Server) {

@@ -31,7 +31,7 @@ export const useSendSocket = <TEvent extends ServerEvent>(
 
 export const useOnSocket = <TEvent extends ClientEvent>(
   type: TEvent,
-  callback: (socketId: SocketId, data: DataType<ServerClientEvent, TEvent>) => void,
+  callback: (socketId: string, data: DataType<ServerClientEvent, TEvent>) => void,
   skip: boolean = false,
 ) => {
   const socket = useSocket();
