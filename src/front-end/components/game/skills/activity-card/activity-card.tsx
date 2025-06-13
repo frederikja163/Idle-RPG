@@ -78,7 +78,7 @@ export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
       <Column className="gap-2 relative">
         {isActive && <CirclePlay size={30} className="absolute right-0" />}
         <Image
-          src={`/assets/items/${activityDef.result.itemId}.svg`}
+          src={`${import.meta.env.VITE_BASE_URL}/assets/items/${activityDef.result.itemId}.svg`}
           alt={activityDef.result.itemId}
           className="p-6 aspect-square"
         />

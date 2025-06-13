@@ -20,12 +20,13 @@ function AppProvidersWrapper() {
   );
 }
 
-export const AppRouter = createBrowserRouter([
-  {
-    path: '/',
-    element: <AppProvidersWrapper />,
-    children: [
-      {
+export const AppRouter = createBrowserRouter(
+  [
+    {
+      path: '/',
+      element: <AppProvidersWrapper />,
+      children: [
+        {
         element: <SocketRoute />,
         children: [
           {
@@ -59,7 +60,11 @@ export const AppRouter = createBrowserRouter([
       {
         path: routes.noConnection,
         element: <NoConnection />,
-      },
-    ],
+        },
+      ],
+    },
+  ],
+  {
+    basename: import.meta.env.VITE_BASE_URL,
   },
-]);
+);
