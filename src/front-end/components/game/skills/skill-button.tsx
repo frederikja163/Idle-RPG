@@ -22,7 +22,7 @@ export const SkillButton: FC<Props> = React.memo(function SkillButton(props) {
 
   const activeActivityId = useAtomValue(activeActivityAtom)?.activityId;
   const activeActivity = activeActivityId ? activities.get(activeActivityId) : undefined;
-  const isActiveSkill = activeActivity && getActivitySkill(activeActivity) === skill.skillId;
+  const isActiveSkill = activeActivity && getActivitySkill(activeActivity) === skill.id;
   const targetXp = useMemo(() => xpAccum.at(skill.level + 1) ?? skill.xp, [skill.level, skill.xp]);
 
   return (
@@ -32,7 +32,7 @@ export const SkillButton: FC<Props> = React.memo(function SkillButton(props) {
         <Typography>{name}</Typography>
       </Row>
       <Row className="w-1/2">
-        <Image src={`${import.meta.env.VITE_BASE_URL}/assets/skills/${skill.skillId}.svg`} alt={skill.skillId} />
+        <Image src={`${import.meta.env.VITE_BASE_URL}/assets/skills/${skill.id}.svg`} alt={skill.id} />
       </Row>
       <Typography className="text-sm">Level {skill.level}</Typography>
       <ProgressBar value={skill.xp} max={targetXp} />

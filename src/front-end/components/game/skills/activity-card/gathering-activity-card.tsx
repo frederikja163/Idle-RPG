@@ -22,7 +22,7 @@ export const GatheringActivityCard: FC<Props> = React.memo(function GatheringAct
   const handleStart = useCallback(() => {
     if (!hasRequiredLevel) return;
 
-    socket?.send('Activity/StartActivity', { activityId: activityDef.id });
+    socket?.send('Profile/ActivityReplace', { activityId: activityDef.id });
   }, [activityDef.id, hasRequiredLevel, socket]);
 
   return (

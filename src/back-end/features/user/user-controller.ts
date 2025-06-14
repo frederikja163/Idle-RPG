@@ -10,6 +10,7 @@ import type { ServerData, SocketId } from '@/shared/socket/socket-types';
 import { UserService } from './user-service';
 import { OAuth2Client } from 'google-auth-library';
 import { ErrorType, ServerError } from '@/shared/socket/socket-errors';
+import { transformQuery, updateValue } from '@/back-end/core/lib/lib-query-transform';
 
 @injectableSingleton(SocketOpenEventToken)
 export class UserController implements SocketOpenEventListener {
@@ -27,15 +28,15 @@ export class UserController implements SocketOpenEventListener {
     const socket = this.socketHub.requireSocket(socketId)!;
     socket.on('User/Logout', this.handleLogout.bind(this));
     socket.on('User/GoogleLogin', this.handleGoogleLogin.bind(this));
-    socket.on('User/GetUser', this.handleGetUser.bind(this));
-    socket.on('User/SetSettings', this.handleSetSettings.bind(this));
+    socket.on('User/Query', this.handleQuery.bind(this));
+    socket.on('User/Update', this.handleUpdate.bind(this));
   }
 
   private handleLogout(socketId: SocketId, _: ServerData<'User/Logout'>) {
     const userId = this.socketHub.requireUserId(socketId);
     this.userDispatch.emitUserLoggedOut({ userId });
     this.socketHub.setUserId(socketId);
-    this.socketHub.broadcastToSocket(socketId, 'User/LogoutSuccess', {});
+    this.socketHub.broadcastToSocket(socketId, 'User/LoggedOut', {});
   }
 
   private async handleGoogleLogin(socketId: SocketId, data: ServerData<'User/GoogleLogin'>) {
@@ -43,7 +44,6 @@ export class UserController implements SocketOpenEventListener {
       idToken: data.token,
       audience: '758890044013-qq2amlba21ic2fb7drsjavpa16mmkons.apps.googleusercontent.com',
     });
-
     const payload = ticket.getPayload();
     if (!payload) throw new ServerError(ErrorType.InvalidInput);
 
@@ -55,31 +55,30 @@ export class UserController implements SocketOpenEventListener {
     const oldUserId = this.socketHub.getUserId(socketId);
     if (oldUserId) {
       this.userDispatch.emitUserLoggedOut({ userId: oldUserId });
-      this.socketHub.broadcastToSocket(socketId, 'User/LogoutSuccess', {});
+      this.socketHub.broadcastToSocket(socketId, 'User/LoggedOut', {});
     }
 
     const user = await this.userService.getOrCreateByGoogle(googleId, email, profilePicture ?? '');
     this.userDispatch.emitUserLoggedIn({ userId: user.id });
     this.socketHub.setUserId(socketId, user.id);
-    this.socketHub.broadcastToSocket(socketId, 'User/LoginSuccess', {});
+    this.socketHub.broadcastToSocket(socketId, 'User/LoggedIn', {});
   }
 
-  private async handleSetSettings(socketId: SocketId, { settings }: ServerData<'Profile/SetSettings'>) {
-    const userId = this.socketHub.requireProfileId(socketId);
-    const user = await this.userService.getByUserId(userId);
-
-    user.settings = settings;
-    this.userService.updateUser(userId);
-
-    this.socketHub.broadcastToUser(userId, 'User/UpdateUser', {
-      user,
-    });
-  }
-
-  private async handleGetUser(socketId: SocketId, _: ServerData<'User/GetUser'>) {
+  private async handleQuery(socketId: SocketId, { user }: ServerData<'User/Query'>) {
     const userId = await this.socketHub.requireUserId(socketId);
-    const user = await this.userService.getByUserId(userId);
+    const userResult = transformQuery(await this.userService.getByUserId(userId), user);
 
-    this.socketHub.broadcastToSocket(socketId, 'User/UpdateUser', { user });
+    this.socketHub.broadcastToSocket(socketId, 'User/Updated', { user: userResult });
+  }
+
+  private async handleUpdate(socketId: SocketId, { user }: ServerData<'User/Update'>) {
+    const userId = this.socketHub.requireProfileId(socketId);
+    const userResult = updateValue(await this.userService.getByUserId(userId), user);
+
+    await this.userService.updateUser(userId);
+
+    this.socketHub.broadcastToUser(userId, 'User/Updated', {
+      user: userResult,
+    });
   }
 }

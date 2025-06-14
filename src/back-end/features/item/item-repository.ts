@@ -18,12 +18,12 @@ export class ItemRepository {
     await tx.insert(itemsTable).values(items);
   }
 
-  public async updateItem(item: Item, tx: Transaction) {
+  public async update(item: Item, tx: Transaction) {
     await tx
       .insert(itemsTable)
       .values(item)
       .onConflictDoUpdate({
-        target: [itemsTable.profileId, itemsTable.itemId],
+        target: [itemsTable.profileId, itemsTable.id],
         set: item,
       });
   }

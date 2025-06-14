@@ -20,7 +20,7 @@ export function Test() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    socket?.on('User/LoginSuccess', () => setLoggedIn(true));
+    socket?.on('User/LoggedIn', () => setLoggedIn(true));
   }, [socket]);
 
   const handleSuccess = (r: CredentialResponse) => {

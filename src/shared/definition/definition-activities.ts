@@ -110,3 +110,5 @@ export function craftingToolDef(cost: ItemDef, result: ItemDef, skill: SkillDef,
 }
 
 export type ActivityDef = GatheringActivityDef | ProcessingActivityDef | CraftingActivityDef;
+// Note: Changing this value breaks the database schema.
+export const NoActivity = 'None';

@@ -28,11 +28,11 @@ export const AuthProvider: FC<Props> = React.memo(function AuthProvider(props) {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  useOnSocket('User/LoginSuccess', (_, __) => {
+  useOnSocket('User/LoggedIn', (_, __) => {
     setIsLoggedIn(true);
   });
 
-  useOnSocket('User/LogoutSuccess', (_, __) => {
+  useOnSocket('User/LoggedOut', (_, __) => {
     setIsLoggedIn(false);
   });
 
