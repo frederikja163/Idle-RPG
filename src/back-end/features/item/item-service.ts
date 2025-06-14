@@ -35,17 +35,17 @@ export class ItemService implements ProfileSelectedEventListener, ProfileDeselec
     return items;
   }
 
-  public async getItemById(profileId: ProfileId, itemId: ItemId) {
+  public async getItemById(profileId: ProfileId, id: ItemId) {
     if (!this.itemCache.hasProfileId(profileId)) {
       const items = await this.itemRepo.getItemsByProfileId(profileId);
       items.forEach(this.itemCache.store.bind(this.itemCache));
     }
 
-    const cache = this.itemCache.getItemById(profileId, itemId);
+    const cache = this.itemCache.getItemById(profileId, id);
     if (cache) return cache;
     const item = {
       profileId,
-      itemId,
+      id,
       count: 0,
       index: this.itemCache.getItemCount(profileId),
     };
@@ -53,8 +53,12 @@ export class ItemService implements ProfileSelectedEventListener, ProfileDeselec
     return item;
   }
 
-  public update(profileId: ProfileId, itemId: ItemId) {
-    this.dirtyItems.add(profileId, itemId);
+  public update(profileId: ProfileId, id: ItemId) {
+    this.dirtyItems.add(profileId, id);
+  }
+
+  public updateMany(profileId: ProfileId, ids: ItemId[]) {
+    ids.forEach((i) => this.update(profileId, i));
   }
 
   public async onProfileSelected({ profileId }: ProfileSelectedEventData): Promise<void> {
@@ -71,7 +75,7 @@ export class ItemService implements ProfileSelectedEventListener, ProfileDeselec
       await this.db.transaction(async (tx) => {
         for (const [profileId, itemId] of this.dirtyItems.values()) {
           const item = this.itemCache.getItemById(profileId, itemId);
-          if (item) await this.itemRepo.updateItem(item, tx);
+          if (item) await this.itemRepo.update(item, tx);
         }
       });
       this.dirtyItems.clear();

@@ -9,13 +9,21 @@ import { useAtomValue } from 'jotai';
 export const Profiles: FC = React.memo(function Profiles() {
   const profiles = useAtomValue(profilesAtom);
 
-  const data = useMemo(() => ({}), []);
-  useSendSocket('Profile/GetProfiles', data);
+  const data = useMemo(
+    () => ({
+      profiles: {
+        id: true,
+        name: true,
+      },
+    }),
+    [],
+  );
+  useSendSocket('Profile/QueryMany', data);
 
   return (
     <Row className="w-full justify-center flex-wrap gap-6 m-6">
-      {profiles?.map((profile) => <ProfileCard key={profile.id} profile={profile} />)}
-      {profiles?.length < 10 && <ProfileCreator />}
+      {profiles?.values().map((profile) => <ProfileCard key={profile.id} profile={profile} />)}
+      {profiles?.size < 10 && <ProfileCreator />}
     </Row>
   );
 });

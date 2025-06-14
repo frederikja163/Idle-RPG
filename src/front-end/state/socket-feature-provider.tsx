@@ -11,14 +11,20 @@ import {
   selectedProfileIdAtom,
 } from '@/front-end/state/atoms.tsx';
 import { routes } from '@/front-end/router/routes.ts';
-import { getItem, getMsUntilActionDone, getSkill, updateItems, updateSkills } from '@/front-end/lib/utils.ts';
-import { activities, type ActivityDef } from '@/shared/definition/definition-activities';
+import {
+  getItem,
+  getMsUntilActionDone,
+  getSkill,
+  updateItems,
+  updateProfiles,
+  updateSkills,
+} from '@/front-end/lib/utils.ts';
+import { activities, type ActivityDef, type ActivityId } from '@/shared/definition/definition-activities';
 import type { Timeout } from 'react-number-format/types/types';
 import { processActivity } from '@/shared/util/util-activities.ts';
 import type { useNavigate } from 'react-router-dom';
-import type { ClientData, DataType, ServerClientEvent } from '@/shared/socket/socket-types.ts';
+import type { DataType, ServerClientEvent, SocketId } from '@/shared/socket/socket-types.ts';
 import { ErrorType } from '@/shared/socket/socket-errors.ts';
-import { useToast } from '@/front-end/state/toast-provider.tsx';
 
 const SocketFeatureContext = createContext(undefined);
 
@@ -30,19 +36,16 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   const { navigate, children } = props;
 
   const socket = useSocket();
-  const { displayToast } = useToast();
 
   const resetAtoms = useSetAtom(resetAtomsAtom);
   const setProfiles = useSetAtom(profilesAtom);
-  const setSelectedProfileId = useSetAtom(selectedProfileIdAtom);
+  const [selectedProfileId, setSelectedProfileId] = useAtom(selectedProfileIdAtom);
   const setActiveActivity = useSetAtom(activeActivityAtom);
   const [profileItems, setProfileItems] = useAtom(profileItemsAtom);
   const [profileSkills, setProfileSkills] = useAtom(profileSkillsAtom);
 
   const [actionTimeoutId, setActionTimeoutId] = useState<Timeout>();
   const [actionIntervalId, setActionIntervalId] = useState<Timeout>();
-  const [updateItemsFinished, setUpdateItemsFinished] = useState(false);
-  const [updateSkillsFinished, setUpdateSkillsFinished] = useState(false);
 
   const profileItemsRef = useRef(profileItems);
   const profileSkillsRef = useRef(profileSkills);
@@ -54,12 +57,6 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   useEffect(() => {
     profileSkillsRef.current = profileSkills;
   }, [profileSkills]);
-
-  useEffect(() => {
-    if (!updateItemsFinished || !updateSkillsFinished) return;
-
-    socket?.send('Activity/GetActivity', {});
-  }, [socket, updateItemsFinished, updateSkillsFinished]);
 
   const clearTimeouts = useCallback(() => {
     clearTimeout(actionTimeoutId);
@@ -82,60 +79,26 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
     [setProfileItems, setProfileSkills],
   );
 
-  const handleUpdateProfiles = useCallback(
-    (_: string, data: DataType<ServerClientEvent, 'Profile/UpdateProfiles'>) => {
-      setProfiles(data.profiles);
+  const handleUpdatedManyProfiles = useCallback(
+    (_: SocketId, { profiles }: DataType<ServerClientEvent, 'Profile/UpdatedMany'>) => {
+      setProfiles(updateProfiles(profiles));
     },
     [setProfiles],
   );
 
-  const handleSelectProfileSuccess = useCallback(async () => {
-    resetAtoms();
-
-    setUpdateItemsFinished(false);
-    setUpdateSkillsFinished(false);
-
-    socket?.send('Item/GetItems', {});
-    socket?.send('Skill/GetSkills', {});
-
-    navigate(routes.game);
-  }, [navigate, resetAtoms, socket]);
-
-  // TODO: add to all handlers: ClientData and deconstruct data
-  const handleUpdateItems = useCallback(
-    (_: string, { items }: ClientData<'Item/UpdateItems'>) => {
-      setProfileItems(updateItems(items));
-      setUpdateItemsFinished(true);
-    },
-    [setProfileItems],
-  );
-
-  const handleUpdateSkills = useCallback(
-    (_: string, data: DataType<ServerClientEvent, 'Skill/UpdateSkills'>) => {
-      setProfileSkills(updateSkills(data.skills));
-      setUpdateSkillsFinished(true);
-    },
-    [setProfileSkills],
-  );
-
-  const handleNoActivity = useCallback(() => {
-    clearTimeouts();
-    setActiveActivity(undefined);
-  }, [clearTimeouts, setActiveActivity]);
-
   const handleActivityStarted = useCallback(
-    (_: string, data: DataType<ServerClientEvent, 'Activity/ActivityStarted'>) => {
-      setActiveActivity(data);
+    (activityId: ActivityId, activityStart: Date) => {
+      setActiveActivity({ activityId, activityStart });
 
-      const activityDef = activities.get(data.activityId);
+      const activityDef = activities.get(activityId);
       if (!activityDef) return;
 
-      const msUntilActionDone = getMsUntilActionDone(data.activityId, data.activityStart);
+      const msUntilActionDone = getMsUntilActionDone(activityId, activityStart);
       const activityActionTime = activityDef.time;
 
       clearTimeouts();
 
-      const __ = processActivityLocal(activityDef, new Date().getTime() - data.activityStart.getTime());
+      const __ = processActivityLocal(activityDef, new Date().getTime() - activityStart.getTime());
       const timeoutId = setTimeout(() => {
         const _ = processActivityLocal(activityDef, activityActionTime);
 
@@ -151,21 +114,56 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
     [clearTimeouts, processActivityLocal, setActiveActivity],
   );
 
-  const handleActivityStopped = useCallback(
-    (_: string, data: DataType<ServerClientEvent, 'Activity/ActivityStopped'>) => {
-      clearTimeouts();
-      setActiveActivity(undefined);
-      setProfileSkills(updateSkills(data.skills));
-      setProfileItems(updateItems(data.items));
+  const handleUpdated = useCallback(
+    async (_: SocketId, { profile, items, skills }: DataType<ServerClientEvent, 'Profile/Updated'>) => {
+      if (profile && profile.id != selectedProfileId) {
+        resetAtoms();
+        clearTimeouts();
+        setSelectedProfileId(profile.id);
+
+        socket?.send('Profile/Query', {
+          profile: { activityId: true, activityStart: true },
+          items: { index: true, count: true, id: true },
+          skills: { xp: true, level: true, id: true },
+        });
+
+        navigate(routes.game);
+        return;
+      }
+
+      if (items) setProfileItems(updateItems(items));
+      if (skills) setProfileSkills(updateSkills(skills));
+      if (profile && profile.activityId && profile.activityStart) {
+        // TODO: A timeout here is probably not the right solution, but it works? for now??
+        // The problem is that setProfileItems and setProfileSkills only sets the values with a small delay,
+        // and we can only run handleActivityStarted after they are set.
+        setTimeout(() => {
+          if (profile && profile.activityId && profile.activityStart) {
+            handleActivityStarted(profile.activityId, profile.activityStart);
+          }
+        }, 100);
+      } else if (profile?.activityId == 'None') {
+        clearTimeouts();
+        setActiveActivity(undefined);
+      }
     },
-    [clearTimeouts, setActiveActivity, setProfileItems, setProfileSkills],
+    [
+      clearTimeouts,
+      handleActivityStarted,
+      navigate,
+      resetAtoms,
+      selectedProfileId,
+      setActiveActivity,
+      setProfileItems,
+      setProfileSkills,
+      setSelectedProfileId,
+      socket,
+    ],
   );
 
   const handleError = useCallback(
-    (_: string, data: DataType<ServerClientEvent, 'System/Error'>) => {
-      socket?.onError(data.errorType, data.message);
-
-      displayToast(data.message ?? data.errorType.toString(), 'error');
+    (_: SocketId, data: DataType<ServerClientEvent, 'System/Error'>) => {
+      if (socket) socket.onError(data.errorType, data.message);
 
       switch (data.errorType) {
         case ErrorType.RequiresLogin:
@@ -180,16 +178,11 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
           console.warn('No error handling implemented for: ', data.errorType, data.message);
       }
     },
-    [displayToast, setSelectedProfileId, socket],
+    [socket, setSelectedProfileId],
   );
 
-  useOnSocket('Profile/UpdateProfiles', handleUpdateProfiles);
-  useOnSocket('Profile/SelectProfileSuccess', handleSelectProfileSuccess);
-  useOnSocket('Item/UpdateItems', handleUpdateItems);
-  useOnSocket('Skill/UpdateSkills', handleUpdateSkills);
-  useOnSocket('Activity/NoActivity', handleNoActivity);
-  useOnSocket('Activity/ActivityStarted', handleActivityStarted);
-  useOnSocket('Activity/ActivityStopped', handleActivityStopped);
+  useOnSocket('Profile/UpdatedMany', handleUpdatedManyProfiles);
+  useOnSocket('Profile/Updated', handleUpdated);
   useOnSocket('System/Error', handleError);
 
   return <SocketFeatureContext.Provider value={undefined}>{children}</SocketFeatureContext.Provider>;

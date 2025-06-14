@@ -29,7 +29,7 @@ export const ProcessingActivityCard: FC<Props> = React.memo(function ProcessingA
   const handleStart = useCallback(() => {
     if (!hasRequiredLevel || !hasRequiredItems) return;
 
-    socket?.send('Activity/StartActivity', { activityId: activityDef.id });
+    socket?.send('Profile/ActivityReplace', { activityId: activityDef.id });
   }, [activityDef.id, hasRequiredItems, hasRequiredLevel, socket]);
 
   return (
