@@ -1,6 +1,6 @@
 ﻿import React, { type FC, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/front-end/state/auth-provider.tsx';
+import { useAuth } from '@/front-end/state/providers/auth-provider.tsx';
 import { routes } from '@/front-end/router/routes.ts';
 
 export const AuthRoute: FC = React.memo(function AuthRoute() {

@@ -1,8 +1,8 @@
 import React, { type CSSProperties, type FC, type ReactNode, useCallback, useEffect } from 'react';
 import { Column } from '@/front-end/components/layout/column.tsx';
 import {
-  NoActivity,
   type GatheringActivityDef,
+  NoActivity,
   type ProcessingActivityDef,
 } from '@/shared/definition/definition-activities.ts';
 import { Image } from '@/front-end/components/ui/image.tsx';
@@ -13,7 +13,7 @@ import { CirclePlay } from 'lucide-react';
 import { useAtomValue } from 'jotai';
 import { activeActivityAtom } from '@/front-end/state/atoms.tsx';
 import { motion, useAnimation } from 'framer-motion';
-import { useSocket } from '@/front-end/state/socket-provider.tsx';
+import { useSocket } from '@/front-end/state/providers/socket-provider.tsx';
 import { getMsUntilActionDone } from '@/front-end/lib/utils.ts';
 
 interface Props {

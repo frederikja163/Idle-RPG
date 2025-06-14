@@ -5,7 +5,7 @@ import { Login } from '@/front-end/components/pages/login.tsx';
 import { Profiles } from '@/front-end/components/pages/profiles.tsx';
 import { Test } from '@/front-end/components/pages/test.tsx';
 import { Game } from '@/front-end/components/pages/game.tsx';
-import { SocketFeatureProvider } from '@/front-end/state/socket-feature-provider.tsx';
+import { SocketFeatureProvider } from '@/front-end/state/providers/socket-feature-provider.tsx';
 import { NoConnection } from '@/front-end/components/pages/no-connection.tsx';
 import { SocketRoute } from '@/front-end/router/socket-route.tsx';
 
@@ -27,39 +27,39 @@ export const AppRouter = createBrowserRouter(
       element: <AppProvidersWrapper />,
       children: [
         {
-        element: <SocketRoute />,
-        children: [
-          {
-            path: '',
-            element: <Login />,
-          },
-          {
-            path: routes.login,
-            element: <Login />,
-          },
-          {
-            path: routes.test,
-            element: <Test />,
-          },
+          element: <SocketRoute />,
+          children: [
+            {
+              path: '',
+              element: <Login />,
+            },
+            {
+              path: routes.login,
+              element: <Login />,
+            },
+            {
+              path: routes.test,
+              element: <Test />,
+            },
 
-          {
-            element: <AuthRoute />,
-            children: [
-              {
-                path: routes.profiles,
-                element: <Profiles />,
-              },
-              {
-                path: routes.game,
-                element: <Game />,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        path: routes.noConnection,
-        element: <NoConnection />,
+            {
+              element: <AuthRoute />,
+              children: [
+                {
+                  path: routes.profiles,
+                  element: <Profiles />,
+                },
+                {
+                  path: routes.game,
+                  element: <Game />,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          path: routes.noConnection,
+          element: <NoConnection />,
         },
       ],
     },

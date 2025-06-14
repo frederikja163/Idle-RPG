@@ -3,7 +3,7 @@ import { Column } from '@/front-end/components/layout/column.tsx';
 import { Card } from '@/front-end/components/ui/card.tsx';
 import { Trash2 } from 'lucide-react';
 import { Row } from '../layout/row';
-import { useSocket } from '@/front-end/state/socket-provider.tsx';
+import { useSocket } from '@/front-end/state/providers/socket-provider.tsx';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
 import type { Profile } from '@/shared/definition/schema/types/types-profiles.ts';
 import { selectedProfileIdAtom } from '@/front-end/state/atoms.tsx';

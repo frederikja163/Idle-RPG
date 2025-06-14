@@ -10,7 +10,7 @@ import type { ProcessingActivityDef } from '@/shared/definition/definition-activ
 import { ActivityCard } from '@/front-end/components/game/skills/activity-card/activity-card.tsx';
 import { useAtomValue } from 'jotai/index';
 import { profileItemsAtom } from '@/front-end/state/atoms.tsx';
-import { useSocket } from '@/front-end/state/socket-provider.tsx';
+import { useSocket } from '@/front-end/state/providers/socket-provider.tsx';
 
 interface Props {
   activityDef: ProcessingActivityDef;

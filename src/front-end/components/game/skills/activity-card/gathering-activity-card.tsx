@@ -5,7 +5,7 @@ import { Divider } from '@/front-end/components/ui/divider.tsx';
 import { Row } from '@/front-end/components/layout/row.tsx';
 import type { GatheringActivityDef } from '@/shared/definition/definition-activities.ts';
 import { ActivityCard } from '@/front-end/components/game/skills/activity-card/activity-card.tsx';
-import { useSocket } from '@/front-end/state/socket-provider.tsx';
+import { useSocket } from '@/front-end/state/providers/socket-provider.tsx';
 
 interface Props {
   activityDef: GatheringActivityDef;

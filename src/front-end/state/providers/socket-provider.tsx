@@ -1,6 +1,6 @@
 ﻿import React, { createContext, type FC, useContext, useEffect, useState } from 'react';
 import { Socket } from '@/shared/socket/socket.ts';
-import { clientServerEvent, serverClientEvent } from '@/shared/socket/socket-events';
+import { clientServerEvent, serverClientEvent } from '@/shared/socket/socket-events.ts';
 import { TypeCompiler } from '@sinclair/typebox/compiler';
 import type {
   ClientEvent,
