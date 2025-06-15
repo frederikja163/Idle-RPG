@@ -38,5 +38,5 @@ export const ActivitiesGrid: FC<Props> = React.memo(function ActivitiesGrid(prop
     [skill.level, skill.id],
   );
 
-  return <Row className="gap-6 items-start flex-wrap">{activityBoxes}</Row>;
+  return <Row className="gap-4 items-start flex-wrap">{activityBoxes}</Row>;
 });

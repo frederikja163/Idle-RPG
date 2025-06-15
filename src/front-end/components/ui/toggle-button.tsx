@@ -12,7 +12,11 @@ export const ToggleButton: FC<Props> = React.memo(function ToggleButton(props) {
   const { label, pressed, onPressedChanged, children } = props;
 
   return (
-    <Toggle.Root pressed={pressed} onPressedChange={onPressedChanged} aria-label={label} className="cursor-pointer">
+    <Toggle.Root
+      pressed={pressed}
+      onPressedChange={onPressedChanged}
+      aria-label={label}
+      className="cursor-pointer p-2 rounded-full hover:bg-black/10">
       {children}
     </Toggle.Root>
   );

@@ -38,9 +38,9 @@ export const SideTabPane: FC<Props> = React.memo(function SideTabPane(props) {
   const handleCollapsedButton = useCallback((isCollapsed: boolean) => setCollapsed(isCollapsed), []);
 
   return (
-    <Card className="flex p-6 bg-card">
-      <Column className="h-full w-full gap-6">
-        <Row className="gap-6">
+    <Card className="flex p-4 bg-card">
+      <Column className="h-full w-full gap-4">
+        <Row className="gap-4 items-center">
           {collapsable && (
             <ToggleButton pressed={collapsed} onPressedChanged={handleCollapsedButton} label="Toggle buttons">
               {collapsed ? <PanelLeftOpen /> : <PanelLeftClose />}

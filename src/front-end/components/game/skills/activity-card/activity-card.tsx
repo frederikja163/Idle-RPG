@@ -1,8 +1,8 @@
 import React, { type CSSProperties, type FC, type ReactNode, useCallback, useEffect, useMemo } from 'react';
 import { Column } from '@/front-end/components/layout/column.tsx';
 import {
-  NoActivity,
   type GatheringActivityDef,
+  NoActivity,
   type ProcessingActivityDef,
 } from '@/shared/definition/definition-activities.ts';
 import { Image } from '@/front-end/components/ui/image.tsx';
@@ -77,7 +77,9 @@ export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
   }, [activeActivity, activityDef.time, animationControls, isActive]);
 
   return (
-    <Card className={`p-2 bg-background relative overflow-hidden ${cardWidth} ${className}`} onClick={handleClick}>
+    <Card
+      className={`p-2 bg-background relative overflow-hidden grow ${cardWidth} max-w-40 ${className}`}
+      onClick={handleClick}>
       <motion.div
         animate={animationControls}
         className="absolute h-full w-full -m-2 bg-primary"
