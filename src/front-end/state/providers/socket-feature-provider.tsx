@@ -139,6 +139,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
         // and we can only run startActivity after they are set.
         setTimeout(() => {
           if (profile && profile.activityId && profile.activityStart) {
+            console.log('👺');
             startActivity(profile.activityId, profile.activityStart);
           }
         }, 100);

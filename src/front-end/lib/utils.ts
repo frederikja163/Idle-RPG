@@ -51,6 +51,8 @@ export const updateSkills = (updatedSkills: Partial<Skill>[]) => (existingSkills
 export const updateItems = (updatedItems: Partial<Item>[]) => (existingItems: Map<ItemId, Partial<Item>>) => {
   const items = new Map(existingItems);
 
+  console.error('item 👺');
+
   for (const item of updatedItems) {
     if (item.id) {
       const existing = items.get(item.id);
