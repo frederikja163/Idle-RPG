@@ -1,10 +1,7 @@
-import { injectableSingleton } from "@/back-end/core/lib/lib-tsyringe";
-import type { ProfileId } from "@/shared/definition/schema/types/types-profiles";
-import type {
-  Skill,
-  SkillId,
-} from "@/shared/definition/schema/types/types-skills";
-import { Table } from "@/shared/lib/table";
+import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
+import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
+import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skills';
+import { Table } from '@/shared/lib/table';
 
 @injectableSingleton()
 export class SkillCache {
@@ -31,6 +28,6 @@ export class SkillCache {
   }
 
   public store(skill: Skill) {
-    this.skillCache.add(skill.profileId, skill.skillId, skill);
+    this.skillCache.add(skill.profileId, skill.id, skill);
   }
 }

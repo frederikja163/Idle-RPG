@@ -15,7 +15,7 @@ export const profilesTable = sqliteTable(
     lastLogin: int('last_login', { mode: 'timestamp_ms' })
       .notNull()
       .default(sql`(current_timestamp)`),
-    activityId: text('activity_id').default(sql`NULL`),
+    activityId: text('activity_id').notNull().default('None'),
     activityStart: int('activity_start', { mode: 'timestamp_ms' }).default(sql`NULL`),
     settings: text('settings').notNull().default(''),
   },

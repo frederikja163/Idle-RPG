@@ -7,12 +7,12 @@ import { useSocket } from '@/front-end/state/socket-provider.tsx';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
 import type { Profile } from '@/shared/definition/schema/types/types-profiles.ts';
 import { selectedProfileIdAtom } from '@/front-end/state/atoms.tsx';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/front-end/router/routes.ts';
 
 interface Props {
-  profile: Profile;
+  profile: Partial<Profile>;
 }
 
 export const ProfileCard: FC<Props> = React.memo(function ProfileCard(props) {
@@ -21,7 +21,7 @@ export const ProfileCard: FC<Props> = React.memo(function ProfileCard(props) {
   const socket = useSocket();
   const navigate = useNavigate();
 
-  const [selectedProfileId, setSelectedProfileId] = useAtom(selectedProfileIdAtom);
+  const selectedProfileId = useAtomValue(selectedProfileIdAtom);
 
   const isSelected = selectedProfileId === profile.id;
 
@@ -29,23 +29,21 @@ export const ProfileCard: FC<Props> = React.memo(function ProfileCard(props) {
     (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       event.stopPropagation();
 
-      setSelectedProfileId(profile.id);
-
       if (isSelected) {
         navigate(routes.game);
         return;
       }
 
-      socket?.send('Profile/SelectProfile', { profileId: profile.id });
+      socket?.send('Profile/Select', { profileId: profile.id! });
     },
-    [setSelectedProfileId, profile.id, isSelected, socket, navigate],
+    [profile.id, isSelected, socket, navigate],
   );
 
   const deleteProfile = useCallback(
     (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
       event.stopPropagation();
 
-      socket?.send('Profile/DeleteProfile', { profileId: profile.id });
+      socket?.send('Profile/Delete', { profileId: profile.id! });
     },
     [socket, profile.id],
   );

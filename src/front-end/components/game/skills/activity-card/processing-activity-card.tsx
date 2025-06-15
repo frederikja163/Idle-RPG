@@ -29,7 +29,7 @@ export const ProcessingActivityCard: FC<Props> = React.memo(function ProcessingA
   const handleStart = useCallback(() => {
     if (!hasRequiredLevel || !hasRequiredItems) return;
 
-    socket?.send('Activity/StartActivity', { activityId: activityDef.id });
+    socket?.send('Profile/ActivityReplace', { activityId: activityDef.id });
   }, [activityDef.id, hasRequiredItems, hasRequiredLevel, socket]);
 
   return (
@@ -48,7 +48,7 @@ export const ProcessingActivityCard: FC<Props> = React.memo(function ProcessingA
         <Row className={`w-full m-1 rounded-sm ${hasRequiredLevel && !hasRequiredItems ? 'bg-red-300' : ''}`}>
           <BasicTooltip tooltipContent={<ItemTooltip itemId={activityDef.cost.itemId} />}>
             <Image
-              src={`/assets/items/${activityDef.cost.itemId}.svg`}
+              src={`${import.meta.env.VITE_BASE_URL}/assets/items/${activityDef.cost.itemId}.svg`}
               alt={activityDef.cost.itemId}
               className="p-1 aspect-square"
             />

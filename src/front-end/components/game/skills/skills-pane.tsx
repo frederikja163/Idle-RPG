@@ -5,7 +5,6 @@ import { useAtomValue } from 'jotai';
 import { profileSkillsAtom } from '@/front-end/state/atoms.tsx';
 import { SkillButton } from './skill-button';
 import { skills as skillDefinitions } from '@/shared/definition/definition-skills.ts';
-import type { Skill } from '@/shared/definition/schema/types/types-skills.ts';
 
 export const SkillsPane: FC = React.memo(function SkillsPane() {
   const profileSkills = useAtomValue(profileSkillsAtom);
@@ -15,11 +14,12 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
       skillDefinitions
         .entries()
         .map(([id, skillDef]) => {
-          const profileSkill: Skill = profileSkills?.get(id) ?? {
+          const profileSkill = {
             profileId: '',
-            skillId: id,
+            id,
             xp: 0,
             level: 0,
+            ...profileSkills?.get(id),
           };
 
           return {
