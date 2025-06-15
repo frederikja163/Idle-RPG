@@ -33,5 +33,5 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
 
   if (!skillTabs) return;
 
-  return <SideTabPane title="Skills" tabs={skillTabs} />;
+  return <SideTabPane title="Skills" tabs={skillTabs} collapsable />;
 });
