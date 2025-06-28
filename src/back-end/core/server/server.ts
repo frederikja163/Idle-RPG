@@ -40,6 +40,13 @@ export class Server {
   }
 
   private fetch(request: Request, server: Bun.Server) {
+    const url = new URL(request.url);
+
+    switch (url.pathname) {
+      case '/health':
+        return new Response('OK', { status: 200 });
+    }
+
     if (server.upgrade(request)) {
       return;
     }
