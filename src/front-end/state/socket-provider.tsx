@@ -11,6 +11,7 @@ import type {
   SocketId,
 } from '@/shared/socket/socket-types.ts';
 import type { ProviderProps } from '@/front-end/lib/types.ts';
+import type { Timeout } from 'react-number-format/types/types';
 
 const SocketContext = createContext<ClientSocket | null>(null);
 export const useSocket = () => useContext(SocketContext);
@@ -45,14 +46,11 @@ export const useOnSocket = <TEvent extends ClientEvent>(
 
 type ClientSocket = Socket<typeof serverClientEvent, typeof clientServerEvent>;
 
-async function clientSocket(ws: WebSocket) {
-  await new Promise<void>((resolve) => {
-    if (ws.readyState == ws.OPEN) {
-      resolve();
-    } else {
-      ws.addEventListener('open', () => resolve(), { once: true });
-    }
-  });
+function clientSocket(ws: WebSocket) {
+  if (ws.readyState !== ws.OPEN) {
+    throw new Error('WebSocket not open. Cannot create client socket.');
+  }
+
   const socket = new Socket<typeof serverClientEvent, typeof clientServerEvent>(
     TypeCompiler.Compile(serverClientEvent),
     ws.send.bind(ws),
@@ -67,18 +65,44 @@ export const SocketProvider: FC<ProviderProps> = React.memo(function SocketProvi
   const [socket, setSocket] = useState<ClientSocket | null>(null);
 
   useEffect(() => {
-    if (socket) return;
-
     const url = import.meta.env.VITE_BACKEND_URL;
-
     if (!url) {
       console.warn('No backend url, you should add it to .env');
       return;
     }
 
-    const ws = new WebSocket(url);
-    clientSocket(ws).then(setSocket);
-  }, [socket]);
+    let retries = 0;
+    let retryTimeout: Timeout | undefined;
+
+    const connect = () => {
+      const ws = new WebSocket(url);
+
+      ws.addEventListener('open', () => {
+        retries = 0;
+        const cs = clientSocket(ws);
+        setSocket(cs);
+      });
+
+      ws.addEventListener('close', () => {
+        setSocket(null);
+
+        retries++;
+        const delayMs = 5000 * retries;
+
+        console.warn(`Server connection lost. Attempting to reconnect in ${delayMs / 1000} seconds.`);
+
+        retryTimeout = setTimeout(connect, delayMs);
+      });
+    };
+
+    connect();
+
+    return () => {
+      if (retryTimeout) {
+        clearTimeout(retryTimeout);
+      }
+    };
+  }, []);
 
   return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;
 });
