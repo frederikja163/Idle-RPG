@@ -87,7 +87,7 @@ export const SocketProvider: FC<ProviderProps> = React.memo(function SocketProvi
         setSocket(null);
 
         retries++;
-        const delayMs = 5000 * retries;
+        const delayMs = 1000 * retries;
 
         console.warn(`Server connection lost. Attempting to reconnect in ${delayMs / 1000} seconds.`);
 
