@@ -21,7 +21,7 @@ export const InventoryItem: FC<Props> = React.memo(function InventoryItem(props)
         <Row className="aspect-square overflow-hidden justify-center">
           <img src={`${import.meta.env.VITE_BASE_URL}/assets/items/${item.id}.svg`} alt={item.id} />
         </Row>
-        <Typography className="row-start-2 col-span-2 text-center">{item.count}</Typography>
+        <Typography className="text-sm row-start-2 col-span-2 text-center">{item.count}</Typography>
       </Column>
     </BasicTooltip>
   );
