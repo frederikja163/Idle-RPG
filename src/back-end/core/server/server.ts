@@ -20,6 +20,9 @@ export class Server {
 
     this.server = serve({
       port: process.env.PORT,
+      routes: {
+        '/health': new Response('OK', { status: 200 }),
+      },
       fetch: this.fetch,
       websocket: {
         open: this.socketOpen.bind(this),
@@ -40,13 +43,6 @@ export class Server {
   }
 
   private fetch(request: Request, server: Bun.Server) {
-    const url = new URL(request.url);
-
-    switch (url.pathname) {
-      case '/health':
-        return new Response('OK', { status: 200 });
-    }
-
     if (server.upgrade(request)) {
       return;
     }
