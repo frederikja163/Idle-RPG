@@ -23,8 +23,10 @@ import { activities, type ActivityDef, type ActivityId } from '@/shared/definiti
 import type { Timeout } from 'react-number-format/types/types';
 import { processActivity } from '@/shared/util/util-activities.ts';
 import type { useNavigate } from 'react-router-dom';
-import type { DataType, ServerClientEvent, SocketId } from '@/shared/socket/socket-types.ts';
-import { ErrorType } from '@/shared/socket/socket-errors.ts';
+import type { ClientData, SocketId } from '@/shared/socket/socket-types.ts';
+import { errorMessages, ErrorType } from '@/shared/socket/socket-errors.ts';
+import { useToast } from '@/front-end/state/toast-provider.tsx';
+import { dateTimeFormat } from '@/front-end/lib/date-time-consts.ts';
 
 const SocketFeatureContext = createContext(undefined);
 
@@ -36,6 +38,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   const { navigate, children } = props;
 
   const socket = useSocket();
+  const { displayToast } = useToast();
 
   const resetAtoms = useSetAtom(resetAtomsAtom);
   const setProfiles = useSetAtom(profilesAtom);
@@ -80,7 +83,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   );
 
   const handleUpdatedManyProfiles = useCallback(
-    (_: SocketId, { profiles }: DataType<ServerClientEvent, 'Profile/UpdatedMany'>) => {
+    (_: SocketId, { profiles }: ClientData<'Profile/UpdatedMany'>) => {
       setProfiles(updateProfiles(profiles));
     },
     [setProfiles],
@@ -115,7 +118,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   );
 
   const handleUpdated = useCallback(
-    async (_: SocketId, { profile, items, skills }: DataType<ServerClientEvent, 'Profile/Updated'>) => {
+    async (_: SocketId, { profile, items, skills }: ClientData<'Profile/Updated'>) => {
       if (profile && profile.id != selectedProfileId) {
         resetAtoms();
         clearTimeouts();
@@ -162,10 +165,12 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   );
 
   const handleError = useCallback(
-    (_: SocketId, data: DataType<ServerClientEvent, 'System/Error'>) => {
-      if (socket) socket.onError(data.errorType, data.message);
+    (_: SocketId, { errorType, message }: ClientData<'System/Error'>) => {
+      socket?.onError(errorType, message);
 
-      switch (data.errorType) {
+      displayToast(errorMessages[errorType], 'error');
+
+      switch (errorType) {
         case ErrorType.RequiresLogin:
           setSelectedProfileId(undefined);
           return;
@@ -175,15 +180,23 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
           return;
 
         default:
-          console.warn('No error handling implemented for: ', data.errorType, data.message);
+          console.warn('No error handling implemented for: ', errorType, message);
       }
     },
-    [socket, setSelectedProfileId],
+    [socket, displayToast, setSelectedProfileId],
+  );
+
+  const handleShutdown = useCallback(
+    (_: SocketId, { time, reason }: ClientData<'System/Shutdown'>) => {
+      displayToast(`Scheduled shutdown ${time.toLocaleString(undefined, dateTimeFormat)}. ${reason}`);
+    },
+    [displayToast],
   );
 
   useOnSocket('Profile/UpdatedMany', handleUpdatedManyProfiles);
   useOnSocket('Profile/Updated', handleUpdated);
   useOnSocket('System/Error', handleError);
+  useOnSocket('System/Shutdown', handleShutdown);
 
   return <SocketFeatureContext.Provider value={undefined}>{children}</SocketFeatureContext.Provider>;
 });
