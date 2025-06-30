@@ -20,6 +20,9 @@ export class Server {
 
     this.server = serve({
       port: process.env.PORT,
+      routes: {
+        '/health': new Response('OK', { status: 200 }),
+      },
       fetch: this.fetch,
       websocket: {
         open: this.socketOpen.bind(this),

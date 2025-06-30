@@ -1,4 +1,4 @@
-﻿import { createBrowserRouter, Outlet, useNavigate } from 'react-router-dom';
+﻿import { createHashRouter, Outlet, useNavigate } from 'react-router-dom';
 import { AuthRoute } from '@/front-end/router/auth-route.tsx';
 import { routes } from '@/front-end/router/routes.ts';
 import { Login } from '@/front-end/components/pages/login.tsx';
@@ -20,13 +20,12 @@ function AppProvidersWrapper() {
   );
 }
 
-export const AppRouter = createBrowserRouter(
-  [
-    {
-      path: '/',
-      element: <AppProvidersWrapper />,
-      children: [
-        {
+export const AppRouter = createHashRouter([
+  {
+    path: '/',
+    element: <AppProvidersWrapper />,
+    children: [
+      {
           element: <SocketRoute />,
           children: [
             {
@@ -60,11 +59,7 @@ export const AppRouter = createBrowserRouter(
         {
           path: routes.noConnection,
           element: <NoConnection />,
-        },
-      ],
-    },
-  ],
-  {
-    basename: import.meta.env.VITE_BASE_URL,
+      },
+    ],
   },
-);
+]);
