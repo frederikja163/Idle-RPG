@@ -166,6 +166,9 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
       if (socket) socket.onError(data.errorType, data.message);
 
       switch (data.errorType) {
+        case ErrorType.Desync:
+          // TODO: Implement handling for a desync.
+          return;
         case ErrorType.RequiresLogin:
           setSelectedProfileId(undefined);
           return;
