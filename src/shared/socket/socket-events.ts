@@ -106,5 +106,5 @@ export const serverClientEvent = Type.Union([
 ]);
 
 function event<T1 extends TLiteralValue, T2 extends TProperties>(type: T1, data: T2) {
-  return Type.Object({ type: Type.Literal(type), data: Type.Object(data) });
+  return Type.Object({ type: Type.Literal(type), messageCount: Type.Number(), data: Type.Object(data) });
 }

@@ -16,12 +16,14 @@ export class Socket<TIncoming extends AllEvents, TOutgoing extends AllEvents> {
   private readonly _send: (data: string) => void;
   private readonly _events = new Map<EventType<TIncoming>, (data: object) => Promise<void> | void>();
   private readonly _typeCheck: TypeCheck<TIncoming>;
+  private messageCount: number;
 
   public readonly id: SocketId = crypto.randomUUID();
 
   constructor(typeCheck: TypeCheck<TIncoming>, send: (data: string) => void) {
     this._send = send;
     this._typeCheck = typeCheck;
+    this.messageCount = 0;
   }
 
   public close() {
@@ -39,17 +41,21 @@ export class Socket<TIncoming extends AllEvents, TOutgoing extends AllEvents> {
     }
 
     try {
-      const { type, data } = object as {
+      const { type, messageCount, data } = object as {
         type: EventType<TIncoming>;
+        messageCount: number;
         data: object;
       };
-      const event = this._events.get(type);
-      if (event) {
-        await event(data);
-        return;
+      this.messageCount += 1;
+      console.log(messageCount, this.messageCount);
+      if (messageCount != this.messageCount) {
+        this.messageCount = messageCount;
+        throw new ServerError(ErrorType.Desync, 'Server and client got desynchronized.');
       }
+      const event = this._events.get(type);
+      if (!event) throw new ServerError(ErrorType.InternalError, `No event of type ${type} found.`);
 
-      console.log(`No event of type ${type} found.`);
+      await event(data);
     } catch (error) {
       if (error instanceof ServerError) {
         this.onError(error.errorType, error.message);
@@ -61,7 +67,9 @@ export class Socket<TIncoming extends AllEvents, TOutgoing extends AllEvents> {
   }
 
   public send<TEvent extends EventType<TOutgoing>>(event: TEvent, data: DataType<TOutgoing, TEvent>) {
-    const obj = { type: event, data: data };
+    this.messageCount += 1;
+    console.log(this.messageCount);
+    const obj = { type: event, messageCount: this.messageCount, data: data };
     const json = JSON.stringify(obj);
     this._send(json);
   }
