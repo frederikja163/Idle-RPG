@@ -133,8 +133,6 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
         return;
       }
 
-      // TODO: Ryk noget af der her ind i den nye provider
-
       if (items) setProfileItems(updateItems(items));
       if (skills) setProfileSkills(updateSkills(skills));
       if (profile && profile.activityId && profile.activityStart) {
