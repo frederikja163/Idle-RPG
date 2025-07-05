@@ -116,9 +116,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
 
   const handleProfileUpdated = useCallback(
     async (_: SocketId, { profile, items, skills }: DataType<ServerClientEvent, 'Profile/Updated'>) => {
-      console.log('🍆');
       if (profile && profile.id && profile.id != selectedProfileId) {
-        console.log('✝️');
         resetAtoms();
         clearTimeouts();
         setSelectedProfileId(profile.id);
@@ -141,7 +139,6 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
         // and we can only run startActivity after they are set.
         setTimeout(() => {
           if (profile && profile.activityId && profile.activityStart) {
-            console.log('👺');
             startActivity(profile.activityId, profile.activityStart);
           }
         }, 100);
