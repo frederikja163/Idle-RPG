@@ -1,5 +1,5 @@
 import { GoogleLogin } from '@react-oauth/google';
-import { useAuth } from '@/front-end/state/providers/auth-provider.tsx';
+import { useAuth } from '@/front-end/providers/auth-provider.tsx';
 import { Column } from '@/front-end/components/layout/column.tsx';
 import React, { type FC, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';

@@ -8,7 +8,7 @@ import { Modal } from '@/front-end/components/ui/modal.tsx';
 import { Button } from '@/front-end/components/ui/button.tsx';
 import { Column } from '@/front-end/components/layout/column.tsx';
 import { getFormData } from '@/front-end/lib/utils.ts';
-import { useSocket } from '@/front-end/state/providers/socket-provider.tsx';
+import { useSocket } from '@/front-end/providers/socket-provider.tsx';
 
 interface ProfileForm {
   name: string;

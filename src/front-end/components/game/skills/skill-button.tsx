@@ -8,7 +8,7 @@ import { Image } from '@/front-end/components/ui/image.tsx';
 import { Row } from '@/front-end/components/layout/row.tsx';
 import { CirclePlay } from 'lucide-react';
 import { useAtomValue } from 'jotai/index';
-import { activeActivityAtom } from '@/front-end/state/atoms.tsx';
+import { activeActivityAtom } from '@/front-end/store/atoms.tsx';
 import { activities } from '@/shared/definition/definition-activities.ts';
 import { getActivitySkill } from '@/shared/util/util-activity-skill-map';
 

@@ -1,6 +1,6 @@
 import React, { createContext, type FC, useCallback, useEffect, useRef, useState } from 'react';
-import type { ProviderProps } from '@/front-end/lib/types.ts';
-import { useOnSocket, useSocket } from '@/front-end/state/providers/socket-provider.tsx';
+import type { ProviderProps } from '@/front-end/types/provider-types.ts';
+import { useOnSocket, useSocket } from '@/front-end/providers/socket-provider.tsx';
 import { useAtom, useSetAtom } from 'jotai/index';
 import {
   activeActivityAtom,
@@ -9,7 +9,7 @@ import {
   profileSkillsAtom,
   resetAtomsAtom,
   selectedProfileIdAtom,
-} from '@/front-end/state/atoms.tsx';
+} from '@/front-end/store/atoms.tsx';
 import { routes } from '@/front-end/router/routes.ts';
 import {
   getItem,
@@ -116,7 +116,9 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
 
   const handleProfileUpdated = useCallback(
     async (_: SocketId, { profile, items, skills }: DataType<ServerClientEvent, 'Profile/Updated'>) => {
+      console.log('🍆');
       if (profile && profile.id && profile.id != selectedProfileId) {
+        console.log('✝️');
         resetAtoms();
         clearTimeouts();
         setSelectedProfileId(profile.id);
@@ -130,6 +132,8 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
         navigate(routes.game);
         return;
       }
+
+      // TODO: Ryk noget af der her ind i den nye provider
 
       if (items) setProfileItems(updateItems(items));
       if (skills) setProfileSkills(updateSkills(skills));

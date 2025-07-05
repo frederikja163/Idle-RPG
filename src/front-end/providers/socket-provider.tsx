@@ -10,7 +10,7 @@ import type {
   ServerEvent,
   SocketId,
 } from '@/shared/socket/socket-types.ts';
-import type { ProviderProps } from '@/front-end/lib/types.ts';
+import type { ProviderProps } from '@/front-end/types/provider-types.ts';
 import type { Timeout } from 'react-number-format/types/types';
 
 const SocketContext = createContext<ClientSocket | null>(null);
