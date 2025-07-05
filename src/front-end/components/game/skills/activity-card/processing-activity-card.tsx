@@ -9,8 +9,8 @@ import { Image } from '@/front-end/components/ui/image.tsx';
 import type { ProcessingActivityDef } from '@/shared/definition/definition-activities.ts';
 import { ActivityCard } from '@/front-end/components/game/skills/activity-card/activity-card.tsx';
 import { useAtomValue } from 'jotai/index';
-import { profileItemsAtom } from '@/front-end/state/atoms.tsx';
-import { useSocket } from '@/front-end/state/socket-provider.tsx';
+import { profileItemsAtom } from '@/front-end/store/atoms.tsx';
+import { useSocket } from '@/front-end/providers/socket-provider.tsx';
 
 interface Props {
   activityDef: ProcessingActivityDef;

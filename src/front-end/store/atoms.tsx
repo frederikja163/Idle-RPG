@@ -25,6 +25,8 @@ export const activeActivityAtom = atomWithReset<{ activityId: ActivityId; activi
 activeActivityAtom.debugLabel = 'activeActivityAtom';
 
 export const resetAtomsAtom = atom(null, (_, set) => {
+  console.debug('Reset atoms');
+
   set(profileItemsAtom, RESET);
   set(selectedInventoryTabAtom, RESET);
   set(profileSkillsAtom, RESET);

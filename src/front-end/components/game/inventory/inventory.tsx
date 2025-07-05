@@ -5,9 +5,9 @@ import { InventoryItem } from '@/front-end/components/game/inventory/inventory-i
 import { Card } from '@/front-end/components/ui/card.tsx';
 import { InventoryTab } from '@/front-end/components/game/inventory/inventory-tab.tsx';
 import { useAtomValue } from 'jotai';
-import { profileItemsAtom, selectedInventoryTabAtom } from '@/front-end/state/atoms.tsx';
+import { profileItemsAtom, selectedInventoryTabAtom } from '@/front-end/store/atoms.tsx';
 import { items as itemDefinitions } from '@/shared/definition/definition-items.ts';
-import { inventoryTabMap } from '@/front-end/lib/inventory-consts.ts';
+import { inventoryTabMap } from '@/front-end/constants/inventory-consts.ts';
 
 export const Inventory: FC = React.memo(function Inventory() {
   const selectedTab = useAtomValue(selectedInventoryTabAtom);
