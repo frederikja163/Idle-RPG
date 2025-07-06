@@ -25,6 +25,7 @@ import { processActivity } from '@/shared/util/util-activities.ts';
 import type { useNavigate } from 'react-router-dom';
 import type { DataType, ServerClientEvent, SocketId } from '@/shared/socket/socket-types.ts';
 import { ErrorType } from '@/shared/socket/socket-errors.ts';
+import { useSync } from '@/front-end/hooks/use-sync.tsx';
 
 const SocketFeatureContext = createContext(undefined);
 
@@ -36,6 +37,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   const { navigate, children } = props;
 
   const socket = useSocket();
+  const sync = useSync();
 
   const resetAtoms = useSetAtom(resetAtomsAtom);
   const setProfiles = useSetAtom(profilesAtom);
@@ -167,8 +169,9 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
 
       switch (data.errorType) {
         case ErrorType.Desync:
-          // TODO: Implement handling for a desync.
+          sync();
           return;
+
         case ErrorType.RequiresLogin:
           setSelectedProfileId(undefined);
           return;
@@ -181,7 +184,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
           console.warn('No error handling implemented for: ', data.errorType, data.message);
       }
     },
-    [socket, setSelectedProfileId],
+    [socket, sync, setSelectedProfileId],
   );
 
   useOnSocket('Profile/UpdatedMany', handleUpdatedManyProfiles);

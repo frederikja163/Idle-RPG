@@ -1,0 +1,31 @@
+import { useCallback } from 'react';
+import { routes } from '@/front-end/router/routes.ts';
+import { useSetAtom } from 'jotai/index';
+import { resetAtomsAtom, selectedProfileIdAtom } from '@/front-end/state/atoms.tsx';
+import { useSocket } from '@/front-end/state/socket-provider.tsx';
+import { useNavigate } from 'react-router-dom';
+import { useAtom } from 'jotai';
+
+export const useSync = () => {
+  const navigate = useNavigate();
+  const socket = useSocket();
+
+  const resetAtoms = useSetAtom(resetAtomsAtom);
+  const [selectedProfileId, setSelectedProfileId] = useAtom(selectedProfileIdAtom);
+
+  const sync = useCallback(() => {
+    if (!selectedProfileId) {
+      navigate(routes.profiles);
+      return;
+    }
+
+    const profileId = selectedProfileId;
+
+    resetAtoms();
+    setSelectedProfileId(undefined);
+
+    socket?.send('Profile/Select', { profileId });
+  }, [navigate, resetAtoms, selectedProfileId, setSelectedProfileId, socket]);
+
+  return sync;
+};
