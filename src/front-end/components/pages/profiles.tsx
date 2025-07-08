@@ -2,8 +2,8 @@ import React, { type FC, useMemo } from 'react';
 import { Row } from '@/front-end/components/layout/row.tsx';
 import { ProfileCard } from '@/front-end/components/profiles/profile-card.tsx';
 import { ProfileCreator } from '@/front-end/components/profiles/profile-creator.tsx';
-import { useSendSocket } from '@/front-end/state/socket-provider.tsx';
-import { profilesAtom } from '@/front-end/state/atoms.tsx';
+import { useSendSocket } from '@/front-end/providers/socket-provider.tsx';
+import { profilesAtom } from '@/front-end/store/atoms.tsx';
 import { useAtomValue } from 'jotai';
 
 export const Profiles: FC = React.memo(function Profiles() {
