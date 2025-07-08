@@ -16,14 +16,16 @@ export class Socket<TIncoming extends AllEvents, TOutgoing extends AllEvents> {
   private readonly _send: (data: string) => void;
   private readonly _events = new Map<EventType<TIncoming>, (data: object) => Promise<void> | void>();
   private readonly _typeCheck: TypeCheck<TIncoming>;
-  private messageCount: number;
+  private messagesReceived: number;
+  private messagesSent: number;
 
   public readonly id: SocketId = crypto.randomUUID();
 
   constructor(typeCheck: TypeCheck<TIncoming>, send: (data: string) => void) {
     this._send = send;
     this._typeCheck = typeCheck;
-    this.messageCount = 0;
+    this.messagesReceived = 0;
+    this.messagesSent = 0;
   }
 
   public close() {
@@ -46,10 +48,9 @@ export class Socket<TIncoming extends AllEvents, TOutgoing extends AllEvents> {
         messageCount: number;
         data: object;
       };
-      this.messageCount += 1;
-      console.log(messageCount, this.messageCount);
-      if (messageCount != this.messageCount) {
-        this.messageCount = messageCount;
+      this.messagesReceived += 1;
+      if (messageCount != this.messagesReceived) {
+        this.messagesReceived = messageCount;
         throw new ServerError(ErrorType.Desync, 'Server and client got desynchronized.');
       }
       const event = this._events.get(type);
@@ -67,9 +68,8 @@ export class Socket<TIncoming extends AllEvents, TOutgoing extends AllEvents> {
   }
 
   public send<TEvent extends EventType<TOutgoing>>(event: TEvent, data: DataType<TOutgoing, TEvent>) {
-    this.messageCount += 1;
-    console.log(this.messageCount);
-    const obj = { type: event, messageCount: this.messageCount, data: data };
+    this.messagesSent += 1;
+    const obj = { type: event, messageCount: this.messagesSent, data: data };
     const json = JSON.stringify(obj);
     this._send(json);
   }
