@@ -24,6 +24,7 @@ export const useSync = () => {
     resetAtoms();
     setSelectedProfileId(undefined);
 
+    console.debug('🔁 Syncing with server');
     socket?.send('Profile/Select', { profileId });
   }, [navigate, resetAtoms, selectedProfileId, setSelectedProfileId, socket]);
 
