@@ -8,17 +8,17 @@ import { Game } from '@/front-end/components/pages/game.tsx';
 import { SocketFeatureProvider } from '@/front-end/providers/socket-feature-provider.tsx';
 import { NoConnection } from '@/front-end/components/pages/no-connection.tsx';
 import { SocketRoute } from '@/front-end/router/socket-route.tsx';
-import { ActionResyncService } from '@/front-end/services/action-resync-service.tsx';
+import { ResyncService } from '@/front-end/services/resync-service.tsx';
 
-// Needed to pass navigate to some providers
 // TODO: try to remove this by splitting up SocketFeatureProvider
+// Needed to pass navigate to some providers
 function AppProvidersWrapper() {
   const navigate = useNavigate();
 
   return (
     <SocketFeatureProvider navigate={navigate}>
       <>
-        <ActionResyncService />
+        <ResyncService />
         <Outlet />
       </>
     </SocketFeatureProvider>

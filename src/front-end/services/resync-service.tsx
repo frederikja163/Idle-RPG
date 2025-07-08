@@ -4,7 +4,7 @@ import { useSync } from '@/front-end/hooks/use-sync.tsx';
 
 const minHiddenMs = 1000 * 5;
 
-export const ActionResyncService: FC = React.memo(function ActionResyncService() {
+export const ResyncService: FC = React.memo(function ActionResyncService() {
   const isTabActive = useVisibility();
   const sync = useSync();
 
