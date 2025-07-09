@@ -14,6 +14,7 @@ export const Profiles: FC = React.memo(function Profiles() {
       profiles: {
         id: true,
         name: true,
+        activityId: true,
       },
     }),
     [],
