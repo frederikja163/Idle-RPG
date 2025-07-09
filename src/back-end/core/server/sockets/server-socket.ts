@@ -13,12 +13,12 @@ export class ServerSocket extends Socket<ClientServerEvent, ServerClientEvent> {
   }
 
   public error(error: ErrorType) {
-    this.send('System/Error', { errorType: error, message: '' });
+    this.send('Connection/Error', { errorType: error, message: '' });
   }
 
   public onError(errorType?: ErrorType, message?: string): void {
     if (!errorType) super.onError(errorType, message);
-    this.send('System/Error', {
+    this.send('Connection/Error', {
       errorType: errorType ?? ErrorType.InternalError,
       message: message,
     });

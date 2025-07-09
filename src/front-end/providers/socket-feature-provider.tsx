@@ -164,7 +164,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   );
 
   const handleError = useCallback(
-    (_: SocketId, data: DataType<ServerClientEvent, 'System/Error'>) => {
+    (_: SocketId, data: DataType<ServerClientEvent, 'Connection/Error'>) => {
       if (socket) socket.onError(data.errorType, data.message);
 
       switch (data.errorType) {
@@ -189,7 +189,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
 
   useOnSocket('Profile/UpdatedMany', handleManyProfilesUpdated);
   useOnSocket('Profile/Updated', handleProfileUpdated);
-  useOnSocket('System/Error', handleError);
+  useOnSocket('Connection/Error', handleError);
 
   return <SocketFeatureContext.Provider value={undefined}>{children}</SocketFeatureContext.Provider>;
 });

@@ -76,6 +76,7 @@ const skillDtos = createDtos(skillSchema, [], ['profileId']);
 const skillManyDtos = createManyDtos(skillDtos);
 
 export const clientServerEvent = Type.Union([
+  event('Connection/Ping', {}),
   event('User/GoogleLogin', { token: Type.String() }),
   event('User/Logout', {}),
   event('User/Query', { user: userDtos.query }),
@@ -90,14 +91,15 @@ export const clientServerEvent = Type.Union([
 ]);
 
 export const serverClientEvent = Type.Union([
-  event('System/Error', {
+  event('Connection/Error', {
     errorType: Type.Enum(ErrorType),
     message: Type.Optional(Type.String()),
   }),
-  event('System/Shutdown', {
+  event('Connection/Shutdown', {
     reason: Type.String(),
     time: Type.Date(),
   }),
+  event('Connection/Pong', {}),
   event('User/LoggedIn', {}),
   event('User/LoggedOut', {}),
   event('User/Updated', { user: userDtos.result }),
