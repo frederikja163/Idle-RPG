@@ -5,3 +5,4 @@ import './core/events/orchestrators/socket-lifecycle-orchestrator';
 
 import './features/user/user-controller';
 import './features/profile/profile-controller';
+import './features/connection/connection-controller';

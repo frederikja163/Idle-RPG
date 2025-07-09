@@ -1,7 +1,7 @@
 import {
-  SocketOpenEventToken,
   type SocketOpenEventData,
   type SocketOpenEventListener,
+  SocketOpenEventToken,
 } from '@/back-end/core/events/socket-event';
 import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 import { SocketHub } from '@/back-end/core/server/sockets/socket-hub';
@@ -16,7 +16,7 @@ export class ConnectionController implements SocketOpenEventListener {
     socket?.on('Connection/Ping', this.handlePing.bind(this));
   }
 
-  private handlePing(socketId: SocketId, {}: ServerData<'Connection/Ping'>) {
+  private handlePing(socketId: SocketId, _: ServerData<'Connection/Ping'>) {
     this.socketHub.broadcastToSocket(socketId, 'Connection/Pong', {});
   }
 }
