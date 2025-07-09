@@ -163,6 +163,8 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
     ],
   );
 
+  const handlePong = useCallback(() => console.debug('Received pong'), []);
+
   const handleError = useCallback(
     (_: SocketId, data: DataType<ServerClientEvent, 'Connection/Error'>) => {
       if (socket) socket.onError(data.errorType, data.message);
@@ -189,6 +191,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
 
   useOnSocket('Profile/UpdatedMany', handleManyProfilesUpdated);
   useOnSocket('Profile/Updated', handleProfileUpdated);
+  useOnSocket('Connection/Pong', handlePong);
   useOnSocket('Connection/Error', handleError);
 
   return <SocketFeatureContext.Provider value={undefined}>{children}</SocketFeatureContext.Provider>;
