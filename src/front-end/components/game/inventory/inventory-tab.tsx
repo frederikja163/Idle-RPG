@@ -2,7 +2,7 @@
 import { Typography } from '@/front-end/components/ui/typography.tsx';
 import { selectedInventoryTabAtom } from '@/front-end/store/atoms.tsx';
 import { useAtom } from 'jotai';
-import { Row } from '@/front-end/components/layout/row.tsx';
+import { Row } from '@/front-end/components/ui/layout/row.tsx';
 
 interface Props {
   label: string;

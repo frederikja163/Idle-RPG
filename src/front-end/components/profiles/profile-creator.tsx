@@ -2,11 +2,11 @@
 import { Card } from '@/front-end/components/ui/card.tsx';
 import { Plus } from 'lucide-react';
 import { Form } from 'radix-ui';
-import { Input } from '@/front-end/components/ui/input.tsx';
+import { Input } from '@/front-end/components/ui/input/input.tsx';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
 import { Modal } from '@/front-end/components/ui/modal.tsx';
-import { Button } from '@/front-end/components/ui/button.tsx';
-import { Column } from '@/front-end/components/layout/column.tsx';
+import { Button } from '@/front-end/components/ui/input/button.tsx';
+import { Column } from '@/front-end/components/ui/layout/column.tsx';
 import { getFormData } from '@/front-end/lib/utils.ts';
 import { useSocket } from '@/front-end/providers/socket-provider.tsx';
 
@@ -67,7 +67,7 @@ export const ProfileCreator: FC = React.memo(function ProfileCreator() {
       description="Enter profile details"
       isOpen={isOpen}
       onClose={closeModal}>
-      <Card onClick={openModal} className="w-64 h-96 p-4 flex items-center justify-center">
+      <Card onClick={openModal} className="w-60 h-96 p-4 flex items-center justify-center cursor-pointer">
         <Plus size={100} />
       </Card>
     </Modal>

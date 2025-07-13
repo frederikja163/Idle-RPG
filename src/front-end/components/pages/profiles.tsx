@@ -1,5 +1,5 @@
 import React, { type FC, useMemo } from 'react';
-import { Row } from '@/front-end/components/layout/row.tsx';
+import { Row } from '@/front-end/components/ui/layout/row.tsx';
 import { ProfileCard } from '@/front-end/components/profiles/profile-card.tsx';
 import { ProfileCreator } from '@/front-end/components/profiles/profile-creator.tsx';
 import { useSendSocket } from '@/front-end/providers/socket-provider.tsx';
@@ -15,6 +15,8 @@ export const Profiles: FC = React.memo(function Profiles() {
         id: true,
         name: true,
         activityId: true,
+        firstLogin: true,
+        lastLogin: true,
       },
     }),
     [],
@@ -23,7 +25,7 @@ export const Profiles: FC = React.memo(function Profiles() {
 
   return (
     <Row className="w-full justify-center flex-wrap gap-6 m-6">
-      {profiles?.values().map((profile) => <ProfileCard key={profile.id} profile={profile} />)}
+      {profiles?.values().map((profile) => <ProfileCard key={`${profile.id}${Date.now()}`} profile={profile} />)}
       {profiles?.size < 10 && <ProfileCreator />}
     </Row>
   );

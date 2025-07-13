@@ -1,7 +1,15 @@
-﻿import React, {type FC, type HTMLProps} from 'react';
+﻿import React, { type FC, type HTMLProps } from 'react';
 
-export const Typography: FC<HTMLProps<HTMLParagraphElement>> = React.memo(function Typography(props) {
-  const {children} = props;
+interface Props extends HTMLProps<HTMLParagraphElement> {
+  noWrap?: boolean;
+}
 
-  return <p {...props}>{children}</p>;
+export const Typography: FC<Props> = React.memo(function Typography(props) {
+  const { children, className, noWrap } = props;
+
+  return (
+    <p {...props} className={`${noWrap ? 'text-nowrap overflow-hidden overflow-ellipsis' : ''} ${className}`}>
+      {children}
+    </p>
+  );
 });

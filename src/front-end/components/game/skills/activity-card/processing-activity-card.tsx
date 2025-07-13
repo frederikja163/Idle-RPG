@@ -1,8 +1,8 @@
 import React, { type FC, useCallback } from 'react';
 import { ActivitySlot } from '@/front-end/components/game/skills/activity-card/activity-slot.tsx';
 import { Clock } from 'lucide-react';
-import { Divider } from '@/front-end/components/ui/divider.tsx';
-import { Row } from '@/front-end/components/layout/row.tsx';
+import { Divider } from '@/front-end/components/ui/layout/divider.tsx';
+import { Row } from '@/front-end/components/ui/layout/row.tsx';
 import { BasicTooltip } from '@/front-end/components/ui/basic-tooltip.tsx';
 import { ItemTooltip } from '@/front-end/components/game/item-tooltip.tsx';
 import { Image } from '@/front-end/components/ui/image.tsx';

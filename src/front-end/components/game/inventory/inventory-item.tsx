@@ -1,7 +1,7 @@
 ﻿import React, { type FC } from 'react';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { Column } from '@/front-end/components/layout/column.tsx';
-import { Row } from '@/front-end/components/layout/row.tsx';
+import { Column } from '@/front-end/components/ui/layout/column.tsx';
+import { Row } from '@/front-end/components/ui/layout/row.tsx';
 import { BasicTooltip } from '@/front-end/components/ui/basic-tooltip.tsx';
 import { ItemTooltip } from '@/front-end/components/game/item-tooltip.tsx';
 import type { Item } from '@/shared/definition/schema/types/types-items.ts';

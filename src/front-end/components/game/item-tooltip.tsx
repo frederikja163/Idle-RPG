@@ -1,7 +1,7 @@
 ﻿import React, { type FC } from 'react';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { Column } from '@/front-end/components/layout/column.tsx';
-import { Row } from '@/front-end/components/layout/row.tsx';
+import { Column } from '@/front-end/components/ui/layout/column.tsx';
+import { Row } from '@/front-end/components/ui/layout/row.tsx';
 import { Card } from '@/front-end/components/ui/card.tsx';
 import { items } from '@/shared/definition/definition-items';
 import { LabelBox } from '@/front-end/components/ui/label-box.tsx';
