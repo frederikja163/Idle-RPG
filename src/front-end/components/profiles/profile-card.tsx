@@ -74,7 +74,7 @@ export const ProfileCard: FC<Props> = React.memo(function ProfileCard(props) {
   );
 
   const deleteProfile = useCallback(
-    (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+    (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       event.stopPropagation();
 
       socket?.send('Profile/Delete', { profileId: profile.id! });
@@ -85,15 +85,15 @@ export const ProfileCard: FC<Props> = React.memo(function ProfileCard(props) {
   // TODO: add label boks her nede
   return (
     <Card
-      className={`flex flex-col w-52 h-96 cursor-pointer overflow-hidden ${isSelected ? 'shadow-2xl' : ''}`}
+      className={`flex flex-col w-60 h-96 cursor-pointer overflow-hidden ${isSelected ? 'shadow-2xl' : ''}`}
       onClick={selectProfile}>
       <Row className="bg-primary w-full h-1/3 p-4">{activityImage}</Row>
       <Column className="grow p-2">
         <Typography className="text-lg">{profile?.name}</Typography>
         <Label>hej</Label>
         <Row className="w-full justify-end mt-auto">
-          <Row className="bg-red-400 p-2 rounded-full">
-            <Trash2 onClick={deleteProfile} color="#f0f0f0" />
+          <Row onClick={deleteProfile} className="bg-red-400 p-2 rounded-full">
+            <Trash2 color="#f0f0f0" />
           </Row>
         </Row>
       </Column>

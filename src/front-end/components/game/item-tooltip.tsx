@@ -4,6 +4,7 @@ import { Column } from '@/front-end/components/layout/column.tsx';
 import { Row } from '@/front-end/components/layout/row.tsx';
 import { Card } from '@/front-end/components/ui/card.tsx';
 import { items } from '@/shared/definition/definition-items';
+import { LabelBox } from '@/front-end/components/ui/label-box.tsx';
 
 interface Props {
   itemId: string;
@@ -18,13 +19,7 @@ export const ItemTooltip: FC<Props> = React.memo(function ItemTooltip(props) {
     <Card className="p-2">
       <Column>
         <Typography className="font-bold text-center">{item?.display}</Typography>
-        <Row className="gap-2">
-          {item?.tags.map((tag) => (
-            <Typography key={tag + Date.now()} className="p-1 rounded bg-gray-200 leading-tight">
-              {tag}
-            </Typography>
-          ))}
-        </Row>
+        <Row className="gap-2">{item?.tags.map((tag) => <LabelBox key={tag + Date.now()} text={tag} />)}</Row>
       </Column>
     </Card>
   );
