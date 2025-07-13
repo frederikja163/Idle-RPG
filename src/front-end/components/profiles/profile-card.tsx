@@ -6,7 +6,7 @@ import { Row } from '@/front-end/components/ui/layout/row';
 import { useSocket } from '@/front-end/providers/socket-provider.tsx';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
 import type { Profile } from '@/shared/definition/schema/types/types-profiles.ts';
-import { profilesAtom, selectedProfileIdAtom } from '@/front-end/store/atoms.tsx';
+import { selectedProfileIdAtom } from '@/front-end/store/atoms.tsx';
 import { useAtomValue } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/front-end/router/routes.ts';
@@ -18,9 +18,8 @@ import { nameOf } from '@/front-end/lib/function-utils.ts';
 import { RoundButton } from '@/front-end/components/ui/input/round-button.tsx';
 import { LabeledText } from '@/front-end/components/ui/labeled-text.tsx';
 import { BasicTooltip } from '@/front-end/components/ui/basic-tooltip.tsx';
-import { Modal } from '@/front-end/components/ui/modal.tsx';
-import { Button } from '@/front-end/components/ui/input/button.tsx';
-import { useSetAtom } from 'jotai/index';
+import { dateTimeNoSeconds } from '@/front-end/constants/datetime-consts.ts';
+import { Dialog } from '@/front-end/components/ui/modals/dialog.tsx';
 
 interface Props {
   profile: Partial<Profile>;
@@ -32,7 +31,6 @@ export const ProfileCard: FC<Props> = React.memo((props) => {
   const socket = useSocket();
   const navigate = useNavigate();
 
-  const setProfiles = useSetAtom(profilesAtom);
   const selectedProfileId = useAtomValue(selectedProfileIdAtom);
 
   const isSelected = selectedProfileId === profile.id;
@@ -68,10 +66,13 @@ export const ProfileCard: FC<Props> = React.memo((props) => {
     );
   }, [activityDef]);
 
+  const openDeleteModal = useCallback(() => setDeleteModalOpen(true), []);
+  const closeDeleteModal = useCallback(() => setDeleteModalOpen(false), []);
+
   const selectProfile = useCallback(
     (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       event.stopPropagation();
-      console.log('💔💔💔💔');
+      
       if (isSelected) {
         navigate(routes.game);
         return;
@@ -82,29 +83,9 @@ export const ProfileCard: FC<Props> = React.memo((props) => {
     [profile.id, isSelected, socket, navigate],
   );
 
-  const deleteProfile = useCallback(() => {
-    socket?.send('Profile/Delete', { profileId: profile.id! });
-    // setProfiles()
-  }, [socket, profile.id]);
-
-  const promptDelete = useCallback(() => setDeleteModalOpen(true), []);
-
-  const closeModal = useCallback(() => {
-    setDeleteModalOpen(false);
-  }, []);
-
-  const modalContent = useMemo(
-    () => (
-      <Row className="justify-center gap-6">
-        <Button onClick={deleteProfile} className="bg-red-400 hover:bg-red-400/60">
-          Delete
-        </Button>
-        <Button onClick={closeModal} variant="outline">
-          Cancel
-        </Button>
-      </Row>
-    ),
-    [closeModal, deleteProfile],
+  const deleteProfile = useCallback(
+    () => socket?.send('Profile/Delete', { profileId: profile.id! }),
+    [socket, profile.id],
   );
 
   return (
@@ -128,20 +109,30 @@ export const ProfileCard: FC<Props> = React.memo((props) => {
           </Row>
           <Column className="gap-2 opacity-80">
             <LabeledText label="Current activity" text={activityDef?.display ?? 'Inactive'} />
-            <LabeledText label="First login" text={profile.firstLogin?.toLocaleString() ?? 'Unknown'} />
-            <LabeledText label="Last login" text={profile.lastLogin?.toLocaleString() ?? 'Unknown'} />
+            <LabeledText
+              label="First login"
+              text={profile.firstLogin?.toLocaleString(undefined, dateTimeNoSeconds) ?? 'Unknown'}
+            />
+            <LabeledText
+              label="Last login"
+              text={profile.lastLogin?.toLocaleString(undefined, dateTimeNoSeconds) ?? 'Unknown'}
+            />
           </Column>
-          <RoundButton onClick={promptDelete} className="bg-red-400 hover:bg-red-400/60 absolute bottom-0 right-0 m-2">
+          <RoundButton
+            onClick={openDeleteModal}
+            className="bg-red-400 hover:bg-red-400/60 absolute bottom-0 right-0 m-2">
             <Trash2 color="#f0f0f0" />
           </RoundButton>
         </Column>
       </Card>
-      <Modal
+      <Dialog
         title="Delete profile"
         description={`Are you sure you want to delete profile named: ${profile.name}?`}
-        content={modalContent}
         isOpen={deleteModalOpen}
-        onClose={closeModal}
+        actionText="Delete"
+        onAction={deleteProfile}
+        onCancel={closeDeleteModal}
+        actionButtonClassName="bg-red-400 hover:bg-red-400/60"
       />
     </>
   );

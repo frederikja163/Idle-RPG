@@ -24,7 +24,7 @@ export const Profiles: FC = React.memo(function Profiles() {
   useSendSocket('Profile/QueryMany', data);
 
   return (
-    <Row className="w-full justify-center flex-wrap gap-6 m-6">
+    <Row className="w-full justify-center flex-wrap gap-6 p-6">
       {profiles?.values().map((profile) => <ProfileCard key={`${profile.id}${Date.now()}`} profile={profile} />)}
       {profiles?.size < 10 && <ProfileCreator />}
     </Row>

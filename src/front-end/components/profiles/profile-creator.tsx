@@ -4,7 +4,7 @@ import { Plus } from 'lucide-react';
 import { Form } from 'radix-ui';
 import { Input } from '@/front-end/components/ui/input/input.tsx';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { Modal } from '@/front-end/components/ui/modal.tsx';
+import { Modal } from '@/front-end/components/ui/modals/modal.tsx';
 import { Button } from '@/front-end/components/ui/input/button.tsx';
 import { Column } from '@/front-end/components/ui/layout/column.tsx';
 import { getFormData } from '@/front-end/lib/utils.ts';

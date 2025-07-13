@@ -19,14 +19,15 @@ interface Props {
   title: string;
   tabs: Tab[];
   collapsable?: boolean;
+  initialTabIndex?: number;
 }
 
 export const SideTabPane: FC<Props> = React.memo(function SideTabPane(props) {
-  const { title, tabs, collapsable } = props;
+  const { title, tabs, collapsable, initialTabIndex = 0 } = props;
 
   const { width } = useWindowSize();
 
-  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+  const [selectedTabIndex, setSelectedTabIndex] = useState(initialTabIndex);
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
@@ -52,7 +53,6 @@ export const SideTabPane: FC<Props> = React.memo(function SideTabPane(props) {
         <Row className="h-full">
           {!collapsed && (
             <>
-              {' '}
               <Column className="gap-4">
                 {tabs.map((tab, i) => (
                   <SideTabButton

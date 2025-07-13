@@ -5,7 +5,7 @@ import { SkillsPane } from '@/front-end/components/game/skills/skills-pane.tsx';
 
 export const Game: FC = React.memo(function Game() {
   return (
-    <Column className="m-6 gap-6">
+    <Column className="p-6 gap-6">
       <Inventory />
       <SkillsPane />
     </Column>

@@ -9,16 +9,10 @@ import {
   profileSkillsAtom,
   resetAtomsAtom,
   selectedProfileIdAtom,
+  selectedSkillTabAtom,
 } from '@/front-end/store/atoms.tsx';
 import { routes } from '@/front-end/router/routes.ts';
-import {
-  getItem,
-  getMsUntilActionDone,
-  getSkill,
-  updateItems,
-  updateProfiles,
-  updateSkills,
-} from '@/front-end/lib/utils.ts';
+import { getItem, getMsUntilActionDone, getSkill, updateItems, updateSkills } from '@/front-end/lib/utils.ts';
 import { activities, type ActivityDef, type ActivityId } from '@/shared/definition/definition-activities.ts';
 import type { Timeout } from 'react-number-format/types/types';
 import { processActivity } from '@/shared/util/util-activities.ts';
@@ -26,6 +20,9 @@ import type { useNavigate } from 'react-router-dom';
 import type { DataType, ServerClientEvent, SocketId } from '@/shared/socket/socket-types.ts';
 import { ErrorType } from '@/shared/socket/socket-errors.ts';
 import { useSync } from '@/front-end/hooks/use-sync.tsx';
+import { arrayToMap } from '@/front-end/lib/array-utils.ts';
+import type { Profile } from '@/shared/definition/schema/types/types-profiles.ts';
+import { activitySkillMap } from '@/shared/util/util-activity-skill-map.ts';
 
 const SocketFeatureContext = createContext(undefined);
 
@@ -41,6 +38,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
 
   const resetAtoms = useSetAtom(resetAtomsAtom);
   const setProfiles = useSetAtom(profilesAtom);
+  const setSelectedSkillTab = useSetAtom(selectedSkillTabAtom);
   const [selectedProfileId, setSelectedProfileId] = useAtom(selectedProfileIdAtom);
   const setActiveActivity = useSetAtom(activeActivityAtom);
   const [profileItems, setProfileItems] = useAtom(profileItemsAtom);
@@ -111,7 +109,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
 
   const handleManyProfilesUpdated = useCallback(
     (_: SocketId, { profiles }: DataType<ServerClientEvent, 'Profile/UpdatedMany'>) => {
-      setProfiles(updateProfiles(profiles));
+      setProfiles(arrayToMap(profiles as Profile[], 'id'));
     },
     [setProfiles],
   );
@@ -136,6 +134,15 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
       if (items) setProfileItems(updateItems(items));
       if (skills) setProfileSkills(updateSkills(skills));
       if (profile && profile.activityId && profile.activityStart) {
+        const activity = activities.get(profile.activityId);
+        if (activity?.id) {
+          const skillId = activitySkillMap
+            .entries()
+            .find(([_, activityIds]) => activityIds.includes(activity.id))
+            ?.at(0);
+          if (typeof skillId === 'string') setSelectedSkillTab(skillId);
+        }
+        
         // TODO: A timeout here is probably not the right solution, but it works? for now??
         // The problem is that setProfileItems and setProfileSkills only sets the values with a small delay,
         // and we can only run startActivity after they are set.
@@ -150,16 +157,17 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
       }
     },
     [
-      clearTimeouts,
-      startActivity,
-      navigate,
-      resetAtoms,
       selectedProfileId,
-      setActiveActivity,
       setProfileItems,
       setProfileSkills,
+      resetAtoms,
+      clearTimeouts,
       setSelectedProfileId,
       socket,
+      navigate,
+      setSelectedSkillTab,
+      startActivity,
+      setActiveActivity,
     ],
   );
 

@@ -4,15 +4,15 @@ import { Card } from '@/front-end/components/ui/card.tsx';
 import { X } from 'lucide-react';
 import { Row } from '@/front-end/components/ui/layout/row.tsx';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
+import { cardCva, contentCva, overlayCva, titleCva } from '@/front-end/components/ui/modals/styles.ts';
 
 interface Props {
   children?: ReactNode | ReactNode[];
   content?: ReactNode | ReactNode[];
-  title?: string;
+  title: string;
   description?: ReactNode | ReactNode[];
   isOpen?: boolean;
-
-  onClose?(): void;
+  onClose?: () => void;
 }
 
 export const Modal: FC<Props> = React.memo(function Modal(props) {
@@ -30,18 +30,22 @@ export const Modal: FC<Props> = React.memo(function Modal(props) {
     <Dialog.Root open={isOpen}>
       <Dialog.Trigger>{children}</Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed bg-black opacity-40" style={{ inset: 0 }} />
-        <Dialog.Content className="fixed top-1/2 left-1/2">
-          <Card className="flex flex-col p-6 gap-6" style={{ transform: 'translate(-50%, -50%)' }}>
+        <Dialog.Overlay className={overlayCva()} />
+        <Dialog.Content className={contentCva()}>
+          <Card className={cardCva()}>
             <Row>
               <Dialog.Title className="grow">
-                <Typography className="text-xl">{title}</Typography>
+                <Typography className={titleCva()}>{title}</Typography>
               </Dialog.Title>
               <Dialog.Close onClick={onClose ? handleClose : undefined} className="cursor-pointer">
                 <X />
               </Dialog.Close>
             </Row>
-            {description && <Dialog.Description>{description}</Dialog.Description>}
+            {description && (
+              <Dialog.Description>
+                <Typography>{description}</Typography>
+              </Dialog.Description>
+            )}
             {content}
           </Card>
         </Dialog.Content>
