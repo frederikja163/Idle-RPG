@@ -1,5 +1,5 @@
 import React, { createContext, type FC, type ReactNode, useCallback, useContext, useState } from 'react';
-import type { ProviderProps } from '@/front-end/lib/types.ts';
+import type { ProviderProps } from '@/front-end/types/provider-types.ts';
 import { Toast } from 'radix-ui';
 
 // TODO: move this guy?

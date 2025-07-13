@@ -28,7 +28,9 @@ function shutdown() {
   time.setMinutes(time.getMinutes() + 10);
 
   const socketRegistry = container.resolve(SocketRegistry);
-  socketRegistry.getAllSockets().forEach((s) => s.send('System/Shutdown', { reason: 'Scheduled maintenance.', time }));
+  socketRegistry
+    .getAllSockets()
+    .forEach((s) => s.send('Connection/Shutdown', { reason: 'Scheduled maintenance.', time }));
 
   console.log('Shutting down in 10 minutes.');
   setTimeout(
