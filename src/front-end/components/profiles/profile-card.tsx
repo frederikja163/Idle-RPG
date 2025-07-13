@@ -13,6 +13,7 @@ import { routes } from '@/front-end/router/routes.ts';
 import { activities, type ItemAmount } from '@/shared/definition/definition-activities.ts';
 import { Array } from '@sinclair/typebox';
 import { Image } from '@/front-end/components/ui/image';
+import { Label } from '../ui/label';
 
 interface Props {
   profile: Partial<Profile>;
@@ -81,18 +82,19 @@ export const ProfileCard: FC<Props> = React.memo(function ProfileCard(props) {
     [socket, profile.id],
   );
 
+  // TODO: add label boks her nede
   return (
     <Card
-      className={`bg-primary w-64 h-96 p-4 cursor-pointer ${isSelected ? 'shadow-2xl' : ''}`}
+      className={`flex flex-col w-52 h-96 cursor-pointer overflow-hidden ${isSelected ? 'shadow-2xl' : ''}`}
       onClick={selectProfile}>
-      <Column className="h-full items-center justify-between">
-        {activityImage}
-        {/*<Image src={`${import.meta.env.VITE_BASE_URL}/assets/items/${activityDef?.result.itemId}.svg`} alt={} />*/}
-        <Typography className={`text-center text-lg ${isSelected ? 'font-bold' : ''}`}>{profile?.name}</Typography>
-        <Row className="w-full justify-end">
-          <div className="flex p-2">
-            <Trash2 onClick={deleteProfile} />
-          </div>
+      <Row className="bg-primary w-full h-1/3 p-4">{activityImage}</Row>
+      <Column className="grow p-2">
+        <Typography className="text-lg">{profile?.name}</Typography>
+        <Label>hej</Label>
+        <Row className="w-full justify-end mt-auto">
+          <Row className="bg-red-400 p-2 rounded-full">
+            <Trash2 onClick={deleteProfile} color="#f0f0f0" />
+          </Row>
         </Row>
       </Column>
     </Card>

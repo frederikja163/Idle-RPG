@@ -67,7 +67,7 @@ export const ProfileCreator: FC = React.memo(function ProfileCreator() {
       description="Enter profile details"
       isOpen={isOpen}
       onClose={closeModal}>
-      <Card onClick={openModal} className="bg-primary w-64 h-96 p-4 flex items-center justify-center">
+      <Card onClick={openModal} className="w-64 h-96 p-4 flex items-center justify-center">
         <Plus size={100} />
       </Card>
     </Modal>
