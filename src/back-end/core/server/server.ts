@@ -2,9 +2,8 @@ import { file, serve, type ServerWebSocket } from 'bun';
 import { ServerSocket } from './sockets/server-socket';
 import { SocketEventDispatcher } from '../events/socket-dispatcher';
 import { SocketRegistry } from './sockets/socket-registry';
-import { injectableSingleton } from '../lib/lib-tsyringe';
+import { injectableSingleton, resolveAll } from '../lib/lib-tsyringe';
 import type { SocketId } from '@/shared/socket/socket-types';
-import { CleanupEventDispatcher } from '../events/cleanup-dispatcher';
 import { PageToken, type Page } from './page';
 import { injectAll } from 'tsyringe';
 
@@ -14,17 +13,16 @@ export class Server {
   private server?: Bun.Server;
 
   constructor(
-    @injectAll(PageToken) private readonly pages: Page<string>[],
     private readonly socketRegistry: SocketRegistry,
     private readonly socketDispatcher: SocketEventDispatcher,
-    private readonly cleanupDispatcher: CleanupEventDispatcher,
   ) {}
 
   public start() {
-    if (this.server) this.server.stop();
+    if (this.server) return;
 
     const routes: Record<string, Bun.RouterTypes.RouteValue<string>> = {};
-    for (const page of this.pages) {
+    const pages = resolveAll(PageToken);
+    for (const page of pages) {
       routes[page.route] = page.handler;
     }
 
@@ -47,27 +45,7 @@ export class Server {
   }
 
   public stop() {
-    console.log('Stopping new connections.');
     this.server?.stop();
-
-    console.log('Broadcasting shutdown.');
-    const time = new Date();
-    time.setMinutes(time.getMinutes() + 10);
-
-    this.socketRegistry
-      .getAllSockets()
-      .forEach((s) => s.send('Connection/Shutdown', { reason: 'Scheduled maintenance.', time }));
-
-    console.log('Shutting down in 10 minutes.');
-    setTimeout(
-      () => {
-        console.log('Running final cleanup');
-        this.cleanupDispatcher.cleanup();
-        console.log('Shut down.');
-        process.exit(0);
-      },
-      10 * 60 * 1000,
-    );
   }
 
   private fetch(request: Request, server: Bun.Server) {

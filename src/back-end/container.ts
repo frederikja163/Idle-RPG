@@ -7,3 +7,4 @@ import './features/profile/profile-controller';
 import './features/connection/connection-controller';
 
 import './features/pages/health';
+import './features/pages/stop';
