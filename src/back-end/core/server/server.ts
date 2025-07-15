@@ -4,21 +4,30 @@ import { SocketEventDispatcher } from '../events/socket-dispatcher';
 import { SocketRegistry } from './sockets/socket-registry';
 import { injectableSingleton, resolveAll } from '../lib/lib-tsyringe';
 import type { SocketId } from '@/shared/socket/socket-types';
-import { PageToken, type Page } from './page';
-import { injectAll } from 'tsyringe';
+import { PageToken } from './page';
 
 @injectableSingleton()
 export class Server {
   private readonly sockets = new Map<ServerWebSocket, SocketId>();
   private server?: Bun.Server;
+  private _startTime?: Date;
 
   constructor(
     private readonly socketRegistry: SocketRegistry,
     private readonly socketDispatcher: SocketEventDispatcher,
   ) {}
 
+  public get startTime(): Date {
+    if (!this._startTime) {
+      throw new Error('Must start server to have start time.');
+    }
+    return this._startTime;
+  }
+
   public start() {
     if (this.server) return;
+
+    this._startTime = new Date();
 
     const routes: Record<string, Bun.RouterTypes.RouteValue<string>> = {};
     const pages = resolveAll(PageToken);
