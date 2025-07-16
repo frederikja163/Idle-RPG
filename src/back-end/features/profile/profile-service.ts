@@ -45,7 +45,10 @@ export class ProfileService
   public async getProfilesByUserId(userId: UserId) {
     // As of now we dont cache here since it is unlikely for a user to query all profiles multiple times.
     // It is much more likely they will query all profiles once and then only a single profile from then on out.
-    return await this.profileRepo.findByUserId(userId);
+    return (await this.profileRepo.findByUserId(userId)).map((repoProfile) => {
+      const cacheProfile = this.profileCache.getProfileById(repoProfile.id);
+      return cacheProfile ?? repoProfile;
+    });
   }
 
   public async getProfileById(profileId: ProfileId) {
