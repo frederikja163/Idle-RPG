@@ -4,14 +4,15 @@ import { Tooltip } from 'radix-ui';
 interface Props {
   children: ReactNode | ReactNode[];
   tooltipContent: ReactNode;
+  delayDuration?: number;
 }
 
 export const BasicTooltip: FC<Props> = React.memo(function BasicTooltip(props) {
-  const { children, tooltipContent } = props;
+  const { children, tooltipContent, delayDuration = 100 } = props;
 
   return (
     <Tooltip.Provider>
-      <Tooltip.Root delayDuration={100}>
+      <Tooltip.Root delayDuration={delayDuration}>
         <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
         <Tooltip.Portal>
           <Tooltip.Content>{tooltipContent}</Tooltip.Content>

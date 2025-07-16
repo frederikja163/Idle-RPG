@@ -1,6 +1,6 @@
 ﻿import React, { type CSSProperties, type FC, useMemo } from 'react';
-import { Column } from '@/front-end/components/layout/column.tsx';
-import { Row } from '../../layout/row.tsx';
+import { Column } from '@/front-end/components/ui/layout/column.tsx';
+import { Row } from '@/front-end/components/ui/layout/row.tsx';
 import { InventoryItem } from '@/front-end/components/game/inventory/inventory-item.tsx';
 import { Card } from '@/front-end/components/ui/card.tsx';
 import { InventoryTab } from '@/front-end/components/game/inventory/inventory-tab.tsx';
