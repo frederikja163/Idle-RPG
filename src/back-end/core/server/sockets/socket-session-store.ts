@@ -77,4 +77,16 @@ export class SocketSessionStore implements SocketOpenEventListener, SocketCloseE
   public onSocketClose({ socketId }: SocketCloseEventData) {
     this.sessions.delete(socketId);
   }
+
+  public get userCount() {
+    return this.userToSockets.size;
+  }
+
+  public get profileCount() {
+    return this.profileToSockets.size;
+  }
+
+  public get socketCount() {
+    return this.sessions.size;
+  }
 }

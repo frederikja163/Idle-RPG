@@ -1,6 +1,10 @@
 export class Lookup<TKey, TValue> {
   private readonly _map = new Map<TKey, Set<TValue>>();
 
+  public get size() {
+    return this._map.size;
+  }
+
   public *entries() {
     for (const [k, vs] of this._map) {
       yield [k, vs.entries().map(([s, _]) => s)];
