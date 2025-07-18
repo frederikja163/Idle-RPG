@@ -2,22 +2,28 @@
 import { Card } from '@/front-end/components/ui/card.tsx';
 import { Plus } from 'lucide-react';
 import { Form } from 'radix-ui';
-import { Input } from '@/front-end/components/ui/input.tsx';
+import { Input } from '@/front-end/components/ui/input/input.tsx';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { Modal } from '@/front-end/components/ui/modal.tsx';
-import { Button } from '@/front-end/components/ui/button.tsx';
-import { Column } from '@/front-end/components/layout/column.tsx';
+import { Modal } from '@/front-end/components/ui/modals/modal.tsx';
+import { Button } from '@/front-end/components/ui/input/button.tsx';
+import { Column } from '@/front-end/components/ui/layout/column.tsx';
 import { getFormData } from '@/front-end/lib/utils.ts';
-import { useSocket } from '@/front-end/state/socket-provider.tsx';
+import { useSocket } from '@/front-end/providers/socket-provider.tsx';
 
 interface ProfileForm {
   name: string;
 }
 
-export const ProfileCreator: FC = React.memo(function ProfileCreator() {
+interface Props {
+  isOpenInitial?: boolean;
+}
+
+export const ProfileCreator: FC<Props> = React.memo(function ProfileCreator(props) {
+  const { isOpenInitial = false } = props;
+
   const socket = useSocket();
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(isOpenInitial);
 
   const openModal = useCallback(() => {
     setIsOpen(true);
@@ -67,8 +73,9 @@ export const ProfileCreator: FC = React.memo(function ProfileCreator() {
       description="Enter profile details"
       isOpen={isOpen}
       onClose={closeModal}>
-      <Card onClick={openModal} className="bg-primary w-64 h-96 p-4 flex items-center justify-center">
+      <Card onClick={openModal} className="w-60 h-96 p-4 flex flex-col items-center justify-center cursor-pointer">
         <Plus size={100} />
+        <Typography>Create new profile</Typography>
       </Card>
     </Modal>
   );

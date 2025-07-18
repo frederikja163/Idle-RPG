@@ -1,6 +1,6 @@
 import React, { createContext, type FC, useCallback, useEffect, useRef, useState } from 'react';
-import type { ProviderProps } from '@/front-end/lib/types.ts';
-import { useOnSocket, useSocket } from '@/front-end/state/socket-provider.tsx';
+import type { ProviderProps } from '@/front-end/types/provider-types.ts';
+import { useOnSocket, useSocket } from '@/front-end/providers/socket-provider.tsx';
 import { useAtom, useSetAtom } from 'jotai/index';
 import {
   activeActivityAtom,
@@ -9,24 +9,22 @@ import {
   profileSkillsAtom,
   resetAtomsAtom,
   selectedProfileIdAtom,
-} from '@/front-end/state/atoms.tsx';
+  selectedSkillTabAtom,
+} from '@/front-end/store/atoms.tsx';
 import { routes } from '@/front-end/router/routes.ts';
-import {
-  getItem,
-  getMsUntilActionDone,
-  getSkill,
-  updateItems,
-  updateProfiles,
-  updateSkills,
-} from '@/front-end/lib/utils.ts';
-import { activities, type ActivityDef, type ActivityId } from '@/shared/definition/definition-activities';
+import { getItem, getMsUntilActionDone, getSkill, updateItems, updateSkills } from '@/front-end/lib/utils.ts';
+import { activities, type ActivityDef, type ActivityId } from '@/shared/definition/definition-activities.ts';
 import type { Timeout } from 'react-number-format/types/types';
 import { processActivity } from '@/shared/util/util-activities.ts';
 import type { useNavigate } from 'react-router-dom';
 import type { ClientData, SocketId } from '@/shared/socket/socket-types.ts';
 import { errorMessages, ErrorType } from '@/shared/socket/socket-errors.ts';
+import { useSync } from '@/front-end/hooks/use-sync.tsx';
+import { arrayToMap } from '@/front-end/lib/array-utils.ts';
 import { useToast } from '@/front-end/state/toast-provider.tsx';
 import { dateTimeFormat } from '@/front-end/lib/date-time-consts.ts';
+import type { Profile } from '@/shared/definition/schema/types/types-profiles.ts';
+import { activitySkillMap } from '@/shared/util/util-activity-skill-map.ts';
 
 const SocketFeatureContext = createContext(undefined);
 
@@ -38,10 +36,12 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   const { navigate, children } = props;
 
   const socket = useSocket();
+  const sync = useSync();
   const { displayToast } = useToast();
 
   const resetAtoms = useSetAtom(resetAtomsAtom);
   const setProfiles = useSetAtom(profilesAtom);
+  const setSelectedSkillTab = useSetAtom(selectedSkillTabAtom);
   const [selectedProfileId, setSelectedProfileId] = useAtom(selectedProfileIdAtom);
   const setActiveActivity = useSetAtom(activeActivityAtom);
   const [profileItems, setProfileItems] = useAtom(profileItemsAtom);
@@ -82,14 +82,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
     [setProfileItems, setProfileSkills],
   );
 
-  const handleUpdatedManyProfiles = useCallback(
-    (_: SocketId, { profiles }: ClientData<'Profile/UpdatedMany'>) => {
-      setProfiles(updateProfiles(profiles));
-    },
-    [setProfiles],
-  );
-
-  const handleActivityStarted = useCallback(
+  const startActivity = useCallback(
     (activityId: ActivityId, activityStart: Date) => {
       setActiveActivity({ activityId, activityStart });
 
@@ -117,9 +110,15 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
     [clearTimeouts, processActivityLocal, setActiveActivity],
   );
 
-  const handleUpdated = useCallback(
-    async (_: SocketId, { profile, items, skills }: ClientData<'Profile/Updated'>) => {
-      if (profile && profile.id != selectedProfileId) {
+  const handleManyProfilesUpdated = useCallback(
+    (_: SocketId, { profiles }: DataType<ServerClientEvent, 'Profile/UpdatedMany'>) => {
+      setProfiles(arrayToMap(profiles as Profile[], 'id'));
+    },
+    [setProfiles],
+  );
+
+  const handleProfileUpdated = useCallback(
+      if (profile && profile.id && profile.id != selectedProfileId) {
         resetAtoms();
         clearTimeouts();
         setSelectedProfileId(profile.id);
@@ -137,12 +136,21 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
       if (items) setProfileItems(updateItems(items));
       if (skills) setProfileSkills(updateSkills(skills));
       if (profile && profile.activityId && profile.activityStart) {
+        const activity = activities.get(profile.activityId);
+        if (activity?.id) {
+          const skillId = activitySkillMap
+            .entries()
+            .find(([_, activityIds]) => activityIds.includes(activity.id))
+            ?.at(0);
+          if (typeof skillId === 'string') setSelectedSkillTab(skillId);
+        }
+        
         // TODO: A timeout here is probably not the right solution, but it works? for now??
         // The problem is that setProfileItems and setProfileSkills only sets the values with a small delay,
-        // and we can only run handleActivityStarted after they are set.
+        // and we can only run startActivity after they are set.
         setTimeout(() => {
           if (profile && profile.activityId && profile.activityStart) {
-            handleActivityStarted(profile.activityId, profile.activityStart);
+            startActivity(profile.activityId, profile.activityStart);
           }
         }, 100);
       } else if (profile?.activityId == 'None') {
@@ -151,26 +159,33 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
       }
     },
     [
-      clearTimeouts,
-      handleActivityStarted,
-      navigate,
-      resetAtoms,
       selectedProfileId,
-      setActiveActivity,
       setProfileItems,
       setProfileSkills,
+      resetAtoms,
+      clearTimeouts,
       setSelectedProfileId,
       socket,
+      navigate,
+      setSelectedSkillTab,
+      startActivity,
+      setActiveActivity,
     ],
   );
 
+  const handlePong = useCallback(() => console.debug('Received pong'), []);
+
   const handleError = useCallback(
-    (_: SocketId, { errorType, message }: ClientData<'System/Error'>) => {
+    (_: SocketId, data: DataType<ServerClientEvent, 'Connection/Error'>) => {
       socket?.onError(errorType, message);
 
       displayToast(errorMessages[errorType], 'error');
 
       switch (errorType) {
+        case ErrorType.Desync:
+          sync();
+          return;
+
         case ErrorType.RequiresLogin:
           setSelectedProfileId(undefined);
           return;
@@ -193,9 +208,10 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
     [displayToast],
   );
 
-  useOnSocket('Profile/UpdatedMany', handleUpdatedManyProfiles);
-  useOnSocket('Profile/Updated', handleUpdated);
-  useOnSocket('System/Error', handleError);
+  useOnSocket('Profile/UpdatedMany', handleManyProfilesUpdated);
+  useOnSocket('Profile/Updated', handleProfileUpdated);
+  useOnSocket('Connection/Pong', handlePong);
+  useOnSocket('Connection/Error', handleError);
   useOnSocket('System/Shutdown', handleShutdown);
 
   return <SocketFeatureContext.Provider value={undefined}>{children}</SocketFeatureContext.Provider>;

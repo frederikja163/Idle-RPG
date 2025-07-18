@@ -1,13 +1,13 @@
 import { useCallback } from 'react';
-import { Button } from './ui/button.tsx';
-import { useAuth } from '@/front-end/state/auth-provider.tsx';
-import { Row } from '@/front-end/components/layout/row.tsx';
+import { Button } from './ui/input/button.tsx';
+import { useAuth } from '@/front-end/providers/auth-provider.tsx';
+import { Row } from '@/front-end/components/ui/layout/row.tsx';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/front-end/router/routes.ts';
-import { useSocket } from '@/front-end/state/socket-provider.tsx';
-import { Column } from '@/front-end/components/layout/column.tsx';
-import { Divider } from '@/front-end/components/ui/divider.tsx';
+import { useSocket } from '@/front-end/providers/socket-provider.tsx';
+import { Column } from '@/front-end/components/ui/layout/column.tsx';
+import { Divider } from '@/front-end/components/ui/layout/divider.tsx';
 import { Banner } from '@/front-end/components/banner.tsx';
 
 export function NavBar() {

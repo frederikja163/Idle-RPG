@@ -2,12 +2,20 @@
 import { SideTabPane, type Tab } from '@/front-end/components/ui/side-tab-pane/side-tab-pane.tsx';
 import { ActivitiesGrid } from '@/front-end/components/game/skills/activities-grid.tsx';
 import { useAtomValue } from 'jotai';
-import { profileSkillsAtom } from '@/front-end/state/atoms.tsx';
+import { profileSkillsAtom, selectedSkillTabAtom } from '@/front-end/store/atoms.tsx';
 import { SkillButton } from './skill-button';
 import { skills as skillDefinitions } from '@/shared/definition/definition-skills.ts';
+import type { SkillId } from '@/shared/definition/schema/types/types-skills.ts';
+
+const skillTabIndexMap = new Map<SkillId, number>([
+  ['Mining', 0],
+  ['Lumberjacking', 1],
+  ['Crafting', 2],
+]);
 
 export const SkillsPane: FC = React.memo(function SkillsPane() {
   const profileSkills = useAtomValue(profileSkillsAtom);
+  const selectedSkillTab = useAtomValue(selectedSkillTabAtom);
 
   const skillTabs = useMemo(
     () =>
@@ -33,5 +41,7 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
 
   if (!skillTabs) return;
 
-  return <SideTabPane title="Skills" tabs={skillTabs} collapsable />;
+  return (
+    <SideTabPane title="Skills" tabs={skillTabs} collapsable initialTabIndex={skillTabIndexMap.get(selectedSkillTab)} />
+  );
 });

@@ -1,5 +1,5 @@
 ﻿import React, { type FC, useMemo } from 'react';
-import { Row } from '@/front-end/components/layout/row.tsx';
+import { Row } from '@/front-end/components/ui/layout/row.tsx';
 import { activitySkillMap } from '@/shared/util/util-activity-skill-map.ts';
 import type { Skill } from '@/shared/definition/schema/types/types-skills.ts';
 import { activities as activityDefinitions } from '@/shared/definition/definition-activities.ts';

@@ -1,5 +1,5 @@
 import React, { type CSSProperties, type FC, type ReactNode, useCallback, useEffect, useMemo } from 'react';
-import { Column } from '@/front-end/components/layout/column.tsx';
+import { Column } from '@/front-end/components/ui/layout/column.tsx';
 import {
   type GatheringActivityDef,
   NoActivity,
@@ -8,12 +8,12 @@ import {
 import { Image } from '@/front-end/components/ui/image.tsx';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
 import { Card } from '@/front-end/components/ui/card.tsx';
-import { Divider } from '@/front-end/components/ui/divider.tsx';
+import { Divider } from '@/front-end/components/ui/layout/divider.tsx';
 import { CirclePlay } from 'lucide-react';
 import { useAtomValue } from 'jotai';
-import { activeActivityAtom } from '@/front-end/state/atoms.tsx';
+import { activeActivityAtom } from '@/front-end/store/atoms.tsx';
 import { motion, useAnimation } from 'framer-motion';
-import { useSocket } from '@/front-end/state/socket-provider.tsx';
+import { useSocket } from '@/front-end/providers/socket-provider.tsx';
 import { getMsUntilActionDone } from '@/front-end/lib/utils.ts';
 import { useWindowSize } from '@/front-end/hooks/use-window-size.tsx';
 

@@ -1,6 +1,6 @@
-﻿import React, {type FC, type ReactNode, useCallback} from 'react';
-import {Typography} from "@/front-end/components/ui/typography.tsx";
-import {Column} from "@/front-end/components/layout/column.tsx";
+﻿import React, { type FC, type ReactNode, useCallback } from 'react';
+import { Typography } from '@/front-end/components/ui/typography.tsx';
+import { Column } from '@/front-end/components/ui/layout/column.tsx';
 
 interface Props {
   index: number;
@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const SideTabButton: FC<Props> = React.memo(function SideTabButton(props) {
-  const {index, selectedIndex, label, children, onClick} = props;
+  const { index, selectedIndex, label, children, onClick } = props;
 
   const handleClick = useCallback(() => {
     onClick(index);
@@ -21,15 +21,10 @@ export const SideTabButton: FC<Props> = React.memo(function SideTabButton(props)
   return (
     <button
       onClick={handleClick}
-      style={{marginRight: "-1px"}}
-      className={
-        `p-2 cursor-pointer border-2 border-solid border-transparent hover:text-secondary ${selectedIndex === index && "text-primary border-r-primary"}`
-      }
-    >
+      style={{ marginRight: '-1px' }}
+      className={`p-2 cursor-pointer border-2 border-solid border-transparent hover:text-secondary ${selectedIndex === index && 'text-primary border-r-primary'}`}>
       <Column>
-        {label && <Typography>
-          {label}
-        </Typography>}
+        {label && <Typography>{label}</Typography>}
         {children}
       </Column>
     </button>

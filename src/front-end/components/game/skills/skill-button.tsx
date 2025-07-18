@@ -1,14 +1,14 @@
 import React, { type FC, useMemo } from 'react';
 import { ProgressBar } from '@/front-end/components/ui/progress-bar.tsx';
-import { Column } from '@/front-end/components/layout/column.tsx';
+import { Column } from '@/front-end/components/ui/layout/column.tsx';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
 import type { Skill } from '@/shared/definition/schema/types/types-skills.ts';
 import { xpAccum } from '@/shared/util/util-skills.ts';
 import { Image } from '@/front-end/components/ui/image.tsx';
-import { Row } from '@/front-end/components/layout/row.tsx';
+import { Row } from '@/front-end/components/ui/layout/row.tsx';
 import { CirclePlay } from 'lucide-react';
 import { useAtomValue } from 'jotai/index';
-import { activeActivityAtom } from '@/front-end/state/atoms.tsx';
+import { activeActivityAtom } from '@/front-end/store/atoms.tsx';
 import { activities } from '@/shared/definition/definition-activities.ts';
 import { getActivitySkill } from '@/shared/util/util-activity-skill-map';
 

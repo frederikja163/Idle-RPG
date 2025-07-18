@@ -1,5 +1,5 @@
 ﻿import React, { type FC, type ReactNode } from 'react';
-import { Column } from '@/front-end/components/layout/column.tsx';
+import { Column } from '@/front-end/components/ui/layout/column.tsx';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
 
 interface Props {
