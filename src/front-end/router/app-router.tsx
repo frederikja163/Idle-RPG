@@ -9,6 +9,7 @@ import { SocketFeatureProvider } from '@/front-end/providers/socket-feature-prov
 import { NoConnection } from '@/front-end/components/pages/no-connection.tsx';
 import { SocketRoute } from '@/front-end/router/socket-route.tsx';
 import { ResyncService } from '@/front-end/services/resync-service.tsx';
+import { Error } from '@/front-end/components/pages/error.tsx';
 
 // TODO: try to remove this by splitting up SocketFeatureProvider
 // Needed to pass navigate to some providers
@@ -29,6 +30,7 @@ export const AppRouter = createHashRouter([
   {
     path: '/',
     element: <AppProvidersWrapper />,
+    errorElement: <Error />,
     children: [
       {
         element: <SocketRoute />,
