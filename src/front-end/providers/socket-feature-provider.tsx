@@ -21,10 +21,10 @@ import type { ClientData, SocketId } from '@/shared/socket/socket-types.ts';
 import { errorMessages, ErrorType } from '@/shared/socket/socket-errors.ts';
 import { useSync } from '@/front-end/hooks/use-sync.tsx';
 import { arrayToMap } from '@/front-end/lib/array-utils.ts';
-import { dateTimeFormat } from '@/front-end/lib/date-time-consts.ts';
 import type { Profile } from '@/shared/definition/schema/types/types-profiles.ts';
 import { activitySkillMap } from '@/shared/util/util-activity-skill-map.ts';
 import { useToast } from './toast-provider';
+import { dateTimeNoSeconds } from '@/front-end/constants/date-time-consts.ts';
 
 const SocketFeatureContext = createContext(undefined);
 
@@ -204,7 +204,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
 
   const handleShutdown = useCallback(
     (_: SocketId, data: ClientData<'Connection/Shutdown'>) => {
-      displayToast(`Scheduled shutdown ${data.time.toLocaleString(undefined, dateTimeFormat)}. ${data.reason}`);
+      displayToast(`Scheduled shutdown ${data.time.toLocaleString(undefined, dateTimeNoSeconds)}. ${data.reason}`);
     },
     [displayToast],
   );
