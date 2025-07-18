@@ -17,12 +17,14 @@ import { activities, type ActivityDef, type ActivityId } from '@/shared/definiti
 import type { Timeout } from 'react-number-format/types/types';
 import { processActivity } from '@/shared/util/util-activities.ts';
 import type { useNavigate } from 'react-router-dom';
-import type { DataType, ServerClientEvent, SocketId } from '@/shared/socket/socket-types.ts';
-import { ErrorType } from '@/shared/socket/socket-errors.ts';
+import type { ClientData, SocketId } from '@/shared/socket/socket-types.ts';
+import { errorMessages, ErrorType } from '@/shared/socket/socket-errors.ts';
 import { useSync } from '@/front-end/hooks/use-sync.tsx';
 import { arrayToMap } from '@/front-end/lib/array-utils.ts';
 import type { Profile } from '@/shared/definition/schema/types/types-profiles.ts';
 import { activitySkillMap } from '@/shared/util/util-activity-skill-map.ts';
+import { useToast } from './toast-provider';
+import { dateTimeNoSeconds } from '@/front-end/constants/date-time-consts.ts';
 
 const SocketFeatureContext = createContext(undefined);
 
@@ -35,6 +37,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
 
   const socket = useSocket();
   const sync = useSync();
+  const { displayToast } = useToast();
 
   const resetAtoms = useSetAtom(resetAtomsAtom);
   const setProfiles = useSetAtom(profilesAtom);
@@ -108,14 +111,14 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   );
 
   const handleManyProfilesUpdated = useCallback(
-    (_: SocketId, { profiles }: DataType<ServerClientEvent, 'Profile/UpdatedMany'>) => {
+    (_: SocketId, { profiles }: ClientData<'Profile/UpdatedMany'>) => {
       setProfiles(arrayToMap(profiles as Profile[], 'id'));
     },
     [setProfiles],
   );
 
   const handleProfileUpdated = useCallback(
-    async (_: SocketId, { profile, items, skills }: DataType<ServerClientEvent, 'Profile/Updated'>) => {
+    async (_: SocketId, { profile, items, skills }: ClientData<'Profile/Updated'>) => {
       if (profile && profile.id && profile.id != selectedProfileId) {
         resetAtoms();
         clearTimeouts();
@@ -142,7 +145,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
             ?.at(0);
           if (typeof skillId === 'string') setSelectedSkillTab(skillId);
         }
-        
+
         // TODO: A timeout here is probably not the right solution, but it works? for now??
         // The problem is that setProfileItems and setProfileSkills only sets the values with a small delay,
         // and we can only run startActivity after they are set.
@@ -174,8 +177,10 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   const handlePong = useCallback(() => console.debug('Received pong'), []);
 
   const handleError = useCallback(
-    (_: SocketId, data: DataType<ServerClientEvent, 'Connection/Error'>) => {
-      if (socket) socket.onError(data.errorType, data.message);
+    (_: SocketId, data: ClientData<'Connection/Error'>) => {
+      socket?.onError(data.errorType, data.message);
+
+      displayToast(`${errorMessages[data.errorType]} ${data.message ?? ''}`, 'error');
 
       switch (data.errorType) {
         case ErrorType.Desync:
@@ -194,12 +199,20 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
           console.warn('No error handling implemented for: ', data.errorType, data.message);
       }
     },
-    [socket, sync, setSelectedProfileId],
+    [socket, displayToast, sync, setSelectedProfileId],
+  );
+
+  const handleShutdown = useCallback(
+    (_: SocketId, data: ClientData<'Connection/Shutdown'>) => {
+      displayToast(`Scheduled shutdown ${data.time.toLocaleString(undefined, dateTimeNoSeconds)}. ${data.reason}`);
+    },
+    [displayToast],
   );
 
   useOnSocket('Profile/UpdatedMany', handleManyProfilesUpdated);
   useOnSocket('Profile/Updated', handleProfileUpdated);
   useOnSocket('Connection/Pong', handlePong);
+  useOnSocket('Connection/Shutdown', handleShutdown);
   useOnSocket('Connection/Error', handleError);
 
   return <SocketFeatureContext.Provider value={undefined}>{children}</SocketFeatureContext.Provider>;

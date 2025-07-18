@@ -1,13 +1,13 @@
 import React, { createContext, type FC, type ReactNode, useCallback, useContext, useState } from 'react';
 import type { ProviderProps } from '@/front-end/types/provider-types.ts';
 import { Toast } from 'radix-ui';
+import { getKey } from '@/front-end/lib/utils.ts';
 
-// TODO: move this guy?
 const typeColorMap = new Map<string, string>([
-  ['info', 'bg-blue-300'],
-  ['success', 'bg-green-300'],
-  ['warning', 'bg-amber-300'],
-  ['error', 'bg-red-300'],
+  ['info', 'bg-blue-400'],
+  ['success', 'bg-green-400'],
+  ['warning', 'bg-amber-400'],
+  ['error', 'bg-red-400'],
 ]);
 
 interface IToastContext {
@@ -35,9 +35,10 @@ export const ToastProvider: FC<ProviderProps> = React.memo(function ToastProvide
 
         newToasts[pointer] = (
           <Toast.Root
+            key={getKey()}
             duration={duration}
             className={`w-80 text-primary-foreground p-4 my-2 rounded shadow ${typeColorMap.get(type)}`}>
-            <Toast.Title>{text}</Toast.Title>
+            <Toast.Description>{text}</Toast.Description>
           </Toast.Root>
         );
 

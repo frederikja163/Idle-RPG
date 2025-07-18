@@ -18,7 +18,7 @@ import { nameOf } from '@/front-end/lib/function-utils.ts';
 import { RoundButton } from '@/front-end/components/ui/input/round-button.tsx';
 import { LabeledText } from '@/front-end/components/ui/labeled-text.tsx';
 import { BasicTooltip } from '@/front-end/components/ui/basic-tooltip.tsx';
-import { dateTimeNoSeconds } from '@/front-end/constants/datetime-consts.ts';
+import { dateTimeNoSeconds } from '@/front-end/constants/date-time-consts.ts';
 import { Dialog } from '@/front-end/components/ui/modals/dialog.tsx';
 
 interface Props {
@@ -72,7 +72,7 @@ export const ProfileCard: FC<Props> = React.memo((props) => {
   const selectProfile = useCallback(
     (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       event.stopPropagation();
-      
+
       if (isSelected) {
         navigate(routes.game);
         return;
