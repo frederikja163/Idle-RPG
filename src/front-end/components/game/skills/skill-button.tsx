@@ -11,6 +11,9 @@ import { useAtomValue } from 'jotai/index';
 import { activeActivityAtom } from '@/front-end/store/atoms.tsx';
 import { activities } from '@/shared/definition/definition-activities.ts';
 import { getActivitySkill } from '@/shared/util/util-activity-skill-map';
+import { BasicTooltip } from '@/front-end/components/ui/basic-tooltip.tsx';
+import { Card } from '@/front-end/components/ui/card.tsx';
+import { LabeledText } from '@/front-end/components/ui/labeled-text.tsx';
 
 interface Props {
   name: string;
@@ -21,9 +24,30 @@ export const SkillButton: FC<Props> = React.memo(function SkillButton(props) {
   const { name, skill } = props;
 
   const activeActivityId = useAtomValue(activeActivityAtom)?.activityId;
-  const activeActivity = activeActivityId ? activities.get(activeActivityId) : undefined;
-  const isActiveSkill = activeActivity && getActivitySkill(activeActivity) === skill.id;
-  const targetXp = useMemo(() => xpAccum.at(skill.level + 1) ?? skill.xp, [skill.level, skill.xp]);
+  const activeActivity = useMemo(
+    () => (activeActivityId ? activities.get(activeActivityId) : undefined),
+    [activeActivityId],
+  );
+  const isActiveSkill = useMemo(
+    () => activeActivity && getActivitySkill(activeActivity) === skill.id,
+    [activeActivity, skill.id],
+  );
+
+  const targetXp = xpAccum.at(skill.level + 1) ?? skill.xp;
+  const currentLevelXp = skill.xp - (xpAccum.at(skill.level) ?? 0);
+  const currentTargetXp = targetXp - (xpAccum.at(skill.level) ?? 0);
+
+  const toolTip = useMemo(
+    () => (
+      <Card>
+        <Column className="p-2 gap-2">
+          <LabeledText label="Current XP" text={skill.xp.toString()} />
+          <LabeledText label="XP for level up" text={targetXp.toString()} />
+        </Column>
+      </Card>
+    ),
+    [skill.xp, targetXp],
+  );
 
   return (
     <Column className="mt-2 items-center">
@@ -34,9 +58,12 @@ export const SkillButton: FC<Props> = React.memo(function SkillButton(props) {
       <Row className="w-1/2">
         <Image src={`${import.meta.env.VITE_BASE_URL}/assets/skills/${skill.id}.svg`} alt={skill.id} />
       </Row>
-      <Typography className="text-sm">Level {skill.level}</Typography>
-      <ProgressBar value={skill.xp} max={targetXp} />
-      <Typography className="text-xs text-muted-foreground">{`${skill.xp} / ${targetXp} XP`}</Typography>
+      <BasicTooltip tooltipContent={toolTip} disableHoverableContent>
+        <Column className="w-full">
+          <Typography className="text-sm">Level {skill.level}</Typography>
+          <ProgressBar value={currentLevelXp} max={currentTargetXp} />
+        </Column>
+      </BasicTooltip>
     </Column>
   );
 });
