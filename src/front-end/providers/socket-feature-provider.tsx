@@ -21,10 +21,10 @@ import type { ClientData, SocketId } from '@/shared/socket/socket-types.ts';
 import { errorMessages, ErrorType } from '@/shared/socket/socket-errors.ts';
 import { useSync } from '@/front-end/hooks/use-sync.tsx';
 import { arrayToMap } from '@/front-end/lib/array-utils.ts';
-import { useToast } from '@/front-end/state/toast-provider.tsx';
 import { dateTimeFormat } from '@/front-end/lib/date-time-consts.ts';
 import type { Profile } from '@/shared/definition/schema/types/types-profiles.ts';
 import { activitySkillMap } from '@/shared/util/util-activity-skill-map.ts';
+import { useToast } from './toast-provider';
 
 const SocketFeatureContext = createContext(undefined);
 
@@ -111,13 +111,14 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   );
 
   const handleManyProfilesUpdated = useCallback(
-    (_: SocketId, { profiles }: DataType<ServerClientEvent, 'Profile/UpdatedMany'>) => {
+    (_: SocketId, { profiles }: ClientData<'Profile/UpdatedMany'>) => {
       setProfiles(arrayToMap(profiles as Profile[], 'id'));
     },
     [setProfiles],
   );
 
   const handleProfileUpdated = useCallback(
+    async (_: SocketId, { profile, items, skills }: ClientData<'Profile/Updated'>) => {
       if (profile && profile.id && profile.id != selectedProfileId) {
         resetAtoms();
         clearTimeouts();
@@ -144,7 +145,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
             ?.at(0);
           if (typeof skillId === 'string') setSelectedSkillTab(skillId);
         }
-        
+
         // TODO: A timeout here is probably not the right solution, but it works? for now??
         // The problem is that setProfileItems and setProfileSkills only sets the values with a small delay,
         // and we can only run startActivity after they are set.
@@ -176,12 +177,12 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   const handlePong = useCallback(() => console.debug('Received pong'), []);
 
   const handleError = useCallback(
-    (_: SocketId, data: DataType<ServerClientEvent, 'Connection/Error'>) => {
-      socket?.onError(errorType, message);
+    (_: SocketId, data: ClientData<'Connection/Error'>) => {
+      socket?.onError(data.errorType, data.message);
 
-      displayToast(errorMessages[errorType], 'error');
+      displayToast(`${errorMessages[data.errorType]} ${data.message ?? ''}`, 'error');
 
-      switch (errorType) {
+      switch (data.errorType) {
         case ErrorType.Desync:
           sync();
           return;
@@ -195,15 +196,15 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
           return;
 
         default:
-          console.warn('No error handling implemented for: ', errorType, message);
+          console.warn('No error handling implemented for: ', data.errorType, data.message);
       }
     },
-    [socket, displayToast, setSelectedProfileId],
+    [socket, displayToast, sync, setSelectedProfileId],
   );
 
   const handleShutdown = useCallback(
-    (_: SocketId, { time, reason }: ClientData<'System/Shutdown'>) => {
-      displayToast(`Scheduled shutdown ${time.toLocaleString(undefined, dateTimeFormat)}. ${reason}`);
+    (_: SocketId, data: ClientData<'Connection/Shutdown'>) => {
+      displayToast(`Scheduled shutdown ${data.time.toLocaleString(undefined, dateTimeFormat)}. ${data.reason}`);
     },
     [displayToast],
   );
@@ -211,8 +212,8 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   useOnSocket('Profile/UpdatedMany', handleManyProfilesUpdated);
   useOnSocket('Profile/Updated', handleProfileUpdated);
   useOnSocket('Connection/Pong', handlePong);
+  useOnSocket('Connection/Shutdown', handleShutdown);
   useOnSocket('Connection/Error', handleError);
-  useOnSocket('System/Shutdown', handleShutdown);
 
   return <SocketFeatureContext.Provider value={undefined}>{children}</SocketFeatureContext.Provider>;
 });
