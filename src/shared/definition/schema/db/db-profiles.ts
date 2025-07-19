@@ -4,6 +4,7 @@ import { userProfilesTable } from './db-userprofiles';
 import { itemsTable } from './db-items';
 import { skillsTable } from './db-skills';
 import { timestamp, timestampNow } from './db-types';
+import { equipmentTable } from './db-equipment';
 
 export const profilesTable = sqliteTable(
   'profiles',
@@ -23,4 +24,5 @@ export const profileRelations = relations(profilesTable, ({ many }) => ({
   userProfileRelation: many(userProfilesTable),
   itemsRelation: many(itemsTable),
   skillsRelation: many(skillsTable),
+  equipmentRelation: many(equipmentTable),
 }));

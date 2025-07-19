@@ -1,5 +1,5 @@
 import { gatheringDef, processingDef } from './definition-activities';
-import { itemDef, ItemTag } from './definition-items';
+import { EquipmentSlots, itemDef, ItemTag, type EquipmentStatBlock, type SkillStatBlock } from './definition-items';
 import { skillDef } from './definition-skills';
 
 const mining = skillDef('Mining');
@@ -19,19 +19,35 @@ wood('Cherry', 3);
 wood('Oak', 4);
 
 function ore(name: string, tier: number) {
-  const ore = itemDef(`Ore${name}`, `${name} Ore`, ItemTag.Resource);
+  const statBlock: EquipmentStatBlock = {
+    head: {
+      Productivity: tier / 10,
+      CraftingXp: tier / 10,
+    },
+  };
+  const ore = itemDef(`Ore${name}`, `${name} Ore`, [ItemTag.Resource]);
   gatheringDef(ore, mining, 'Mine', tier);
-  const pickaxe = itemDef(`HeadPickaxe${name}`, `${name} Pickaxe Head`, ItemTag.Tool);
+  const pickaxe = itemDef(`HeadPickaxe${name}`, `${name} Pickaxe Head`, [ItemTag.Tool], { Mining: statBlock });
   processingDef(ore, pickaxe, crafting, 'Craft', tier);
-  const axe = itemDef(`HeadAxe${name}`, `${name} Axe Head`, ItemTag.Tool);
+  const axe = itemDef(`HeadAxe${name}`, `${name} Axe Head`, [ItemTag.Tool], { Lumberjacking: statBlock });
   processingDef(ore, axe, crafting, 'Craft', tier);
-  const hammer = itemDef(`HeadHammer${name}`, `${name} Hammer Head`, ItemTag.Tool);
+  const hammer = itemDef(`HeadHammer${name}`, `${name} Hammer Head`, [ItemTag.Tool], { Crafting: statBlock });
   processingDef(ore, hammer, crafting, 'Craft', tier);
 }
 
 function wood(name: string, tier: number) {
-  const log = itemDef(`Log${name}`, `${name} Log`, ItemTag.Resource);
+  const statBlock: EquipmentStatBlock = {
+    head: {
+      Speed: tier / 10,
+      CraftingXp: tier / 10,
+    },
+  };
+  const log = itemDef(`Log${name}`, `${name} Log`, [ItemTag.Resource]);
   gatheringDef(log, lumberjacking, 'Cut', tier);
-  const handle = itemDef(`Handle${name}`, `${name} Handle`, ItemTag.Tool);
+  const handle = itemDef(`Handle${name}`, `${name} Handle`, [ItemTag.Tool], {
+    Mining: statBlock,
+    Lumberjacking: statBlock,
+    Crafing: statBlock,
+  });
   processingDef(log, handle, crafting, `Craft`, tier);
 }
