@@ -5,6 +5,7 @@ import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import type { UserId } from '@/shared/definition/schema/types/types-user';
 import type { Profile, ProfileId, ProfileInsert } from '@/shared/definition/schema/types/types-profiles';
+import { timestampNow } from '@/shared/definition/schema/db/db-types';
 
 @injectableSingleton()
 export class ProfileRepository {
@@ -47,14 +48,18 @@ export class ProfileRepository {
   }
 
   public async update(profileId: ProfileId, data: Partial<Profile>, tx: Transaction) {
-    await tx.update(profilesTable).set(data).where(eq(profilesTable.id, profileId)).returning();
+    await tx
+      .update(profilesTable)
+      .set({ ...data, lastLogin: timestampNow })
+      .where(eq(profilesTable.id, profileId))
+      .returning();
   }
 
   public async updateTimes(profileIds: ProfileId[], tx: Transaction) {
     await tx
       .update(profilesTable)
       .set({
-        lastLogin: sql`CURRENT_TIMESTAMP`,
+        lastLogin: timestampNow,
       })
       .where(inArray(profilesTable.id, profileIds));
   }
