@@ -41,7 +41,7 @@ export const SkillButton: FC<Props> = React.memo(function SkillButton(props) {
     () => (
       <Card>
         <Column className="p-2 gap-2">
-          <LabeledText label="Current XP" text={skill.xp.toString()} />
+          <LabeledText label="Total XP" text={skill.xp.toString()} />
           <LabeledText label="XP for level up" text={targetXp.toString()} />
         </Column>
       </Card>
