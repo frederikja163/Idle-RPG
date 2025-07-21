@@ -5,14 +5,15 @@ interface Props {
   children: ReactNode | ReactNode[];
   tooltipContent: ReactNode;
   delayDuration?: number;
+  disableHoverableContent?: boolean;
 }
 
 export const BasicTooltip: FC<Props> = React.memo(function BasicTooltip(props) {
-  const { children, tooltipContent, delayDuration = 100 } = props;
+  const { children, tooltipContent, delayDuration = 100, disableHoverableContent } = props;
 
   return (
     <Tooltip.Provider>
-      <Tooltip.Root delayDuration={delayDuration}>
+      <Tooltip.Root delayDuration={delayDuration} disableHoverableContent={disableHoverableContent}>
         <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
         <Tooltip.Portal>
           <Tooltip.Content>{tooltipContent}</Tooltip.Content>
