@@ -3,7 +3,9 @@ import type { ProviderProps } from '@/front-end/types/provider-types.ts';
 import { Toast } from 'radix-ui';
 import { getKey } from '@/front-end/lib/utils.ts';
 
-const typeColorMap = new Map<string, string>([
+type toastType = 'info' | 'success' | 'warning' | 'error';
+
+const typeColorMap = new Map<toastType, string>([
   ['info', 'bg-blue-400'],
   ['success', 'bg-green-400'],
   ['warning', 'bg-amber-400'],
@@ -11,7 +13,7 @@ const typeColorMap = new Map<string, string>([
 ]);
 
 interface IToastContext {
-  displayToast: (text: string, type?: 'info' | 'success' | 'warning' | 'error', duration?: number) => void;
+  displayToast: (text: string, type?: toastType, duration?: number) => void;
 }
 
 const initialState: IToastContext = {
@@ -29,7 +31,7 @@ export const ToastProvider: FC<ProviderProps> = React.memo(function ToastProvide
   const [pointer, setPointer] = useState(0);
 
   const displayToast = useCallback(
-    (text: string, type: 'info' | 'success' | 'warning' | 'error' = 'info', duration: number = 5000) => {
+    (text: string, type: toastType = 'info', duration: number = 5000) => {
       setToasts((prevToasts) => {
         const newToasts = [...prevToasts];
 
