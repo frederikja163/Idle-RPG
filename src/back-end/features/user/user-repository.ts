@@ -1,6 +1,6 @@
-import { eq, inArray, sql } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { usersTable } from '@/shared/definition/schema/db/db-users';
-import { injectDB, type Database, type Transaction } from '@/back-end/core/db/db';
+import { type Database, injectDB, type Transaction } from '@/back-end/core/db/db';
 import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
 import type { User, UserId, UserInsert } from '@/shared/definition/schema/types/types-user';
 import { timestampNow } from '@/shared/definition/schema/db/db-types';

@@ -1,5 +1,5 @@
 import { relations, sql } from 'drizzle-orm';
-import { int, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 import { userProfilesTable } from './db-userprofiles';
 import { itemsTable } from './db-items';
 import { skillsTable } from './db-skills';
