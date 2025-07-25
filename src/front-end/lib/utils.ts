@@ -84,3 +84,5 @@ export const getMsUntilActionDone = (activityId: ActivityId, activityStart: Date
   const actionElapsedMs = activityElapsedMs % activityActionTime;
   return activityActionTime - actionElapsedMs;
 };
+
+export const getKey = (i?: number) => `${i}${Math.random()}${Date.now()}`;
