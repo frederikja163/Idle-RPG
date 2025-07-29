@@ -92,6 +92,7 @@ export class ProfileService
   public async onProfileSelected({
     profileId,
   }: ProfileSelectedEventData): Promise<void> {
+    if (this.profileCache.hasProfile(profileId)) return;
     const profile = await this.profileRepo.findByProfileId(profileId);
     if (profile) this.profileCache.storeProfile(profile);
   }
