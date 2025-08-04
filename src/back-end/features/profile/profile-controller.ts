@@ -18,9 +18,9 @@ import {
   updateValueMany,
 } from '@/back-end/core/lib/lib-query-transform';
 import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
-import { activities, NoActivity, type ActivityId } from '@/shared/definition/definition-activities';
+import { craftingRecipes, NoActivity, type CraftingRecipeId } from '@/shared/definition/definition-crafting';
 import { ServerProfileInterface } from './profile-interface';
-import { canStartActivity, processActivity } from '@/shared/util/util-activities';
+import { canStartCrafting, processCrafting } from '@/shared/util/util-crafting';
 
 @injectableSingleton(SocketOpenEventToken)
 export class ProfileController implements SocketOpenEventListener {
@@ -173,10 +173,10 @@ export class ProfileController implements SocketOpenEventListener {
     const activity = this.getActivity(profile.activityId);
     const activityEnd = new Date();
 
-    const { items, skills } = await processActivity(
+    const { items, skills } = await processCrafting(
       profile.activityStart,
       activityEnd,
-      activity,
+      activity.id,
       new ServerProfileInterface(profileId, this.skillService, this.itemService),
     );
 
@@ -188,10 +188,10 @@ export class ProfileController implements SocketOpenEventListener {
     this.profileService.update(profile.id);
   }
 
-  private async startActivity(profileId: ProfileId, activityId: ActivityId) {
+  private async startActivity(profileId: ProfileId, activityId: CraftingRecipeId) {
     const activity = this.getActivity(activityId);
-    const error = await canStartActivity(
-      activity,
+    const error = await canStartCrafting(
+      activity.id,
       new ServerProfileInterface(profileId, this.skillService, this.itemService),
     );
     if (error) throw new ServerError(error);
@@ -205,8 +205,8 @@ export class ProfileController implements SocketOpenEventListener {
     return activityStart;
   }
 
-  private getActivity(activityId: ActivityId) {
-    const activity = activities.get(activityId);
+  private getActivity(activityId: CraftingRecipeId) {
+    const activity = craftingRecipes.get(activityId);
     if (!activity) throw new ServerError(ErrorType.InternalError, 'Activity not found.');
     return activity;
   }

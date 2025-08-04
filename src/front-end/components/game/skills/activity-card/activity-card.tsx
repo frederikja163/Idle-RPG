@@ -4,7 +4,7 @@ import {
   type GatheringActivityDef,
   NoActivity,
   type ProcessingActivityDef,
-} from '@/shared/definition/definition-activities.ts';
+} from '@/shared/definition/definition-crafting';
 import { Image } from '@/front-end/components/ui/image.tsx';
 import { Typography } from '@/front-end/components/ui/typography.tsx';
 import { Card } from '@/front-end/components/ui/card.tsx';

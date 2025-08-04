@@ -1,4 +1,4 @@
-import { gatheringDef, processingDef } from './definition-activities';
+import { gatheringDef, processingDef } from './definition-crafting';
 import { itemDef, ItemTag } from './definition-items';
 import { skillDef } from './definition-skills';
 

@@ -6,7 +6,7 @@ import { Row } from '@/front-end/components/ui/layout/row.tsx';
 import { BasicTooltip } from '@/front-end/components/ui/basic-tooltip.tsx';
 import { ItemTooltip } from '@/front-end/components/game/item-tooltip.tsx';
 import { Image } from '@/front-end/components/ui/image.tsx';
-import type { ProcessingActivityDef } from '@/shared/definition/definition-activities.ts';
+import type { ProcessingActivityDef } from '@/shared/definition/definition-crafting';
 import { ActivityCard } from '@/front-end/components/game/skills/activity-card/activity-card.tsx';
 import { useAtomValue } from 'jotai/index';
 import { profileItemsAtom } from '@/front-end/store/atoms.tsx';

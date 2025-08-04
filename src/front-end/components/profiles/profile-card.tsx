@@ -10,7 +10,7 @@ import { selectedProfileIdAtom } from '@/front-end/store/atoms.tsx';
 import { useAtomValue } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/front-end/router/routes.ts';
-import { activities, type ItemAmount } from '@/shared/definition/definition-activities.ts';
+import { craftingRecipes, type ItemAmount } from '@/shared/definition/definition-crafting';
 import { Array } from '@sinclair/typebox';
 import { Image } from '@/front-end/components/ui/image';
 import { LabelBox } from '@/front-end/components/ui/label-box.tsx';
@@ -37,7 +37,7 @@ export const ProfileCard: FC<Props> = React.memo((props) => {
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-  const activityDef = useMemo(() => activities.get(profile.activityId ?? ''), [profile.activityId]);
+  const activityDef = useMemo(() => craftingRecipes.get(profile.activityId ?? ''), [profile.activityId]);
 
   const activityImage = useMemo(() => {
     if (!activityDef) {

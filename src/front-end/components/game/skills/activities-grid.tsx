@@ -1,8 +1,8 @@
 ﻿import React, { type FC, useMemo } from 'react';
 import { Row } from '@/front-end/components/ui/layout/row.tsx';
-import { activitySkillMap } from '@/shared/util/util-activity-skill-map.ts';
+import { craftingSkillMap } from '@/shared/util/util-crafting-skill-map';
 import type { Skill } from '@/shared/definition/schema/types/types-skills.ts';
-import { activities as activityDefinitions } from '@/shared/definition/definition-activities.ts';
+import { craftingRecipes as activityDefinitions } from '@/shared/definition/definition-crafting';
 import { GatheringActivityCard } from '@/front-end/components/game/skills/activity-card/gathering-activity-card.tsx';
 import { ProcessingActivityCard } from '@/front-end/components/game/skills/activity-card/processing-activity-card.tsx';
 
@@ -16,7 +16,7 @@ export const ActivitiesGrid: FC<Props> = React.memo(function ActivitiesGrid(prop
   const activityBoxes = useMemo(
     () =>
       skill.id &&
-      activitySkillMap.get(skill.id)?.map((activityId) => {
+      craftingSkillMap.get(skill.id)?.map((activityId) => {
         const activityDef = activityDefinitions.get(activityId);
         if (!activityDef) return;
 

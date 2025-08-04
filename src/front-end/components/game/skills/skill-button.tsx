@@ -9,8 +9,7 @@ import { Row } from '@/front-end/components/ui/layout/row.tsx';
 import { CirclePlay } from 'lucide-react';
 import { useAtomValue } from 'jotai/index';
 import { activeActivityAtom } from '@/front-end/store/atoms.tsx';
-import { activities } from '@/shared/definition/definition-activities.ts';
-import { getActivitySkill } from '@/shared/util/util-activity-skill-map';
+import { craftingRecipes } from '@/shared/definition/definition-crafting';
 import { BasicTooltip } from '@/front-end/components/ui/basic-tooltip.tsx';
 import { Card } from '@/front-end/components/ui/card.tsx';
 import { LabeledText } from '@/front-end/components/ui/labeled-text.tsx';
@@ -25,11 +24,11 @@ export const SkillButton: FC<Props> = React.memo(function SkillButton(props) {
 
   const activeActivityId = useAtomValue(activeActivityAtom)?.activityId;
   const activeActivity = useMemo(
-    () => (activeActivityId ? activities.get(activeActivityId) : undefined),
+    () => (activeActivityId ? craftingRecipes.get(activeActivityId) : undefined),
     [activeActivityId],
   );
   const isActiveSkill = useMemo(
-    () => activeActivity && getActivitySkill(activeActivity) === skill.id,
+    () => activeActivity && activeActivity.skillRequirements.length > 0 && activeActivity.skillRequirements[0].skillId === skill.id,
     [activeActivity, skill.id],
   );
 

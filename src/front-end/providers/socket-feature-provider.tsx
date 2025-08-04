@@ -13,16 +13,15 @@ import {
 } from '@/front-end/store/atoms.tsx';
 import { routes } from '@/front-end/router/routes.ts';
 import { getItem, getMsUntilActionDone, getSkill, updateItems, updateSkills } from '@/front-end/lib/utils.ts';
-import { activities, type ActivityDef, type ActivityId } from '@/shared/definition/definition-activities.ts';
+import { craftingRecipes, type CraftingRecipeDef, type CraftingRecipeId } from '@/shared/definition/definition-crafting';
 import type { Timeout } from 'react-number-format/types/types';
-import { processActivity } from '@/shared/util/util-activities.ts';
+import { processCrafting } from '@/shared/util/util-crafting';
 import type { useNavigate } from 'react-router-dom';
 import type { ClientData, SocketId } from '@/shared/socket/socket-types.ts';
 import { errorMessages, ErrorType } from '@/shared/socket/socket-errors.ts';
 import { useSync } from '@/front-end/hooks/use-sync.tsx';
 import { arrayToMap } from '@/front-end/lib/array-utils.ts';
 import type { Profile } from '@/shared/definition/schema/types/types-profiles.ts';
-import { activitySkillMap } from '@/shared/util/util-activity-skill-map.ts';
 import { useToast } from './toast-provider';
 import { dateTimeNoSeconds } from '@/front-end/constants/date-time-consts.ts';
 
@@ -67,11 +66,11 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   }, [actionIntervalId, actionTimeoutId]);
 
   const processActivityLocal = useCallback(
-    async (activityDef: ActivityDef, activityTimeMs: number) => {
+    async (craftingRecipe: CraftingRecipeDef, activityTimeMs: number) => {
       const now = new Date();
       const start = new Date(now.getTime() - activityTimeMs);
 
-      const { items, skills } = await processActivity(start, now, activityDef, {
+      const { items, skills } = await processCrafting(start, now, craftingRecipe.id, {
         getSkill: getSkill(profileSkillsRef.current),
         getItem: getItem(profileItemsRef.current),
       });
@@ -83,10 +82,10 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   );
 
   const startActivity = useCallback(
-    (activityId: ActivityId, activityStart: Date) => {
+    (activityId: CraftingRecipeId, activityStart: Date) => {
       setActiveActivity({ activityId, activityStart });
 
-      const activityDef = activities.get(activityId);
+      const activityDef = craftingRecipes.get(activityId);
       if (!activityDef) return;
 
       const msUntilActionDone = getMsUntilActionDone(activityId, activityStart);
@@ -137,12 +136,9 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
       if (items) setProfileItems(updateItems(items));
       if (skills) setProfileSkills(updateSkills(skills));
       if (profile && profile.activityId && profile.activityStart) {
-        const activity = activities.get(profile.activityId);
-        if (activity?.id) {
-          const skillId = activitySkillMap
-            .entries()
-            .find(([_, activityIds]) => activityIds.includes(activity.id))
-            ?.at(0);
+        const activity = craftingRecipes.get(profile.activityId);
+        if (activity?.id && activity.skillRequirements.length > 0) {
+          const skillId = activity.skillRequirements[0].skillId;
           if (typeof skillId === 'string') setSelectedSkillTab(skillId);
         }
 

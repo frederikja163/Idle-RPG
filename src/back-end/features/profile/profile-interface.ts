@@ -1,7 +1,7 @@
 import type { ItemId, Item } from '@/shared/definition/schema/types/types-items';
 import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
 import type { SkillId, Skill } from '@/shared/definition/schema/types/types-skills';
-import type { ProfileInterface } from '@/shared/util/util-activities';
+import type { ProfileInterface } from '@/shared/util/util-crafting';
 import { SkillService } from '../skill/skill-service';
 import { ItemService } from '../item/item-service';
 
