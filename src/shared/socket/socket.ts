@@ -13,13 +13,12 @@ function reviver<T>(_: string, value: T) {
 
 export class Socket<TIncoming extends AllEvents, TOutgoing extends AllEvents> {
   public static LogEvents: boolean = false;
+  public readonly id: SocketId = crypto.randomUUID();
   private readonly _send: (data: string) => void;
   private readonly _events = new Map<EventType<TIncoming>, (data: object) => Promise<void> | void>();
   private readonly _typeCheck: TypeCheck<TIncoming>;
   private messagesReceived: number;
   private messagesSent: number;
-
-  public readonly id: SocketId = crypto.randomUUID();
 
   constructor(typeCheck: TypeCheck<TIncoming>, send: (data: string) => void) {
     this._send = send;
