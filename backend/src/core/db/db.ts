@@ -1,9 +1,9 @@
 import { drizzle } from 'drizzle-orm/libsql';
-import { itemsTable } from '../../../shared/definition/schema/db/db-items';
-import { profilesTable } from '../../../shared/definition/schema/db/db-profiles';
-import { skillsTable } from '../../../shared/definition/schema/db/db-skills';
-import { userProfileRelations } from '../../../shared/definition/schema/db/db-userprofiles';
-import { usersTable } from '../../../shared/definition/schema/db/db-users';
+import { itemsTable } from '../../../../shared/src/definition/schema/db/db-items';
+import { profilesTable } from '../../../../shared/src/definition/schema/db/db-profiles';
+import { skillsTable } from '../../../../shared/src/definition/schema/db/db-skills';
+import { userProfileRelations } from '../../../../shared/src/definition/schema/db/db-userprofiles';
+import { usersTable } from '../../../../shared/src/definition/schema/db/db-users';
 import { container, inject } from 'tsyringe';
 
 const schema = {
