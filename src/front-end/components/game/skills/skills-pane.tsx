@@ -1,6 +1,6 @@
 ﻿import React, { type FC, useMemo } from 'react';
 import { SideTabPane, type Tab } from '@/front-end/components/ui/side-tab-pane/side-tab-pane.tsx';
-import { ActivitiesGrid } from '@/front-end/components/game/skills/activities-grid.tsx';
+import { RecipesGrid } from '@/front-end/components/game/skills/recipes-grid.tsx';
 import { useAtomValue } from 'jotai';
 import { profileSkillsAtom, selectedSkillTabAtom } from '@/front-end/store/atoms.tsx';
 import { SkillButton } from './skill-button';
@@ -31,7 +31,7 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
           };
 
           return {
-            content: <ActivitiesGrid key={id} skill={profileSkill} />,
+            content: <RecipesGrid key={id} skill={profileSkill} />,
             buttonContent: <SkillButton key={id} name={skillDef.display} skill={profileSkill} />,
           } as Tab;
         })
