@@ -1,13 +1,14 @@
 ﻿import React, { type FC, type ReactNode } from 'react';
 import { Column } from '@/frontend/components/ui/layout/column';
 import { Typography } from '@/frontend/components/ui/typography';
+import { nameOf } from '@/frontend/lib/function-utils';
 
 interface Props {
   top: ReactNode | string;
   bottom: ReactNode | string;
 }
 
-export const ActivitySlot: FC<Props> = React.memo(function ActivityDetail(props) {
+export const RecipeCardSlot: FC<Props> = React.memo((props) => {
   const { top, bottom } = props;
 
   return (
@@ -17,3 +18,5 @@ export const ActivitySlot: FC<Props> = React.memo(function ActivityDetail(props)
     </Column>
   );
 });
+
+RecipeCardSlot.displayName = nameOf({ RecipeCardSlot });

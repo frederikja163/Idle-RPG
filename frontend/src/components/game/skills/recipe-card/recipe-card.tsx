@@ -1,40 +1,42 @@
-import React, { type CSSProperties, type FC, type ReactNode, useCallback, useEffect, useMemo } from 'react';
+import React, { type CSSProperties, type FC, useCallback, useEffect, useMemo } from 'react';
 import { Column } from '@/frontend/components/ui/layout/column';
-import {
-  type GatheringActivityDef,
-  NoActivity,
-  type ProcessingActivityDef,
-} from '@/shared/definition/definition-crafting';
+import { type CraftingRecipeDef, NoActivity } from '@/shared/definition/definition-crafting';
 import { Image } from '@/frontend/components/ui/image';
 import { Typography } from '@/frontend/components/ui/typography';
 import { Card } from '@/frontend/components/ui/card';
 import { Divider } from '@/frontend/components/ui/layout/divider';
-import { CirclePlay } from 'lucide-react';
+import { CirclePlay, Clock } from 'lucide-react';
 import { useAtomValue } from 'jotai';
 import { activeActivityAtom } from '@/frontend/store/atoms';
 import { motion, useAnimation } from 'framer-motion';
 import { useSocket } from '@/frontend/providers/socket-provider';
 import { getMsUntilActionDone } from '@/frontend/lib/utils';
 import { useWindowSize } from '@/frontend/hooks/use-window-size';
+import { Row } from '@/frontend/components/ui/layout/row';
+import { nameOf } from '@/frontend/lib/function-utils';
+import { RecipeCardSlot } from '@/frontend/components/game/skills/recipe-card/recipe-card-slot';
 
 interface Props {
-  activityDef: GatheringActivityDef | ProcessingActivityDef;
+  recipeDef: CraftingRecipeDef;
   className?: string;
-  handleStart: () => void;
-  children: ReactNode;
 }
 
-export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
-  const { activityDef, className, handleStart, children } = props;
+export const RecipeCard: FC<Props> = React.memo((props) => {
+  const { recipeDef, className } = props;
 
   const socket = useSocket();
   const { width } = useWindowSize();
   const animationControls = useAnimation();
   const activeActivity = useAtomValue(activeActivityAtom);
 
-  const isActive = activeActivity?.activityId === activityDef.id;
+  const isActive = false; //activeActivity?.activityId === activityDef.id;
+  // const hasRequiredLevel = skillLevel >= activityDef.skillRequirement.level;
+  // const hasRequiredItems = (profileItems.get(activityDef.cost.itemId)?.count ?? 0) >= 1;
 
   const cardWidth = useMemo(() => (width < 1000 ? 'w-30' : 'w-40'), [width]);
+
+  const mainSkill = useMemo(() => recipeDef.skillRequirements.at(0), [recipeDef.skillRequirements]);
+  const mainResult = useMemo(() => recipeDef.result.at(0), [recipeDef.result]);
 
   const handleClick = useCallback(() => {
     if (isActive) {
@@ -42,8 +44,10 @@ export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
       return;
     }
 
-    handleStart();
-  }, [handleStart, isActive, socket]);
+    // if (!hasRequiredLevel || !hasRequiredItems) return;
+
+    // socket?.send('Profile/ActivityReplace', { activityId: activityDef.id });
+  }, [isActive, socket]);
 
   useEffect(() => {
     if (!isActive || !activeActivity) {
@@ -53,7 +57,7 @@ export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
     }
 
     const msUntilActionDone = getMsUntilActionDone(activeActivity.activityId, activeActivity.activityStart);
-    const startX = `${-100 + Math.round(((activityDef.time - msUntilActionDone) / activityDef.time) * 100)}%`;
+    const startX = `${-100 + Math.round(((recipeDef.time - msUntilActionDone) / recipeDef.time) * 100)}%`;
 
     animationControls
       .start({
@@ -67,14 +71,14 @@ export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
         animationControls.start({
           x: ['-100%', '0%'],
           transition: {
-            duration: activityDef.time / 1000,
+            duration: recipeDef.time / 1000,
             ease: 'linear',
             repeat: Infinity,
             repeatType: 'loop',
           },
         }),
       );
-  }, [activeActivity, activityDef.time, animationControls, isActive]);
+  }, [activeActivity, animationControls, isActive, recipeDef.time]);
 
   return (
     <Card
@@ -87,15 +91,24 @@ export const ActivityCard: FC<Props> = React.memo(function ActivityCard(props) {
       />
       <Column className="gap-2 relative">
         {isActive && <CirclePlay size={30} className="absolute right-0" />}
-        <Image
-          src={`${import.meta.env.VITE_BASE_URL}/assets/items/${activityDef.result.itemId}.svg`}
-          alt={activityDef.result.itemId}
-          className="p-6 aspect-square"
-        />
+        {mainResult && (
+          <Image
+            src={`${import.meta.env.VITE_BASE_URL}/assets/items/${mainResult.itemId}.svg`}
+            alt={mainResult.itemId}
+            className="p-6 aspect-square"
+          />
+        )}
         {/* The min-h-16 below is not the ideal way to make equal heights. Should maybe use grids, but it's a big refactor */}
-        <Typography className="min-h-16">{activityDef.display}</Typography>
+        <Typography className="min-h-16">{recipeDef.display}</Typography>
         <Divider />
-        {children}
+        <Row>
+          <RecipeCardSlot
+            top={`${Math.round(recipeDef.time / 1000)}s`}
+            bottom={<Clock className="stroke-muted-foreground" />}
+          />
+          <Divider orientation="vertical" className="my-2" />
+          <RecipeCardSlot top={mainSkill?.xp} bottom="XP" />
+        </Row>
       </Column>
     </Card>
   );
@@ -106,3 +119,5 @@ const styles: { [key: string]: CSSProperties } = {
     transform: 'translateX(-100%)',
   },
 };
+
+RecipeCard.displayName = nameOf({ RecipeCard });
