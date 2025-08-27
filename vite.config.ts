@@ -27,10 +27,6 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: Number(env.VITE_FRONTEND_PORT ?? 3000),
-      headers: {
-        'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
-        'Cross-Origin-Embedder-Policy': 'unsafe-none',
-      },
     },
     build: {
       outDir: '../../dist',
