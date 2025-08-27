@@ -1,13 +1,13 @@
 ﻿import React, { type FC, useEffect, useMemo } from 'react';
-import { Row } from '@/front-end/components/ui/layout/row.tsx';
-import type { Skill } from '@/shared/definition/schema/types/types-skills.ts';
+import { Row } from '@/frontend/components/ui/layout/row';
+import type { Skill } from '@/shared/definition/schema/types/types-skills';
 import {
   type CraftingRecipeDef,
   type CraftingRecipeId,
   craftingRecipes,
 } from '@/shared/definition/definition-crafting';
-import { GatheringActivityCard } from '@/front-end/components/game/skills/activity-card/gathering-activity-card.tsx';
-import { ProcessingActivityCard } from '@/front-end/components/game/skills/activity-card/processing-activity-card.tsx';
+import { GatheringActivityCard } from '@/frontend/components/game/skills/activity-card/gathering-activity-card';
+import { ProcessingActivityCard } from '@/frontend/components/game/skills/activity-card/processing-activity-card';
 
 interface Props {
   skill: Partial<Skill>;

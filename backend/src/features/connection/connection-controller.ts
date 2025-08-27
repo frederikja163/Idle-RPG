@@ -2,9 +2,9 @@ import {
   type SocketOpenEventData,
   type SocketOpenEventListener,
   SocketOpenEventToken,
-} from '@/back-end/core/events/socket-event';
-import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
-import { SocketHub } from '@/back-end/core/server/sockets/socket-hub';
+} from '@/backend/core/events/socket-event';
+import { injectableSingleton } from '@/backend/core/lib/lib-tsyringe';
+import { SocketHub } from '@/backend/core/server/sockets/socket-hub';
 import type { ServerData, SocketId } from '@/shared/socket/socket-types';
 
 @injectableSingleton(SocketOpenEventToken)

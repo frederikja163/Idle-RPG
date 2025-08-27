@@ -1,6 +1,6 @@
-import { injectDB, type Database, type Transaction } from '@/back-end/core/db/db';
+import { injectDB, type Database, type Transaction } from '@/backend/core/db/db';
 import { skillsTable } from '@/shared/definition/schema/db/db-skills';
-import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
+import { injectableSingleton } from '@/backend/core/lib/lib-tsyringe';
 import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
 import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skills';
 import { and, eq } from 'drizzle-orm';

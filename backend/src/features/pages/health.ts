@@ -1,5 +1,5 @@
-import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
-import { PageToken, type Page } from '@/back-end/core/server/page';
+import { injectableSingleton } from '@/backend/core/lib/lib-tsyringe';
+import { PageToken, type Page } from '@/backend/core/server/page';
 
 @injectableSingleton(PageToken)
 export class Health implements Page<'/health'> {

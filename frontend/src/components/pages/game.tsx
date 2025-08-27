@@ -1,7 +1,7 @@
 ﻿import React, { type FC } from 'react';
-import { Inventory } from '@/front-end/components/game/inventory/inventory.tsx';
-import { Column } from '@/front-end/components/ui/layout/column.tsx';
-import { SkillsPane } from '@/front-end/components/game/skills/skills-pane.tsx';
+import { Inventory } from '@/frontend/components/game/inventory/inventory';
+import { Column } from '@/frontend/components/ui/layout/column';
+import { SkillsPane } from '@/frontend/components/game/skills/skills-pane';
 
 export const Game: FC = React.memo(function Game() {
   return (

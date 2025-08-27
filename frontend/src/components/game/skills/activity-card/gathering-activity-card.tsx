@@ -1,11 +1,11 @@
 import React, { type FC, useCallback } from 'react';
-import { ActivitySlot } from '@/front-end/components/game/skills/activity-card/activity-slot.tsx';
+import { ActivitySlot } from '@/frontend/components/game/skills/activity-card/activity-slot';
 import { Clock } from 'lucide-react';
-import { Divider } from '@/front-end/components/ui/layout/divider.tsx';
-import { Row } from '@/front-end/components/ui/layout/row.tsx';
+import { Divider } from '@/frontend/components/ui/layout/divider';
+import { Row } from '@/frontend/components/ui/layout/row';
 import type { GatheringActivityDef } from '@/shared/definition/definition-crafting';
-import { ActivityCard } from '@/front-end/components/game/skills/activity-card/activity-card.tsx';
-import { useSocket } from '@/front-end/providers/socket-provider.tsx';
+import { ActivityCard } from '@/frontend/components/game/skills/activity-card/activity-card';
+import { useSocket } from '@/frontend/providers/socket-provider';
 
 interface Props {
   activityDef: GatheringActivityDef;

@@ -1,6 +1,6 @@
 import React, { type FC, type ReactNode, useCallback } from 'react';
-import { Row } from '@/front-end/components/ui/layout/row.tsx';
-import { nameOf } from '@/front-end/lib/function-utils.ts';
+import { Row } from '@/frontend/components/ui/layout/row';
+import { nameOf } from '@/frontend/lib/function-utils';
 
 interface Props {
   children: ReactNode;

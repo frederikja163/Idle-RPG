@@ -1,11 +1,12 @@
 import '@/shared/definition/definitions';
 import './index.css';
 import { RouterProvider } from 'react-router-dom';
-import { AuthProvider } from '@/front-end/providers/auth-provider.tsx';
-import { AppRouter } from '@/front-end/router/app-router.tsx';
-import { SocketProvider } from '@/front-end/providers/socket-provider.tsx';
+import { AuthProvider } from '@/frontend/providers/auth-provider';
+import { AppRouter } from '@/frontend/router/app-router';
+import { SocketProvider } from '@/frontend/providers/socket-provider';
 import { useAtomsDevtools } from 'jotai-devtools';
-import { ToastProvider } from '@/front-end/providers/toast-provider.tsx';
+import { ToastProvider } from '@/frontend/providers/toast-provider';
+import React from 'react';
 
 export function App() {
   useAtomsDevtools('Idle-RPG');

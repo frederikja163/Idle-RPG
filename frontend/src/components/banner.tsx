@@ -1,6 +1,6 @@
-import { Row } from '@/front-end/components/ui/layout/row.tsx';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { Divider } from '@/front-end/components/ui/layout/divider.tsx';
+import { Row } from '@/frontend/components/ui/layout/row';
+import { Typography } from '@/frontend/components/ui/typography';
+import { Divider } from '@/frontend/components/ui/layout/divider';
 import React, { type FC } from 'react';
 
 export const Banner: FC = React.memo(function Banner() {

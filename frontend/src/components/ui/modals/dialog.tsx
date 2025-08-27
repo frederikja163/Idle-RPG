@@ -1,11 +1,11 @@
 import React, { type FC, type ReactNode } from 'react';
-import { nameOf } from '@/front-end/lib/function-utils.ts';
+import { nameOf } from '@/frontend/lib/function-utils';
 import { AlertDialog } from 'radix-ui';
-import { Row } from '@/front-end/components/ui/layout/row.tsx';
-import { Button } from '@/front-end/components/ui/input/button.tsx';
-import { Card } from '@/front-end/components/ui/card.tsx';
-import { cardCva, contentCva, overlayCva, titleCva } from '@/front-end/components/ui/modals/styles.ts';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
+import { Row } from '@/frontend/components/ui/layout/row';
+import { Button } from '@/frontend/components/ui/input/button';
+import { Card } from '@/frontend/components/ui/card';
+import { cardCva, contentCva, overlayCva, titleCva } from '@/frontend/components/ui/modals/styles';
+import { Typography } from '@/frontend/components/ui/typography';
 
 interface Props {
   children?: ReactNode | ReactNode[];

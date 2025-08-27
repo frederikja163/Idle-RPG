@@ -1,14 +1,14 @@
 ﻿import React, { type FC, type FormEvent, useCallback, useMemo, useState } from 'react';
-import { Card } from '@/front-end/components/ui/card.tsx';
+import { Card } from '@/frontend/components/ui/card';
 import { Plus } from 'lucide-react';
 import { Form } from 'radix-ui';
-import { Input } from '@/front-end/components/ui/input/input.tsx';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { Modal } from '@/front-end/components/ui/modals/modal.tsx';
-import { Button } from '@/front-end/components/ui/input/button.tsx';
-import { Column } from '@/front-end/components/ui/layout/column.tsx';
-import { getFormData } from '@/front-end/lib/utils.ts';
-import { useSocket } from '@/front-end/providers/socket-provider.tsx';
+import { Input } from '@/frontend/components/ui/input/input';
+import { Typography } from '@/frontend/components/ui/typography';
+import { Modal } from '@/frontend/components/ui/modals/modal';
+import { Button } from '@/frontend/components/ui/input/button';
+import { Column } from '@/frontend/components/ui/layout/column';
+import { getFormData } from '@/frontend/lib/utils';
+import { useSocket } from '@/frontend/providers/socket-provider';
 
 interface ProfileForm {
   name: string;

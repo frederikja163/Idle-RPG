@@ -1,7 +1,7 @@
-import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
-import { PageToken, type Page } from '@/back-end/core/server/page';
-import { Server } from '@/back-end/core/server/server';
-import { SocketSessionStore } from '@/back-end/core/server/sockets/socket-session-store';
+import { injectableSingleton } from '@/backend/core/lib/lib-tsyringe';
+import { PageToken, type Page } from '@/backend/core/server/page';
+import { Server } from '@/backend/core/server/server';
+import { SocketSessionStore } from '@/backend/core/server/sockets/socket-session-store';
 
 @injectableSingleton(PageToken)
 export class Stats implements Page<'/stats'> {

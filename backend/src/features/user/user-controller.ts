@@ -2,15 +2,15 @@ import {
   SocketOpenEventToken,
   type SocketOpenEventData,
   type SocketOpenEventListener,
-} from '@/back-end/core/events/socket-event';
-import { UserEventDispatcher } from '@/back-end/core/events/user-dispatcher';
-import { SocketHub } from '@/back-end/core/server/sockets/socket-hub';
-import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
+} from '@/backend/core/events/socket-event';
+import { UserEventDispatcher } from '@/backend/core/events/user-dispatcher';
+import { SocketHub } from '@/backend/core/server/sockets/socket-hub';
+import { injectableSingleton } from '@/backend/core/lib/lib-tsyringe';
 import type { ServerData, SocketId } from '@/shared/socket/socket-types';
 import { UserService } from './user-service';
 import { OAuth2Client } from 'google-auth-library';
 import { ErrorType, ServerError } from '@/shared/socket/socket-errors';
-import { transformQuery, updateValue } from '@/back-end/core/lib/lib-query-transform';
+import { transformQuery, updateValue } from '@/backend/core/lib/lib-query-transform';
 
 @injectableSingleton(SocketOpenEventToken)
 export class UserController implements SocketOpenEventListener {

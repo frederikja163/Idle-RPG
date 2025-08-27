@@ -1,7 +1,7 @@
-import { injectDB, type Database, type Transaction } from '@/back-end/core/db/db';
+import { injectDB, type Database, type Transaction } from '@/backend/core/db/db';
 import { itemsTable } from '@/shared/definition/schema/db/db-items';
 import { eq } from 'drizzle-orm';
-import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
+import { injectableSingleton } from '@/backend/core/lib/lib-tsyringe';
 import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
 import type { Item } from '@/shared/definition/schema/types/types-items';
 

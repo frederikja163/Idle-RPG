@@ -11,9 +11,9 @@ import {
   TypeGuard,
 } from '@sinclair/typebox';
 import { type ChangeEvent, type ReactNode, useEffect, useState } from 'react';
-import { Row } from '@/front-end/components/ui/layout/row';
-import { useSocket } from '@/front-end/providers/socket-provider.tsx';
-import type { ServerEvent } from '@/shared/socket/socket-types.ts';
+import { Row } from '@/frontend/components/ui/layout/row';
+import { useSocket } from '@/frontend/providers/socket-provider';
+import type { ServerEvent } from '@/shared/socket/socket-types';
 
 export function Test() {
   const socket = useSocket();

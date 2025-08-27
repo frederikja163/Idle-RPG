@@ -1,10 +1,10 @@
 ﻿import React, { type FC, type ReactNode, useCallback } from 'react';
 import { Dialog } from 'radix-ui';
-import { Card } from '@/front-end/components/ui/card.tsx';
+import { Card } from '@/frontend/components/ui/card';
 import { X } from 'lucide-react';
-import { Row } from '@/front-end/components/ui/layout/row.tsx';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { cardCva, contentCva, overlayCva, titleCva } from '@/front-end/components/ui/modals/styles.ts';
+import { Row } from '@/frontend/components/ui/layout/row';
+import { Typography } from '@/frontend/components/ui/typography';
+import { cardCva, contentCva, overlayCva, titleCva } from '@/frontend/components/ui/modals/styles';
 
 interface Props {
   children?: ReactNode | ReactNode[];

@@ -1,6 +1,6 @@
 ﻿import React, { createContext, type FC, useContext, useEffect, useState } from 'react';
-import { Socket } from '@/shared/socket/socket.ts';
-import { clientServerEvent, serverClientEvent } from '@/shared/socket/socket-events.ts';
+import { Socket } from '@/shared/socket/socket';
+import { clientServerEvent, serverClientEvent } from '@/shared/socket/socket-events';
 import { TypeCompiler } from '@sinclair/typebox/compiler';
 import type {
   ClientEvent,
@@ -9,8 +9,8 @@ import type {
   ServerClientEvent,
   ServerEvent,
   SocketId,
-} from '@/shared/socket/socket-types.ts';
-import type { ProviderProps } from '@/front-end/types/provider-types.ts';
+} from '@/shared/socket/socket-types';
+import type { ProviderProps } from '@/frontend/types/provider-types';
 import type { Timeout } from 'react-number-format/types/types';
 
 const SocketContext = createContext<ClientSocket | null>(null);

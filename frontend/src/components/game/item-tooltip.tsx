@@ -1,10 +1,10 @@
 ﻿import React, { type FC } from 'react';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { Column } from '@/front-end/components/ui/layout/column.tsx';
-import { Row } from '@/front-end/components/ui/layout/row.tsx';
-import { Card } from '@/front-end/components/ui/card.tsx';
+import { Typography } from '@/frontend/components/ui/typography';
+import { Column } from '@/frontend/components/ui/layout/column';
+import { Row } from '@/frontend/components/ui/layout/row';
+import { Card } from '@/frontend/components/ui/card';
 import { items } from '@/shared/definition/definition-items';
-import { LabelBox } from '@/front-end/components/ui/label-box.tsx';
+import { LabelBox } from '@/frontend/components/ui/label-box';
 
 interface Props {
   itemId: string;

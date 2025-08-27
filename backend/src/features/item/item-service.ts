@@ -1,4 +1,4 @@
-import { injectDB, type Database } from '@/back-end/core/db/db';
+import { injectDB, type Database } from '@/backend/core/db/db';
 import { ItemCache } from './item-cache';
 import { ItemRepository } from './item-repository';
 import {
@@ -8,9 +8,9 @@ import {
   type ProfileDeselectedEventListener,
   type ProfileSelectedEventData,
   type ProfileSelectedEventListener,
-} from '@/back-end/core/events/profile-event';
-import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
-import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup-event';
+} from '@/backend/core/events/profile-event';
+import { injectableSingleton } from '@/backend/core/lib/lib-tsyringe';
+import { CleanupEventToken, type CleanupEventListener } from '@/backend/core/events/cleanup-event';
 import { Lookup } from '@/shared/lib/lookup';
 import type { ItemId } from '@/shared/definition/schema/types/types-items';
 import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';

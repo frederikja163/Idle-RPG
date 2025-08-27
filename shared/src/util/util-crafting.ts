@@ -3,7 +3,7 @@ import type { Item, ItemId } from '../definition/schema/types/types-items';
 import type { Skill, SkillId } from '../definition/schema/types/types-skills';
 import { addItems, subItems } from './util-items';
 import { addXp } from './util-skills';
-import { ErrorType } from '@/shared/socket/socket-errors.ts';
+import { ErrorType } from '@/shared/socket/socket-errors';
 
 export interface ProfileInterface {
   getItem(itemId: ItemId): Item | Promise<Item>;

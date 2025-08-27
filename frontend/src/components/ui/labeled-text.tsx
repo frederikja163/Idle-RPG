@@ -1,7 +1,7 @@
 import React, { type FC } from 'react';
-import { Column } from '@/front-end/components/ui/layout/column.tsx';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { nameOf } from '@/front-end/lib/function-utils.ts';
+import { Column } from '@/frontend/components/ui/layout/column';
+import { Typography } from '@/frontend/components/ui/typography';
+import { nameOf } from '@/frontend/lib/function-utils';
 
 interface Props {
   label: string;

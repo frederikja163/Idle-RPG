@@ -1,10 +1,10 @@
 import React, { type FC, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { routes } from '@/front-end/router/routes.ts';
-import { useSocket } from '@/front-end/providers/socket-provider.tsx';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { Column } from '@/front-end/components/ui/layout/column.tsx';
-import { Row } from '@/front-end/components/ui/layout/row.tsx';
+import { routes } from '@/frontend/router/routes';
+import { useSocket } from '@/frontend/providers/socket-provider';
+import { Typography } from '@/frontend/components/ui/typography';
+import { Column } from '@/frontend/components/ui/layout/column';
+import { Row } from '@/frontend/components/ui/layout/row';
 
 export const NoConnection: FC = React.memo(function NoConnection() {
   const socket = useSocket();

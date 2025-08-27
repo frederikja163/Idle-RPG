@@ -1,6 +1,6 @@
 ﻿import React, { type FC, type ReactNode } from 'react';
-import { Column } from '@/front-end/components/ui/layout/column.tsx';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
+import { Column } from '@/frontend/components/ui/layout/column';
+import { Typography } from '@/frontend/components/ui/typography';
 
 interface Props {
   top: ReactNode | string;

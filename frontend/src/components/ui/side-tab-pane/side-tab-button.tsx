@@ -1,6 +1,6 @@
 ﻿import React, { type FC, type ReactNode, useCallback } from 'react';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { Column } from '@/front-end/components/ui/layout/column.tsx';
+import { Typography } from '@/frontend/components/ui/typography';
+import { Column } from '@/frontend/components/ui/layout/column';
 
 interface Props {
   index: number;

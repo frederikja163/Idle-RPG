@@ -1,8 +1,8 @@
-import { CleanupEventDispatcher } from '@/back-end/core/events/cleanup-dispatcher';
-import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
-import { PageToken, type Page } from '@/back-end/core/server/page';
-import { Server } from '@/back-end/core/server/server';
-import { SocketRegistry } from '@/back-end/core/server/sockets/socket-registry';
+import { CleanupEventDispatcher } from '@/backend/core/events/cleanup-dispatcher';
+import { injectableSingleton } from '@/backend/core/lib/lib-tsyringe';
+import { PageToken, type Page } from '@/backend/core/server/page';
+import { Server } from '@/backend/core/server/server';
+import { SocketRegistry } from '@/backend/core/server/sockets/socket-registry';
 
 @injectableSingleton(PageToken)
 export class Stop implements Page<'/stop'> {

@@ -1,11 +1,11 @@
 ﻿import React, { type FC, useMemo } from 'react';
-import { SideTabPane, type Tab } from '@/front-end/components/ui/side-tab-pane/side-tab-pane.tsx';
-import { ActivitiesGrid } from '@/front-end/components/game/skills/activities-grid.tsx';
+import { SideTabPane, type Tab } from '@/frontend/components/ui/side-tab-pane/side-tab-pane';
+import { ActivitiesGrid } from '@/frontend/components/game/skills/activities-grid';
 import { useAtomValue } from 'jotai';
-import { profileSkillsAtom, selectedSkillTabAtom } from '@/front-end/store/atoms.tsx';
+import { profileSkillsAtom, selectedSkillTabAtom } from '@/frontend/store/atoms';
 import { SkillButton } from './skill-button';
-import { skills as skillDefinitions } from '@/shared/definition/definition-skills.ts';
-import type { SkillId } from '@/shared/definition/schema/types/types-skills.ts';
+import { skills as skillDefinitions } from '@/shared/definition/definition-skills';
+import type { SkillId } from '@/shared/definition/schema/types/types-skills';
 
 const skillTabIndexMap = new Map<SkillId, number>([
   ['Mining', 0],

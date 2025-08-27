@@ -1,7 +1,7 @@
 import React, { createContext, type FC, type ReactNode, useCallback, useContext, useState } from 'react';
-import type { ProviderProps } from '@/front-end/types/provider-types.ts';
+import type { ProviderProps } from '@/frontend/types/provider-types';
 import { Toast } from 'radix-ui';
-import { getKey } from '@/front-end/lib/utils.ts';
+import { getKey } from '@/frontend/lib/utils';
 
 type ToastType = 'info' | 'success' | 'warning' | 'error';
 

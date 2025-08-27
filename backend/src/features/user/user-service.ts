@@ -1,5 +1,5 @@
-import { injectDB, type Database } from '@/back-end/core/db/db';
-import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
+import { injectDB, type Database } from '@/backend/core/db/db';
+import { injectableSingleton } from '@/backend/core/lib/lib-tsyringe';
 import { UserRepository } from './user-repository';
 import { UserCache } from './user-cache';
 import {
@@ -9,8 +9,8 @@ import {
   type UserLoginEventListener,
   type UserLogoutEventData,
   type UserLogoutEventListener,
-} from '@/back-end/core/events/user-event';
-import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup-event';
+} from '@/backend/core/events/user-event';
+import { CleanupEventToken, type CleanupEventListener } from '@/backend/core/events/cleanup-event';
 import type { UserId } from '@/shared/definition/schema/types/types-user';
 import { ErrorType, ServerError } from '@/shared/socket/socket-errors';
 

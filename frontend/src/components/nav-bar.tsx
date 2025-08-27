@@ -1,14 +1,14 @@
 import { useCallback } from 'react';
-import { Button } from './ui/input/button.tsx';
-import { useAuth } from '@/front-end/providers/auth-provider.tsx';
-import { Row } from '@/front-end/components/ui/layout/row.tsx';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
+import { Button } from './ui/input/button';
+import { useAuth } from '@/frontend/providers/auth-provider';
+import { Row } from '@/frontend/components/ui/layout/row';
+import { Typography } from '@/frontend/components/ui/typography';
 import { useNavigate } from 'react-router-dom';
-import { routes } from '@/front-end/router/routes.ts';
-import { useSocket } from '@/front-end/providers/socket-provider.tsx';
-import { Column } from '@/front-end/components/ui/layout/column.tsx';
-import { Divider } from '@/front-end/components/ui/layout/divider.tsx';
-import { Banner } from '@/front-end/components/banner.tsx';
+import { routes } from '@/frontend/router/routes';
+import { useSocket } from '@/frontend/providers/socket-provider';
+import { Column } from '@/frontend/components/ui/layout/column';
+import { Divider } from '@/frontend/components/ui/layout/divider';
+import { Banner } from '@/frontend/components/banner';
 
 export function NavBar() {
   const socket = useSocket();

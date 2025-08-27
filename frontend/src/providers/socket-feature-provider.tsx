@@ -1,6 +1,6 @@
 import React, { createContext, type FC, useCallback, useEffect, useRef, useState } from 'react';
-import type { ProviderProps } from '@/front-end/types/provider-types.ts';
-import { useOnSocket, useSocket } from '@/front-end/providers/socket-provider.tsx';
+import type { ProviderProps } from '@/frontend/types/provider-types';
+import { useOnSocket, useSocket } from '@/frontend/providers/socket-provider';
 import { useAtom, useSetAtom } from 'jotai/index';
 import {
   activeActivityAtom,
@@ -10,20 +10,24 @@ import {
   resetAtomsAtom,
   selectedProfileIdAtom,
   selectedSkillTabAtom,
-} from '@/front-end/store/atoms.tsx';
-import { routes } from '@/front-end/router/routes.ts';
-import { getItem, getMsUntilActionDone, getSkill, updateItems, updateSkills } from '@/front-end/lib/utils.ts';
-import { craftingRecipes, type CraftingRecipeDef, type CraftingRecipeId } from '@/shared/definition/definition-crafting';
+} from '@/frontend/store/atoms';
+import { routes } from '@/frontend/router/routes';
+import { getItem, getMsUntilActionDone, getSkill, updateItems, updateSkills } from '@/frontend/lib/utils';
+import {
+  craftingRecipes,
+  type CraftingRecipeDef,
+  type CraftingRecipeId,
+} from '@/shared/definition/definition-crafting';
 import type { Timeout } from 'react-number-format/types/types';
 import { processCrafting } from '@/shared/util/util-crafting';
 import type { useNavigate } from 'react-router-dom';
-import type { ClientData, SocketId } from '@/shared/socket/socket-types.ts';
-import { errorMessages, ErrorType } from '@/shared/socket/socket-errors.ts';
-import { useSync } from '@/front-end/hooks/use-sync.tsx';
-import { arrayToMap } from '@/front-end/lib/array-utils.ts';
-import type { Profile } from '@/shared/definition/schema/types/types-profiles.ts';
+import type { ClientData, SocketId } from '@/shared/socket/socket-types';
+import { errorMessages, ErrorType } from '@/shared/socket/socket-errors';
+import { useSync } from '@/frontend/hooks/use-sync';
+import { arrayToMap } from '@/frontend/lib/array-utils';
+import type { Profile } from '@/shared/definition/schema/types/types-profiles';
 import { useToast } from './toast-provider';
-import { dateTimeNoSeconds } from '@/front-end/constants/date-time-consts.ts';
+import { dateTimeNoSeconds } from '@/frontend/constants/date-time-consts';
 
 const SocketFeatureContext = createContext(undefined);
 

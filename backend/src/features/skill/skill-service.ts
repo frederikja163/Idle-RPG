@@ -1,7 +1,7 @@
-import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
+import { injectableSingleton } from '@/backend/core/lib/lib-tsyringe';
 import { SkillCache } from './skill-cache';
 import { SkillRepository } from './skill-repository';
-import { injectDB, type Database } from '@/back-end/core/db/db';
+import { injectDB, type Database } from '@/backend/core/db/db';
 import {
   ProfileDeselectedEventToken,
   ProfileSelectedEventToken,
@@ -9,8 +9,8 @@ import {
   type ProfileDeselectedEventListener,
   type ProfileSelectedEventData,
   type ProfileSelectedEventListener,
-} from '@/back-end/core/events/profile-event';
-import { CleanupEventToken, type CleanupEventListener } from '@/back-end/core/events/cleanup-event';
+} from '@/backend/core/events/profile-event';
+import { CleanupEventToken, type CleanupEventListener } from '@/backend/core/events/cleanup-event';
 import { Lookup } from '@/shared/lib/lookup';
 import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
 import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skills';

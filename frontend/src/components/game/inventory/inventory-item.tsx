@@ -1,10 +1,10 @@
 ﻿import React, { type FC } from 'react';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { Column } from '@/front-end/components/ui/layout/column.tsx';
-import { Row } from '@/front-end/components/ui/layout/row.tsx';
-import { BasicTooltip } from '@/front-end/components/ui/basic-tooltip.tsx';
-import { ItemTooltip } from '@/front-end/components/game/item-tooltip.tsx';
-import type { Item } from '@/shared/definition/schema/types/types-items.ts';
+import { Typography } from '@/frontend/components/ui/typography';
+import { Column } from '@/frontend/components/ui/layout/column';
+import { Row } from '@/frontend/components/ui/layout/row';
+import { BasicTooltip } from '@/frontend/components/ui/basic-tooltip';
+import { ItemTooltip } from '@/frontend/components/game/item-tooltip';
+import type { Item } from '@/shared/definition/schema/types/types-items';
 
 interface Props {
   item: Partial<Item>;

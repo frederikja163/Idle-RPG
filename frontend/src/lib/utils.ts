@@ -1,8 +1,8 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import type { FormEvent } from 'react';
-import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skills.ts';
-import type { Item, ItemId } from '@/shared/definition/schema/types/types-items.ts';
+import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skills';
+import type { Item, ItemId } from '@/shared/definition/schema/types/types-items';
 import { craftingRecipes, type CraftingRecipeId } from '@/shared/definition/definition-crafting';
 import type { Profile, ProfileId } from '@/shared/definition/schema/types/types-profiles';
 

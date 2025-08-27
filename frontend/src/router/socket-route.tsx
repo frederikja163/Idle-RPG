@@ -1,8 +1,8 @@
 import React, { type FC, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { routes } from '@/front-end/router/routes.ts';
-import { useSocket } from '@/front-end/providers/socket-provider.tsx';
-import { AppLayout } from '@/front-end/router/app-layout.tsx';
+import { routes } from '@/frontend/router/routes';
+import { useSocket } from '@/frontend/providers/socket-provider';
+import { AppLayout } from '@/frontend/router/app-layout';
 
 export const SocketRoute: FC = React.memo(function SocketRoute() {
   const navigate = useNavigate();

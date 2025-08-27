@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
-import { routes } from '@/front-end/router/routes.ts';
+import { routes } from '@/frontend/router/routes';
 import { useSetAtom } from 'jotai/index';
 import { useNavigate } from 'react-router-dom';
 import { useAtom } from 'jotai';
-import { useSocket } from '@/front-end/providers/socket-provider.tsx';
-import { resetAtomsAtom, selectedProfileIdAtom } from '@/front-end/store/atoms.tsx';
+import { useSocket } from '@/frontend/providers/socket-provider';
+import { resetAtomsAtom, selectedProfileIdAtom } from '@/frontend/store/atoms';
 
 export const useSync = () => {
   const navigate = useNavigate();

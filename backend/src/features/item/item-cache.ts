@@ -1,4 +1,4 @@
-import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
+import { injectableSingleton } from '@/backend/core/lib/lib-tsyringe';
 import type { Item, ItemId } from '@/shared/definition/schema/types/types-items';
 import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
 import { Table } from '@/shared/lib/table';

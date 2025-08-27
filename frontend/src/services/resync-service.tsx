@@ -1,6 +1,6 @@
 import React, { type FC, useEffect, useState } from 'react';
-import { useVisibility } from '@/front-end/hooks/use-visibility.tsx';
-import { useSocket } from '@/front-end/providers/socket-provider.tsx';
+import { useVisibility } from '@/frontend/hooks/use-visibility';
+import { useSocket } from '@/frontend/providers/socket-provider';
 
 const minHiddenMs = 1000 * 5;
 

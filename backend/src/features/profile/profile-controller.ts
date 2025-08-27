@@ -1,11 +1,11 @@
-import { ProfileEventDispatcher } from '@/back-end/core/events/profile-dispatcher';
+import { ProfileEventDispatcher } from '@/backend/core/events/profile-dispatcher';
 import {
   SocketOpenEventToken,
   type SocketOpenEventData,
   type SocketOpenEventListener,
-} from '@/back-end/core/events/socket-event';
-import { SocketHub } from '@/back-end/core/server/sockets/socket-hub';
-import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
+} from '@/backend/core/events/socket-event';
+import { SocketHub } from '@/backend/core/server/sockets/socket-hub';
+import { injectableSingleton } from '@/backend/core/lib/lib-tsyringe';
 import { ProfileService } from './profile-service';
 import type { ClientData, ServerData, SocketId } from '@/shared/socket/socket-types';
 import { ErrorType, ServerError } from '@/shared/socket/socket-errors';
@@ -16,7 +16,7 @@ import {
   transformQueryMany,
   updateValue,
   updateValueMany,
-} from '@/back-end/core/lib/lib-query-transform';
+} from '@/backend/core/lib/lib-query-transform';
 import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
 import { craftingRecipes, NoActivity, type CraftingRecipeId } from '@/shared/definition/definition-crafting';
 import { ServerProfileInterface } from './profile-interface';

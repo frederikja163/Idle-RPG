@@ -1,15 +1,15 @@
 ﻿import { createHashRouter, Outlet, useNavigate } from 'react-router-dom';
-import { AuthRoute } from '@/front-end/router/auth-route.tsx';
-import { routes } from '@/front-end/router/routes.ts';
-import { Login } from '@/front-end/components/pages/login.tsx';
-import { Profiles } from '@/front-end/components/pages/profiles.tsx';
-import { Test } from '@/front-end/components/pages/test.tsx';
-import { Game } from '@/front-end/components/pages/game.tsx';
-import { SocketFeatureProvider } from '@/front-end/providers/socket-feature-provider.tsx';
-import { NoConnection } from '@/front-end/components/pages/no-connection.tsx';
-import { SocketRoute } from '@/front-end/router/socket-route.tsx';
-import { ResyncService } from '@/front-end/services/resync-service.tsx';
-import { Error } from '@/front-end/components/pages/error.tsx';
+import { AuthRoute } from '@/frontend/router/auth-route';
+import { routes } from '@/frontend/router/routes';
+import { Login } from '@/frontend/components/pages/login';
+import { Profiles } from '@/frontend/components/pages/profiles';
+import { Test } from '@/frontend/components/pages/test';
+import { Game } from '@/frontend/components/pages/game';
+import { SocketFeatureProvider } from '@/frontend/providers/socket-feature-provider';
+import { NoConnection } from '@/frontend/components/pages/no-connection';
+import { SocketRoute } from '@/frontend/router/socket-route';
+import { ResyncService } from '@/frontend/services/resync-service';
+import { Error } from '@/frontend/components/pages/error';
 
 // TODO: try to remove this by splitting up SocketFeatureProvider
 // Needed to pass navigate to some providers

@@ -1,13 +1,13 @@
 ﻿import React, { type CSSProperties, type FC, useMemo } from 'react';
-import { Column } from '@/front-end/components/ui/layout/column.tsx';
-import { Row } from '@/front-end/components/ui/layout/row.tsx';
-import { InventoryItem } from '@/front-end/components/game/inventory/inventory-item.tsx';
-import { Card } from '@/front-end/components/ui/card.tsx';
-import { InventoryTab } from '@/front-end/components/game/inventory/inventory-tab.tsx';
+import { Column } from '@/frontend/components/ui/layout/column';
+import { Row } from '@/frontend/components/ui/layout/row';
+import { InventoryItem } from '@/frontend/components/game/inventory/inventory-item';
+import { Card } from '@/frontend/components/ui/card';
+import { InventoryTab } from '@/frontend/components/game/inventory/inventory-tab';
 import { useAtomValue } from 'jotai';
-import { profileItemsAtom, selectedInventoryTabAtom } from '@/front-end/store/atoms.tsx';
-import { items as itemDefinitions } from '@/shared/definition/definition-items.ts';
-import { inventoryTabMap } from '@/front-end/constants/inventory-consts.ts';
+import { profileItemsAtom, selectedInventoryTabAtom } from '@/frontend/store/atoms';
+import { items as itemDefinitions } from '@/shared/definition/definition-items';
+import { inventoryTabMap } from '@/frontend/constants/inventory-consts';
 
 export const Inventory: FC = React.memo(function Inventory() {
   const selectedTab = useAtomValue(selectedInventoryTabAtom);

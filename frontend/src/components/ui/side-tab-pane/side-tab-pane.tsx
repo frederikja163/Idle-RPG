@@ -1,12 +1,12 @@
 ﻿import React, { type FC, type ReactNode, useCallback, useEffect, useState } from 'react';
-import { Card } from '@/front-end/components/ui/card.tsx';
-import { Column } from '@/front-end/components/ui/layout/column.tsx';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { Row } from '@/front-end/components/ui/layout/row.tsx';
-import { SideTabButton } from '@/front-end/components/ui/side-tab-pane/side-tab-button.tsx';
-import { Divider } from '@/front-end/components/ui/layout/divider.tsx';
-import { useWindowSize } from '@/front-end/hooks/use-window-size.tsx';
-import { ToggleButton } from '@/front-end/components/ui/input/toggle-button.tsx';
+import { Card } from '@/frontend/components/ui/card';
+import { Column } from '@/frontend/components/ui/layout/column';
+import { Typography } from '@/frontend/components/ui/typography';
+import { Row } from '@/frontend/components/ui/layout/row';
+import { SideTabButton } from '@/frontend/components/ui/side-tab-pane/side-tab-button';
+import { Divider } from '@/frontend/components/ui/layout/divider';
+import { useWindowSize } from '@/frontend/hooks/use-window-size';
+import { ToggleButton } from '@/frontend/components/ui/input/toggle-button';
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 
 export interface Tab {

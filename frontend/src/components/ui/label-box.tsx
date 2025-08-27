@@ -1,7 +1,7 @@
 import React, { type FC } from 'react';
-import { Row } from '@/front-end/components/ui/layout/row';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { nameOf } from '@/front-end/lib/function-utils.ts';
+import { Row } from '@/frontend/components/ui/layout/row';
+import { Typography } from '@/frontend/components/ui/typography';
+import { nameOf } from '@/frontend/lib/function-utils';
 
 interface Props {
   text: string;

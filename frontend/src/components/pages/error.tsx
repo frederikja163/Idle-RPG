@@ -1,9 +1,9 @@
 import React, { type FC, useCallback } from 'react';
-import { Column } from '@/front-end/components/ui/layout/column.tsx';
-import { nameOf } from '@/front-end/lib/function-utils.ts';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { Button } from '@/front-end/components/ui/input/button.tsx';
-import { routes } from '@/front-end/router/routes.ts';
+import { Column } from '@/frontend/components/ui/layout/column';
+import { nameOf } from '@/frontend/lib/function-utils';
+import { Typography } from '@/frontend/components/ui/typography';
+import { Button } from '@/frontend/components/ui/input/button';
+import { routes } from '@/frontend/router/routes';
 import { useNavigate } from 'react-router-dom';
 
 export const Error: FC = React.memo(() => {

@@ -1,21 +1,21 @@
 import React, { type CSSProperties, type FC, type ReactNode, useCallback, useEffect, useMemo } from 'react';
-import { Column } from '@/front-end/components/ui/layout/column.tsx';
+import { Column } from '@/frontend/components/ui/layout/column';
 import {
   type GatheringActivityDef,
   NoActivity,
   type ProcessingActivityDef,
 } from '@/shared/definition/definition-crafting';
-import { Image } from '@/front-end/components/ui/image.tsx';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { Card } from '@/front-end/components/ui/card.tsx';
-import { Divider } from '@/front-end/components/ui/layout/divider.tsx';
+import { Image } from '@/frontend/components/ui/image';
+import { Typography } from '@/frontend/components/ui/typography';
+import { Card } from '@/frontend/components/ui/card';
+import { Divider } from '@/frontend/components/ui/layout/divider';
 import { CirclePlay } from 'lucide-react';
 import { useAtomValue } from 'jotai';
-import { activeActivityAtom } from '@/front-end/store/atoms.tsx';
+import { activeActivityAtom } from '@/frontend/store/atoms';
 import { motion, useAnimation } from 'framer-motion';
-import { useSocket } from '@/front-end/providers/socket-provider.tsx';
-import { getMsUntilActionDone } from '@/front-end/lib/utils.ts';
-import { useWindowSize } from '@/front-end/hooks/use-window-size.tsx';
+import { useSocket } from '@/frontend/providers/socket-provider';
+import { getMsUntilActionDone } from '@/frontend/lib/utils';
+import { useWindowSize } from '@/frontend/hooks/use-window-size';
 
 interface Props {
   activityDef: GatheringActivityDef | ProcessingActivityDef;

@@ -1,18 +1,18 @@
 import React, { type FC, useMemo } from 'react';
-import { ProgressBar } from '@/front-end/components/ui/progress-bar.tsx';
-import { Column } from '@/front-end/components/ui/layout/column.tsx';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
-import type { Skill } from '@/shared/definition/schema/types/types-skills.ts';
-import { xpAccum } from '@/shared/util/util-skills.ts';
-import { Image } from '@/front-end/components/ui/image.tsx';
-import { Row } from '@/front-end/components/ui/layout/row.tsx';
+import { ProgressBar } from '@/frontend/components/ui/progress-bar';
+import { Column } from '@/frontend/components/ui/layout/column';
+import { Typography } from '@/frontend/components/ui/typography';
+import type { Skill } from '@/shared/definition/schema/types/types-skills';
+import { xpAccum } from '@/shared/util/util-skills';
+import { Image } from '@/frontend/components/ui/image';
+import { Row } from '@/frontend/components/ui/layout/row';
 import { CirclePlay } from 'lucide-react';
 import { useAtomValue } from 'jotai/index';
-import { activeActivityAtom } from '@/front-end/store/atoms.tsx';
+import { activeActivityAtom } from '@/frontend/store/atoms';
 import { craftingRecipes } from '@/shared/definition/definition-crafting';
-import { BasicTooltip } from '@/front-end/components/ui/basic-tooltip.tsx';
-import { Card } from '@/front-end/components/ui/card.tsx';
-import { LabeledText } from '@/front-end/components/ui/labeled-text.tsx';
+import { BasicTooltip } from '@/frontend/components/ui/basic-tooltip';
+import { Card } from '@/frontend/components/ui/card';
+import { LabeledText } from '@/frontend/components/ui/labeled-text';
 
 interface Props {
   name: string;
@@ -28,7 +28,10 @@ export const SkillButton: FC<Props> = React.memo(function SkillButton(props) {
     [activeActivityId],
   );
   const isActiveSkill = useMemo(
-    () => activeActivity && activeActivity.skillRequirements.length > 0 && activeActivity.skillRequirements[0].skillId === skill.id,
+    () =>
+      activeActivity &&
+      activeActivity.skillRequirements.length > 0 &&
+      activeActivity.skillRequirements[0].skillId === skill.id,
     [activeActivity, skill.id],
   );
 

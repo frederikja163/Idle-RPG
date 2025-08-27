@@ -1,8 +1,8 @@
 ﻿import React, { type FC, useCallback } from 'react';
-import { Typography } from '@/front-end/components/ui/typography.tsx';
-import { selectedInventoryTabAtom } from '@/front-end/store/atoms.tsx';
+import { Typography } from '@/frontend/components/ui/typography';
+import { selectedInventoryTabAtom } from '@/frontend/store/atoms';
 import { useAtom } from 'jotai';
-import { Row } from '@/front-end/components/ui/layout/row.tsx';
+import { Row } from '@/frontend/components/ui/layout/row';
 
 interface Props {
   label: string;

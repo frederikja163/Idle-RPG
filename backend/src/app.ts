@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import '../container';
+import './container';
 import { container } from 'tsyringe';
 import { Server } from './core/server/server';
 import { Socket } from '@/shared/socket/socket';

@@ -1,7 +1,7 @@
 import { eq, inArray } from 'drizzle-orm';
 import { usersTable } from '@/shared/definition/schema/db/db-users';
-import { type Database, injectDB, type Transaction } from '@/back-end/core/db/db';
-import { injectableSingleton } from '@/back-end/core/lib/lib-tsyringe';
+import { type Database, injectDB, type Transaction } from '@/backend/core/db/db';
+import { injectableSingleton } from '@/backend/core/lib/lib-tsyringe';
 import type { User, UserId, UserInsert } from '@/shared/definition/schema/types/types-user';
 import { timestampNow } from '@/shared/definition/schema/db/db-types';
 
