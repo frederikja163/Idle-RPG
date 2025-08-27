@@ -1,6 +1,7 @@
 ﻿import React, { type FC, type HTMLProps } from 'react';
+import { nameOf } from '@/frontend/lib/function-utils';
 
-export const Column: FC<HTMLProps<HTMLDivElement>> = React.memo(function Column(props) {
+export const Column: FC<HTMLProps<HTMLDivElement>> = React.memo((props) => {
   const { children, className } = props;
 
   return (
@@ -9,3 +10,5 @@ export const Column: FC<HTMLProps<HTMLDivElement>> = React.memo(function Column(
     </div>
   );
 });
+
+Column.displayName = nameOf({ Column });
