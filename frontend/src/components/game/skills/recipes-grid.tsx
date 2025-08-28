@@ -8,6 +8,7 @@ import {
 } from '@/shared/definition/definition-crafting';
 import { nameOf } from '@/frontend/lib/function-utils';
 import { RecipeCard } from '@/frontend/components/game/skills/recipe-card/recipe-card';
+import { mapEntriesToArray } from '@/frontend/lib/array-utils';
 
 interface Props {
   skill: Partial<Skill>;
@@ -19,8 +20,7 @@ export const RecipesGrid: FC<Props> = React.memo((props) => {
   const recipeBoxes = useMemo(
     () =>
       skill.id &&
-      craftingRecipes
-        .entries()
+      mapEntriesToArray(craftingRecipes)
         .filter(
           ([_, craftingRecipeDef]: [CraftingRecipeId, CraftingRecipeDef]) =>
             craftingRecipeDef.skillRequirements.at(0)?.skillId === skill.id,

@@ -9,6 +9,7 @@ import { useWindowSize } from '@/frontend/hooks/use-window-size';
 import { ToggleButton } from '@/frontend/components/ui/input/toggle-button';
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { nameOf } from '@/frontend/lib/function-utils';
+import { getKey } from '@/frontend/lib/utils';
 
 export interface Tab {
   content: ReactNode;
@@ -57,7 +58,7 @@ export const SideTabPane: FC<Props> = React.memo(function SideTabPane(props) {
               <Column className="gap-4">
                 {tabs.map((tab, i) => (
                   <TabButton
-                    key={tab.label}
+                    key={getKey(i)}
                     index={i}
                     selectedIndex={selectedTabIndex}
                     label={tab.label}
