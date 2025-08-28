@@ -62,6 +62,7 @@ export const SideTabPane: FC<Props> = React.memo(function SideTabPane(props) {
                     index={i}
                     selectedIndex={selectedTabIndex}
                     label={tab.label}
+                    orientation="vertical"
                     onClick={setSelectedTabIndex}>
                     {tab.buttonContent}
                   </TabButton>

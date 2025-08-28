@@ -27,6 +27,7 @@ export const TopTabPane: FC<Props> = React.memo((props) => {
               index={i}
               selectedIndex={selectedTabIndex}
               label={tab.label}
+              orientation="horizontal"
               onClick={setSelectedTabIndex}>
               {tab.buttonContent}
             </TabButton>
