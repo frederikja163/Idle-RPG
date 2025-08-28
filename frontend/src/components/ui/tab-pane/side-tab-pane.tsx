@@ -3,11 +3,12 @@ import { Card } from '@/frontend/components/ui/card';
 import { Column } from '@/frontend/components/ui/layout/column';
 import { Typography } from '@/frontend/components/ui/typography';
 import { Row } from '@/frontend/components/ui/layout/row';
-import { SideTabButton } from '@/frontend/components/ui/side-tab-pane/side-tab-button';
+import { TabButton } from '@/frontend/components/ui/tab-pane/tab-button';
 import { Divider } from '@/frontend/components/ui/layout/divider';
 import { useWindowSize } from '@/frontend/hooks/use-window-size';
 import { ToggleButton } from '@/frontend/components/ui/input/toggle-button';
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { nameOf } from '@/frontend/lib/function-utils';
 
 export interface Tab {
   content: ReactNode;
@@ -55,14 +56,14 @@ export const SideTabPane: FC<Props> = React.memo(function SideTabPane(props) {
             <>
               <Column className="gap-4">
                 {tabs.map((tab, i) => (
-                  <SideTabButton
+                  <TabButton
                     key={tab.label}
                     index={i}
                     selectedIndex={selectedTabIndex}
                     label={tab.label}
                     onClick={setSelectedTabIndex}>
                     {tab.buttonContent}
-                  </SideTabButton>
+                  </TabButton>
                 ))}
               </Column>
               <Divider orientation="vertical" className="mr-6" />
@@ -74,3 +75,5 @@ export const SideTabPane: FC<Props> = React.memo(function SideTabPane(props) {
     </Card>
   );
 });
+
+SideTabPane.displayName = nameOf({ SideTabPane });

@@ -8,6 +8,7 @@ import { useAtomValue } from 'jotai';
 import { profileItemsAtom, selectedInventoryTabAtom } from '@/frontend/store/atoms';
 import { items as itemDefinitions } from '@/shared/definition/definition-items';
 import { inventoryTabMap } from '@/frontend/constants/inventory-consts';
+import { TopTabPane } from '@/frontend/components/ui/tab-pane/top-tab-pane';
 
 export const Inventory: FC = React.memo(function Inventory() {
   const selectedTab = useAtomValue(selectedInventoryTabAtom);
@@ -25,17 +26,22 @@ export const Inventory: FC = React.memo(function Inventory() {
       .map(([itemId, item]) => <InventoryItem key={itemId} item={item} />);
   }, [selectedTab, profileItems]);
 
+  const inventoryTabs = useMemo(() => inventoryTabMap.get(selectedTab), []);
+
   return (
-    <Card className="bg-card w-full overflow-hidden">
-      <Column>
-        <Row className="h-12" style={styles.itemContainer}>
-          {inventoryTabMap.keys().map((label) => (
-            <InventoryTab label={label} key={label} />
-          ))}
-        </Row>
-        <Row className="gap-2 p-4 h-80 overflow-y-scroll flex-wrap">{shownItems}</Row>
-      </Column>
-    </Card>
+    <>
+      <Card className="bg-card w-full overflow-hidden">
+        <Column>
+          <Row className="h-12" style={styles.itemContainer}>
+            {inventoryTabMap.keys().map((label) => (
+              <InventoryTab label={label} key={label} />
+            ))}
+          </Row>
+          <Row className="gap-2 p-4 h-80 overflow-y-scroll flex-wrap">{shownItems}</Row>
+        </Column>
+      </Card>
+      <TopTabPane tabs={} />
+    </>
   );
 });
 

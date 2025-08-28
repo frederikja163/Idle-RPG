@@ -1,5 +1,5 @@
 ﻿import React, { type FC, useMemo } from 'react';
-import { SideTabPane, type Tab } from '@/frontend/components/ui/side-tab-pane/side-tab-pane';
+import { SideTabPane, type Tab } from '@/frontend/components/ui/tab-pane/side-tab-pane';
 import { useAtomValue } from 'jotai';
 import { profileSkillsAtom, selectedSkillTabAtom } from '@/frontend/store/atoms';
 import { SkillButton } from './skill-button';
