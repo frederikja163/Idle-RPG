@@ -59,6 +59,3 @@ export function processingDef(cost: ItemDef, result: ItemDef, skill: SkillDef, a
   );
   skill.craftingRecipes.push(recipe);
 }
-
-// Note: Changing this value breaks the database schema.
-export const NoActivity = 'None';
