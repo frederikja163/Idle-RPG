@@ -14,9 +14,9 @@ import {
 import { routes } from '@/frontend/router/routes';
 import { getItem, getMsUntilActionDone, getSkill, updateItems, updateSkills } from '@/frontend/lib/utils';
 import {
-  craftingRecipes,
   type CraftingRecipeDef,
   type CraftingRecipeId,
+  craftingRecipes,
 } from '@/shared/definition/definition-crafting';
 import type { Timeout } from 'react-number-format/types/types';
 import { processCrafting } from '@/shared/util/util-crafting';
@@ -128,7 +128,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
         setSelectedProfileId(profile.id);
 
         socket?.send('Profile/Query', {
-          profile: { activityId: true, activityStart: true },
+          profile: { activity: true },
           items: { index: true, count: true, id: true },
           skills: { xp: true, level: true, id: true },
         });
@@ -139,11 +139,13 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
 
       if (items) setProfileItems(updateItems(items));
       if (skills) setProfileSkills(updateSkills(skills));
-      if (profile && profile.activityId && profile.activityStart) {
-        const activity = craftingRecipes.get(profile.activityId);
-        if (activity?.id && activity.skillRequirements.length > 0) {
-          const skillId = activity.skillRequirements[0].skillId;
-          if (typeof skillId === 'string') setSelectedSkillTab(skillId);
+      if (profile && profile.activity) {
+        if (profile.activity.type !== 'crafting') return;
+
+        const recipe = craftingRecipes.get(profile.activity.recipeId);
+        if (recipe?.id && recipe.skillRequirements.length > 0) {
+          const skillId = recipe.skillRequirements[0].skillId;
+          setSelectedSkillTab(skillId);
         }
 
         // TODO: A timeout here is probably not the right solution, but it works? for now??
