@@ -1,7 +1,8 @@
-﻿import React, { type FC, type ReactNode, useCallback } from 'react';
+﻿import React, { type FC, type ReactNode, useCallback, useMemo } from 'react';
 import { Typography } from '@/frontend/components/ui/typography';
 import { Column } from '@/frontend/components/ui/layout/column';
 import { nameOf } from '@/frontend/lib/function-utils';
+import { tabButtonCva } from '@/frontend/components/ui/tab-pane/styles';
 
 interface Props {
   index: number;
@@ -20,12 +21,14 @@ export const TabButton: FC<Props> = React.memo((props) => {
     onClick(index);
   }, [onClick, index]);
 
+  const buttonStyle = useMemo(
+    () => tabButtonCva({ selected: selectedIndex === index, orientation }),
+    [index, orientation, selectedIndex],
+  );
+
   // TODO: jeg kom til at fikse den border her under
   return (
-    <button
-      onClick={handleClick}
-      style={{ marginRight: '-1px' }}
-      className={`p-2 cursor-pointer border-2 border-solid border-transparent hover:text-secondary ${selectedIndex === index && `text-primary border-${orientation === 'vertical' ? 'r' : 'b'}-primary`}`}>
+    <button onClick={handleClick} style={{ marginRight: '-1px' }} className={buttonStyle}>
       <Column>
         {label && <Typography>{label}</Typography>}
         {children}
