@@ -7,8 +7,8 @@ export const tabButtonCva = cva('p-2 cursor-pointer border-2 border-solid border
       false: '',
     },
     orientation: {
-      vertical: '',
-      horizontal: '',
+      vertical: '-mr-[1px]',
+      horizontal: '-mb-[1px]',
     },
   },
   compoundVariants: [

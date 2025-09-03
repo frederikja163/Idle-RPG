@@ -19,7 +19,7 @@ export const TopTabPane: FC<Props> = React.memo((props) => {
 
   return (
     <Card className="flex p-4 bg-card">
-      <Column className="h-full w-full gap-4">
+      <Column className="h-full w-full">
         <Row className="gap-4">
           {tabs.map((tab, i) => (
             <TabButton
@@ -33,7 +33,7 @@ export const TopTabPane: FC<Props> = React.memo((props) => {
             </TabButton>
           ))}
         </Row>
-        <Divider orientation="horizontal" />
+        <Divider orientation="horizontal" className="mb-4" />
         {tabs.at(selectedTabIndex)?.content}
       </Column>
     </Card>

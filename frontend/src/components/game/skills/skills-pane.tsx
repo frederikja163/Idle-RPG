@@ -18,7 +18,8 @@ export const SkillsPane: FC = React.memo(() => {
   const profileSkills = useAtomValue(profileSkillsAtom);
   const selectedSkillTab = useAtomValue(selectedSkillTabAtom);
 
-  const skillTabs = useMemo(
+  // TODO: fix memo på den her
+  const skillTabs: Tab[] = useMemo(
     () =>
       skillDefinitions
         .entries()
@@ -34,7 +35,7 @@ export const SkillsPane: FC = React.memo(() => {
           return {
             content: <RecipesGrid key={id} skill={profileSkill} />,
             buttonContent: <SkillButton key={id} name={skillDef.display} skill={profileSkill} />,
-          } as Tab;
+          };
         })
         .toArray(),
     [profileSkills],

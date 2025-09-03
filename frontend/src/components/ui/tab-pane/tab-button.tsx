@@ -26,9 +26,8 @@ export const TabButton: FC<Props> = React.memo((props) => {
     [index, orientation, selectedIndex],
   );
 
-  // TODO: jeg kom til at fikse den border her under
   return (
-    <button onClick={handleClick} style={{ marginRight: '-1px' }} className={buttonStyle}>
+    <button onClick={handleClick} className={buttonStyle}>
       <Column>
         {label && <Typography>{label}</Typography>}
         {children}

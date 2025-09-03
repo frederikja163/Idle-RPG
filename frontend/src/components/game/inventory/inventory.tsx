@@ -35,7 +35,7 @@ export const Inventory: FC = React.memo(() => {
 
         return {
           label,
-          content: <Row className="gap-2 p-4 h-80 overflow-y-scroll flex-wrap">{shownItems}</Row>,
+          content: <Row className="gap-2 h-80 overflow-y-scroll flex-wrap">{shownItems}</Row>,
         };
       }),
     [inventoryTabsDefinition, profileItems],
