@@ -1,7 +1,7 @@
 import { relations } from 'drizzle-orm';
-import { sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 import { userProfilesTable } from './db-userprofiles';
-import { timestamp, timestampNow } from './db-types';
+import { timestampNowSql } from './db-types';
 
 export const usersTable = sqliteTable(
   'users',
@@ -10,8 +10,8 @@ export const usersTable = sqliteTable(
     googleId: text('google_id').notNull().unique(),
     email: text('email').notNull().unique(),
     profilePicture: text('profile_picture').notNull(),
-    firstLogin: timestamp('first_login').notNull().default(timestampNow),
-    lastLogin: timestamp('last_login').notNull().default(timestampNow),
+    firstLogin: integer('first_login').notNull().default(timestampNowSql),
+    lastLogin: integer('last_login').notNull().default(timestampNowSql),
     settings: text('settings').notNull().default(''),
   },
   (table) => [uniqueIndex('google_idx').on(table.googleId), uniqueIndex('email__idx').on(table.email)],

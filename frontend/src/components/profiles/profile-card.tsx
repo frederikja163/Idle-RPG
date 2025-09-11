@@ -37,7 +37,7 @@ export const ProfileCard: FC<Props> = React.memo((props) => {
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-  const activityDef = useMemo(() => craftingRecipes.get(profile.activityId ?? ''), [profile.activityId]);
+  const activityDef = craftingRecipes.get('MineTalcOre'); // = useMemo(() => craftingRecipes.get(profile.activity?.type ?? ''), [profile.activityId]);
 
   const activityImage = useMemo(() => {
     if (!activityDef) {
@@ -60,7 +60,8 @@ export const ProfileCard: FC<Props> = React.memo((props) => {
 
     return (
       <Image
-        src={`${import.meta.env.VITE_BASE_URL}/assets/items/${(activityDef.result as ItemAmount).itemId}.svg`}
+        // TODO
+        src={`${import.meta.env.VITE_BASE_URL}/assets/items/${(activityDef.result[0] as ItemAmount).itemId}.svg`}
         alt={activityDef.display}
       />
     );
@@ -111,11 +112,17 @@ export const ProfileCard: FC<Props> = React.memo((props) => {
             <LabeledText label="Current activity" text={activityDef?.display ?? 'Inactive'} />
             <LabeledText
               label="First login"
-              text={profile.firstLogin?.toLocaleString(undefined, dateTimeNoSeconds) ?? 'Unknown'}
+              text={
+                profile.firstLogin
+                  ? new Date(profile.firstLogin).toLocaleString(undefined, dateTimeNoSeconds)
+                  : 'Unknown'
+              }
             />
             <LabeledText
               label="Last login"
-              text={profile.lastLogin?.toLocaleString(undefined, dateTimeNoSeconds) ?? 'Unknown'}
+              text={
+                profile.lastLogin ? new Date(profile.lastLogin).toLocaleString(undefined, dateTimeNoSeconds) : 'Unknown'
+              }
             />
           </Column>
           <RoundButton

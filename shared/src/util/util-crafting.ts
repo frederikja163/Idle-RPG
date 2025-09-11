@@ -11,10 +11,8 @@ export interface ProfileInterface {
   getSkill(skillId: SkillId): Skill | Promise<Skill>;
 }
 
-export function getActionCount(activityStart: Date, activityTime: number, activityEnd: Date) {
-  const start = activityStart.getTime();
-  const time = activityEnd.getTime();
-  return Math.abs(start - time) / activityTime;
+export function getActionCount(activityStart: number, activityTime: number, activityEnd: number) {
+  return Math.abs(activityStart - activityEnd) / activityTime;
 }
 
 export async function canStartCrafting(
@@ -33,8 +31,8 @@ export async function canStartCrafting(
 }
 
 export async function processCrafting(
-  activityStart: Date,
-  activityEnd: Date,
+  activityStart: number,
+  activityEnd: number,
   recipeId: CraftingRecipeId,
   profileInterface: ProfileInterface,
 ): Promise<{ items: Item[]; skills: Skill[] }> {
@@ -50,7 +48,7 @@ export async function processCrafting(
   const timeActions = Math.floor(getActionCount(activityStart, recipe.time, activityEnd));
   const costActions = recipe.cost.length
     ? recipe.cost.map((item, i) => cost[i].count / item.amount).reduce((l, r) => Math.min(l, r))
-    : 0;
+    : Number.POSITIVE_INFINITY;
   const actionCount = Math.min(timeActions, costActions);
 
   recipe.skillRequirements.forEach((req, i) => addXp(skills[i], actionCount * req.xp));

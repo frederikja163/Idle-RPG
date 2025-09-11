@@ -74,5 +74,5 @@ function event<T1 extends TLiteralValue, T2 extends TProperties>(type: T1, data:
 }
 
 function activity<T1 extends TLiteralValue, T2 extends TProperties>(type: T1, data: T2) {
-  return Type.Object({ type: Type.Literal(type), start: Type.Date(), ...data });
+  return Type.Object({ type: Type.Literal(type), start: Type.Integer(), ...data });
 }

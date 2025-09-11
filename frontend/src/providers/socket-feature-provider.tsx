@@ -71,8 +71,8 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
 
   const processActivityLocal = useCallback(
     async (craftingRecipe: CraftingRecipeDef, activityTimeMs: number) => {
-      const now = new Date();
-      const start = new Date(now.getTime() - activityTimeMs);
+      const now = new Date().getTime();
+      const start = now - activityTimeMs;
 
       const { items, skills } = await processCrafting(start, now, craftingRecipe.id, {
         getSkill: getSkill(profileSkillsRef.current),
@@ -86,7 +86,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
   );
 
   const startCraftingRecipe = useCallback(
-    (recipeId: CraftingRecipeId, activityStart: Date) => {
+    (recipeId: CraftingRecipeId, activityStart: number) => {
       setActiveActivity({ recipeId, start: activityStart, type: 'crafting' });
 
       const recipeDef = craftingRecipes.get(recipeId);
@@ -97,7 +97,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
 
       clearTimeouts();
 
-      const __ = processActivityLocal(recipeDef, new Date().getTime() - activityStart.getTime());
+      const __ = processActivityLocal(recipeDef, new Date().getTime() - activityStart);
       const timeoutId = setTimeout(() => {
         const _ = processActivityLocal(recipeDef, activityActionTime);
 

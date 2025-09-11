@@ -79,12 +79,12 @@ export const updateProfiles =
     return profiles;
   };
 
-export const getMsUntilActionDone = (activityId: CraftingRecipeId, activityStart: Date) => {
+export const getMsUntilActionDone = (activityId: CraftingRecipeId, activityStart: number) => {
   const activityDef = craftingRecipes.get(activityId);
   if (!activityDef) return 0;
 
   const activityActionTime = activityDef.time;
-  const activityElapsedMs = new Date().getTime() - activityStart.getTime();
+  const activityElapsedMs = new Date().getTime() - activityStart;
   const actionElapsedMs = activityElapsedMs % activityActionTime;
   return activityActionTime - actionElapsedMs;
 };
