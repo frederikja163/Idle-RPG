@@ -18,7 +18,6 @@ export const SkillsPane: FC = React.memo(() => {
   const profileSkills = useAtomValue(profileSkillsAtom);
   const selectedSkillTab = useAtomValue(selectedSkillTabAtom);
 
-  // TODO: fix memo på den her
   const skillTabs: Tab[] = useMemo(
     () =>
       skillDefinitions
