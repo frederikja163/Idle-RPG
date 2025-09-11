@@ -10,7 +10,7 @@ import { useAtomValue } from 'jotai';
 import { activeActivityAtom, profileItemsAtom, profileSkillsAtom } from '@/frontend/store/atoms';
 import { motion, useAnimation } from 'framer-motion';
 import { useSocket } from '@/frontend/providers/socket-provider';
-import { getMsUntilActionDone } from '@/frontend/lib/utils';
+import { getKey, getMsUntilActionDone } from '@/frontend/lib/utils';
 import { Row } from '@/frontend/components/ui/layout/row';
 import { nameOf } from '@/frontend/lib/function-utils';
 import { RecipeCardSlot } from '@/frontend/components/game/skills/recipe-card/recipe-card-slot';
@@ -71,7 +71,10 @@ export const RecipeCard: FC<Props> = React.memo((props) => {
   const mainResult = useMemo(() => recipeDef.result.at(0), [recipeDef.result]);
   const mainCost = useMemo(() => costAmountsSorted.at(0), [costAmountsSorted]);
 
-  // const canAffordMainCost = useMemo(() => mainCost?.amount)
+  const canAffordMainCost = useMemo(
+    () => (mainCost ? (profileItems.get(mainCost.itemId)?.count ?? 0) >= mainCost.amount : false),
+    [mainCost, profileItems],
+  );
 
   const style = useMemo(
     () =>
@@ -134,41 +137,72 @@ export const RecipeCard: FC<Props> = React.memo((props) => {
           className="absolute h-full w-full -m-2 bg-primary"
           style={styles.animatedBackground}
         />
-        {!isUnlocked && (
-          <Lock className="absolute w-3/4 h-auto z-10 justify-self-center top-1/2 -translate-y-1/2 opacity-40" />
-        )}
-        <Column className="gap-2 relative">
-          {isActive && <CirclePlay size={30} className="absolute right-0" />}
-          {mainResult && (
-            <Image
-              src={`${import.meta.env.VITE_BASE_URL}/assets/items/${mainResult.itemId}.svg`}
-              alt={mainResult.itemId}
-              className="p-6 aspect-square"
-            />
-          )}
-          {recipeDef.result.length > 1 || <Typography>lol flere ting</Typography>}
-          {/* The min-h-16 below is not the ideal way to make equal heights. Should maybe use grids, but it's a big refactor */}
-          <Typography className="min-h-16">{recipeDef.display}</Typography>
-          <Divider />
+        <Column className="relative">
+          <Column className="relative">
+            {!isUnlocked && (
+              <Lock className="absolute w-2/3 h-auto z-10 justify-self-center place-self-center top-1/2 -translate-y-1/2 opacity-40" />
+            )}
+            {isActive && <CirclePlay size={30} className="absolute right-0" />}
+            {mainResult && (
+              <Image
+                src={`${import.meta.env.VITE_BASE_URL}/assets/items/${mainResult.itemId}.svg`}
+                alt={mainResult.itemId}
+                className="p-6 aspect-square"
+              />
+            )}
+          </Column>
+          {/* The min-height below might not be the ideal way to make equal heights. Should maybe use grids, but it's a big refactor */}
+          <Column className="min-h-20">
+            {recipeDef.result.length > 1 && (
+              <Row className="justify-center">
+                {recipeDef.result.map((item) => (
+                  <Column key={getKey()} className="p-1 w-10 items-center">
+                    <Image
+                      src={`${import.meta.env.VITE_BASE_URL}/assets/items/${item.itemId}.svg`}
+                      alt={item.itemId}
+                      className="aspect-square"
+                    />
+                    <Typography className="text-sm">{item.amount}</Typography>
+                  </Column>
+                ))}
+              </Row>
+            )}
+            <Typography>{recipeDef.display}</Typography>
+          </Column>
+          <Divider className="my-2" />
           <Row className="items-center">
             <RecipeCardSlot
               bottom={`${Math.round(recipeDef.time / 1000)}s`}
               top={<Clock className="stroke-muted-foreground" />}
             />
             <Divider orientation="vertical" />
-            <RecipeCardSlot bottom={mainSkill?.xp} top="XP" />
+            {mainSkill && (
+              <RecipeCardSlot
+                bottom={`${mainSkill?.xp} XP`}
+                top={
+                  <Row className="max-h-8 aspect-square">
+                    <Image
+                      src={`${import.meta.env.VITE_BASE_URL}/assets/skills/${mainSkill.skillId}.svg`}
+                      alt={mainSkill.skillId}
+                      className="p-1"
+                    />
+                  </Row>
+                }
+              />
+            )}
             {mainCost && (
               <>
                 <Divider orientation="vertical" />
                 <Row className="pl-2">
                   <BasicHoverCard
-                    hoverContent={<RecipeItemsTooltip title="Item costs" itemAmounts={costAmountsSorted} />}>
+                    hoverContent={<RecipeItemsTooltip title="Item costs" itemAmounts={costAmountsSorted} />}
+                    isDisabled={costAmountsSorted.length < 2}>
                     {/*Wrapped in row due to nested tooltips/hover cards*/}
                     <Row>
                       <InventoryItem
                         item={{ id: mainCost.itemId, count: mainCost.amount }}
-                        // background={}
-                        disableTooltip
+                        background={canAffordMainCost ? 'standard' : 'error'}
+                        disableTooltip={costAmountsSorted.length > 1}
                       />
                     </Row>
                   </BasicHoverCard>
