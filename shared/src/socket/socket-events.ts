@@ -1,79 +1,37 @@
-import {
-  Record,
-  Type,
-  type TBoolean,
-  type TLiteralValue,
-  type TObject,
-  type TOptional,
-  type TProperties,
-  type TSchema,
-} from '@sinclair/typebox';
-import { createSelectSchema } from 'drizzle-typebox';
-import { profilesTable } from '../definition/schema/db/db-profiles';
-import { itemsTable } from '../definition/schema/db/db-items';
-import { skillsTable } from '../definition/schema/db/db-skills';
+import { Type, type TLiteralValue, type TProperties, type TSchema } from '@sinclair/typebox';
 import { ErrorType } from './socket-errors';
+import { createDtos, createManyDtos, createProfileDto, simplify } from './socket-event-helpers';
+import { itemsTable } from '../definition/schema/db/db-items';
+import { profilesTable } from '../definition/schema/db/db-profiles';
+import { skillsTable } from '../definition/schema/db/db-skills';
 import { usersTable } from '../definition/schema/db/db-users';
+import { createSelectSchema } from 'drizzle-typebox';
 
-function createQuery<T extends TSchema>(schema: T) {
-  const props: Record<string, TSchema> = {};
-
-  for (const key in schema.properties) {
-    props[key] = Type.Optional(Type.Boolean());
-  }
-
-  return Type.Object(props) as TObject<{ [k in keyof T['properties']]: TOptional<TBoolean> }>;
-}
-
-function createDtos<
-  TObj extends TObject,
-  TPropUpdate extends keyof TObj['properties'],
-  TPropRemove extends keyof TObj['properties'],
->(schema: TObj, updateableKeys: readonly TPropUpdate[], removedKeys: readonly TPropRemove[]) {
-  const type = Type.Partial(Type.Omit(schema, removedKeys));
-  const query = createQuery(Type.Omit(type, ['id']));
-  const update = Type.Pick(type, updateableKeys);
-  const result = type;
-  return { query, update, result };
-}
-
-function createMany<T extends TSchema>(schema: T) {
-  return Type.Composite([Type.Object({ id: Type.Union([Type.Boolean(), Type.Array(Type.String())]) }), schema]);
-}
-
-function createManyDtos<TQuery extends TSchema, TUpdate extends TSchema, TResult extends TSchema>(dtos: {
-  query: TQuery;
-  update: TUpdate;
-  result: TResult;
-}) {
-  const query = createMany(dtos.query);
-  const update = createMany(dtos.update);
-  const result = Type.Array(dtos.result);
-  return { result, query, update };
-}
-
-function createProfileDto<TProfile extends TSchema, TItem extends TSchema, TSkill extends TSchema>(
-  profileDto: TProfile,
-  itemDto: TItem,
-  skillDto: TSkill,
-) {
-  return { profile: Type.Optional(profileDto), items: Type.Optional(itemDto), skills: Type.Optional(skillDto) };
-}
+export const activityDto = Type.Union([activity('none', {}), activity('crafting', { recipeId: Type.String() })]);
+const activityReplaceDto = Type.Omit(activityDto, ['start']);
 
 const usersSchema = createSelectSchema(usersTable);
-const userDtos = createDtos(usersSchema, ['settings'], ['googleId']);
+const userDtos = createDtos(
+  usersSchema,
+  ['id', 'settings', 'email', 'profilePicture', 'firstLogin', 'lastLogin'],
+  ['settings'],
+);
 
-const profileSchema = createSelectSchema(profilesTable);
-const profileDtos = createDtos(profileSchema, ['settings'], []);
+const profileSchema = simplify(createSelectSchema(profilesTable));
+const profileDtos = createDtos(
+  Type.Composite([profileSchema, Type.Object({ activity: activityReplaceDto })]),
+  ['id', 'settings', 'name', 'firstLogin', 'lastLogin', 'activity'],
+  ['settings'],
+);
 const profileManyDtos = createManyDtos(profileDtos);
 
 const itemSchema = createSelectSchema(itemsTable);
-const itemDtos = createDtos(itemSchema, ['index'], ['profileId']);
-const itemManyDtos = createManyDtos(itemDtos);
+export const itemDtos = createDtos(itemSchema, ['id', 'index', 'count'], ['index']);
+export const itemManyDtos = createManyDtos(itemDtos);
 
 const skillSchema = createSelectSchema(skillsTable);
-const skillDtos = createDtos(skillSchema, [], ['profileId']);
-const skillManyDtos = createManyDtos(skillDtos);
+export const skillDtos = createDtos(skillSchema, ['id', 'xp', 'level'], []);
+export const skillManyDtos = createManyDtos(skillDtos);
 
 export const clientServerEvent = Type.Union([
   event('Connection/Ping', {}),
@@ -84,7 +42,7 @@ export const clientServerEvent = Type.Union([
   event('Profile/QueryMany', { profiles: profileManyDtos.query }),
   event('Profile/Query', createProfileDto(profileDtos.query, itemManyDtos.query, skillManyDtos.query)),
   event('Profile/Update', createProfileDto(profileDtos.update, itemManyDtos.update, skillManyDtos.update)),
-  event('Profile/ActivityReplace', { activityId: Type.String() }),
+  eventRaw('Profile/ActivityReplace', activityReplaceDto),
   event('Profile/Create', { name: Type.String() }),
   event('Profile/Select', { profileId: Type.String() }),
   event('Profile/Delete', { profileId: Type.String() }),
@@ -107,6 +65,14 @@ export const serverClientEvent = Type.Union([
   event('Profile/Updated', createProfileDto(profileDtos.result, itemManyDtos.result, skillManyDtos.result)),
 ]);
 
+function eventRaw<T1 extends TLiteralValue, T2 extends TSchema>(type: T1, data: T2) {
+  return Type.Object({ type: Type.Literal(type), messageCount: Type.Number(), data: data });
+}
+
 function event<T1 extends TLiteralValue, T2 extends TProperties>(type: T1, data: T2) {
   return Type.Object({ type: Type.Literal(type), messageCount: Type.Number(), data: Type.Object(data) });
+}
+
+function activity<T1 extends TLiteralValue, T2 extends TProperties>(type: T1, data: T2) {
+  return Type.Object({ type: Type.Literal(type), start: Type.Date(), ...data });
 }
