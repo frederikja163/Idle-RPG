@@ -1,6 +1,6 @@
 import { cva } from 'class-variance-authority';
 
-export const recipeCardCva = cva('p-2 bg-background relative overflow-hidden grow min-w-44 max-w-44 opacity-50', {
+export const recipeCardCva = cva('p-2 bg-background relative overflow-hidden grow min-w-48 max-w-48 opacity-50', {
   variants: {
     isUnlocked: {
       true: '',

@@ -8,6 +8,7 @@ import { useAtomValue } from 'jotai';
 import { profileItemsAtom, selectedInventoryTabAtom } from '@/frontend/store/atoms';
 import { items as itemDefinitions } from '@/shared/definition/definition-items';
 import { inventoryTabMap } from '@/frontend/constants/inventory-consts';
+import { mapEntriesToArray, mapKeysToArray } from '@/frontend/lib/array-utils';
 
 export const Inventory: FC = React.memo(function Inventory() {
   const selectedTab = useAtomValue(selectedInventoryTabAtom);
@@ -15,8 +16,7 @@ export const Inventory: FC = React.memo(function Inventory() {
 
   const shownItems = useMemo(() => {
     const tags = inventoryTabMap.get(selectedTab);
-    return profileItems
-      .entries()
+    return mapEntriesToArray(profileItems)
       .filter(
         ([itemId, item]) =>
           (item.count ?? 0) >= 1 &&
@@ -29,7 +29,7 @@ export const Inventory: FC = React.memo(function Inventory() {
     <Card className="bg-card w-full overflow-hidden">
       <Column>
         <Row className="h-12" style={styles.itemContainer}>
-          {inventoryTabMap.keys().map((label) => (
+          {mapKeysToArray(inventoryTabMap).map((label) => (
             <InventoryTab label={label} key={label} />
           ))}
         </Row>
