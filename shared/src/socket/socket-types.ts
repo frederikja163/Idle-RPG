@@ -1,5 +1,5 @@
 ﻿import type { Static } from '@sinclair/typebox';
-import type { clientServerEvent, serverClientEvent } from './socket-events';
+import type { activityDto, clientServerEvent, serverClientEvent } from './socket-events';
 
 export type ClientServerEvent = typeof clientServerEvent;
 export type ServerClientEvent = typeof serverClientEvent;
@@ -18,3 +18,5 @@ export type Update<T> = Partial<T>;
 export type Many<T> = Omit<T, 'id'> & { id?: boolean | string[] };
 export type QueryMany<T> = Many<Query<T>>;
 export type UpdateMany<T> = Many<Update<T>>;
+
+export type Activity = Static<typeof activityDto>;

@@ -19,7 +19,7 @@ export class ProfileRepository {
       .returning();
     if (!profile) return null;
     await tx.insert(userProfilesTable).values({ userId: userId, profileId: profile.id });
-    return profile;
+    return profile as Profile;
   }
 
   public async findByUserId(userId: UserId): Promise<Profile[]> {
@@ -30,12 +30,12 @@ export class ProfileRepository {
         .where(eq(userProfilesTable.userId, userId))
         .innerJoin(profilesTable, eq(userProfilesTable.profileId, profilesTable.id))
         .orderBy(profilesTable.id)
-    ).map((r) => r.profiles);
+    ).map((r) => r.profiles as Profile);
   }
 
-  public async findByProfileId(profileId: ProfileId) {
+  public async findByProfileId(profileId: ProfileId): Promise<Profile> {
     const [profile] = await this.db.select().from(profilesTable).where(eq(profilesTable.id, profileId)).limit(1);
-    return profile;
+    return profile as Profile;
   }
 
   public async userHasAccess(profileId: ProfileId, userId: UserId) {

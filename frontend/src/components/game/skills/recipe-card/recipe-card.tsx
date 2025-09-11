@@ -1,6 +1,6 @@
 import React, { type CSSProperties, type FC, useCallback, useEffect, useMemo } from 'react';
 import { Column } from '@/frontend/components/ui/layout/column';
-import { type CraftingRecipeDef, NoActivity } from '@/shared/definition/definition-crafting';
+import { type CraftingRecipeDef } from '@/shared/definition/definition-crafting';
 import { Image } from '@/frontend/components/ui/image';
 import { Typography } from '@/frontend/components/ui/typography';
 import { Card } from '@/frontend/components/ui/card';
@@ -40,7 +40,7 @@ export const RecipeCard: FC<Props> = React.memo((props) => {
 
   const handleClick = useCallback(() => {
     if (isActive) {
-      socket?.send('Profile/ActivityReplace', { activityId: NoActivity });
+      socket?.send('Profile/ActivityReplace', { type: 'none' });
       return;
     }
 
