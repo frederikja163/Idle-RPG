@@ -53,6 +53,7 @@
     "vite-plugin-static-copy": "^3.1.2"
   },
   "devDependencies": {
+    "esbuild": "0.25.2",
     "@eslint/js": "^9.35.0",
     "@types/bun": "latest",
     "@types/jest": "^30.0.0",
