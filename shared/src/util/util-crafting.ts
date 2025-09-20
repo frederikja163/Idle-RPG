@@ -1,4 +1,4 @@
-import { craftingRecipes, type CraftingRecipeId } from '../definition/definition-crafting';
+import { type CraftingRecipeId, craftingRecipes } from '../definition/definition-crafting';
 import type { Item, ItemId } from '../definition/schema/types/types-items';
 import type { Skill, SkillId } from '../definition/schema/types/types-skills';
 import { addItems, subItems } from './util-items';
@@ -11,10 +11,8 @@ export interface ProfileInterface {
   getSkill(skillId: SkillId): Skill | Promise<Skill>;
 }
 
-export function getActionCount(activityStart: Date, activityTime: number, activityEnd: Date) {
-  const start = activityStart.getTime();
-  const time = activityEnd.getTime();
-  return Math.abs(start - time) / activityTime;
+export function getActionCount(activityStart: number, activityTime: number, activityEnd: number) {
+  return Math.abs(activityStart - activityEnd) / activityTime;
 }
 
 export async function canStartCrafting(
@@ -33,8 +31,8 @@ export async function canStartCrafting(
 }
 
 export async function processCrafting(
-  activityStart: Date,
-  activityEnd: Date,
+  activityStart: number,
+  activityEnd: number,
   recipeId: CraftingRecipeId,
   profileInterface: ProfileInterface,
 ): Promise<{ items: Item[]; skills: Skill[] }> {
@@ -48,7 +46,9 @@ export async function processCrafting(
   const result = await Promise.all(recipe.result.map(async (item) => await profileInterface.getItem(item.itemId)));
 
   const timeActions = Math.floor(getActionCount(activityStart, recipe.time, activityEnd));
-  const costActions = recipe.cost.map((item, i) => cost[i].count / item.amount).reduce((l, r) => Math.min(l, r));
+  const costActions = recipe.cost.length
+    ? recipe.cost.map((item, i) => cost[i].count / item.amount).reduce((l, r) => Math.min(l, r))
+    : Number.POSITIVE_INFINITY;
   const actionCount = Math.min(timeActions, costActions);
 
   recipe.skillRequirements.forEach((req, i) => addXp(skills[i], actionCount * req.xp));

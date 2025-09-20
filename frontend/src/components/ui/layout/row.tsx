@@ -1,6 +1,7 @@
 ﻿import React, { type FC, type HTMLProps } from 'react';
+import { nameOf } from '@/frontend/lib/function-utils';
 
-export const Row: FC<HTMLProps<HTMLDivElement>> = React.memo(function Row(props) {
+export const Row: FC<HTMLProps<HTMLDivElement>> = React.memo((props) => {
   const { children, className } = props;
 
   return (
@@ -9,3 +10,5 @@ export const Row: FC<HTMLProps<HTMLDivElement>> = React.memo(function Row(props)
     </div>
   );
 });
+
+Row.displayName = nameOf({ Row });

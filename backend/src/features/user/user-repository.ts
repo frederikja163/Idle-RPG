@@ -3,7 +3,7 @@ import { usersTable } from '@/shared/definition/schema/db/db-users';
 import { type Database, injectDB, type Transaction } from '@/backend/core/db/db';
 import { injectableSingleton } from '@/backend/core/lib/lib-tsyringe';
 import type { User, UserId, UserInsert } from '@/shared/definition/schema/types/types-user';
-import { timestampNow } from '@/shared/definition/schema/db/db-types';
+import { timestampNowSql } from '@/shared/definition/schema/db/db-types';
 
 @injectableSingleton()
 export class UserRepository {
@@ -17,7 +17,7 @@ export class UserRepository {
         target: usersTable.id,
         set: {
           profilePicture: data.profilePicture,
-          lastLogin: timestampNow,
+          lastLogin: timestampNowSql,
         },
       })
       .returning();
@@ -47,7 +47,7 @@ export class UserRepository {
   public async update(userId: UserId, data: Partial<User>, tx: Transaction) {
     await tx
       .update(usersTable)
-      .set({ ...data, lastLogin: timestampNow })
+      .set({ ...data, lastLogin: timestampNowSql })
       .where(eq(usersTable.id, userId))
       .returning();
   }
@@ -56,7 +56,7 @@ export class UserRepository {
     await tx
       .update(usersTable)
       .set({
-        lastLogin: timestampNow,
+        lastLogin: timestampNowSql,
       })
       .where(inArray(usersTable.id, userIds));
   }

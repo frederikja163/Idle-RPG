@@ -14,9 +14,9 @@ import {
 import { routes } from '@/frontend/router/routes';
 import { getItem, getMsUntilActionDone, getSkill, updateItems, updateSkills } from '@/frontend/lib/utils';
 import {
-  craftingRecipes,
   type CraftingRecipeDef,
   type CraftingRecipeId,
+  craftingRecipes,
 } from '@/shared/definition/definition-crafting';
 import type { Timeout } from 'react-number-format/types/types';
 import { processCrafting } from '@/shared/util/util-crafting';
@@ -71,8 +71,8 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
 
   const processActivityLocal = useCallback(
     async (craftingRecipe: CraftingRecipeDef, activityTimeMs: number) => {
-      const now = new Date();
-      const start = new Date(now.getTime() - activityTimeMs);
+      const now = new Date().getTime();
+      const start = now - activityTimeMs;
 
       const { items, skills } = await processCrafting(start, now, craftingRecipe.id, {
         getSkill: getSkill(profileSkillsRef.current),
@@ -85,24 +85,24 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
     [setProfileItems, setProfileSkills],
   );
 
-  const startActivity = useCallback(
-    (activityId: CraftingRecipeId, activityStart: Date) => {
-      setActiveActivity({ activityId, activityStart });
+  const startCraftingRecipe = useCallback(
+    (recipeId: CraftingRecipeId, activityStart: number) => {
+      setActiveActivity({ recipeId, start: activityStart, type: 'crafting' });
 
-      const activityDef = craftingRecipes.get(activityId);
-      if (!activityDef) return;
+      const recipeDef = craftingRecipes.get(recipeId);
+      if (!recipeDef) return;
 
-      const msUntilActionDone = getMsUntilActionDone(activityId, activityStart);
-      const activityActionTime = activityDef.time;
+      const msUntilActionDone = getMsUntilActionDone(recipeId, activityStart);
+      const activityActionTime = recipeDef.time;
 
       clearTimeouts();
 
-      const __ = processActivityLocal(activityDef, new Date().getTime() - activityStart.getTime());
+      const __ = processActivityLocal(recipeDef, new Date().getTime() - activityStart);
       const timeoutId = setTimeout(() => {
-        const _ = processActivityLocal(activityDef, activityActionTime);
+        const _ = processActivityLocal(recipeDef, activityActionTime);
 
         const intervalId = setInterval(() => {
-          const _ = processActivityLocal(activityDef, activityActionTime);
+          const _ = processActivityLocal(recipeDef, activityActionTime);
         }, activityActionTime);
 
         setActionIntervalId(intervalId);
@@ -128,7 +128,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
         setSelectedProfileId(profile.id);
 
         socket?.send('Profile/Query', {
-          profile: { activityId: true, activityStart: true },
+          profile: { activity: true },
           items: { index: true, count: true, id: true },
           skills: { xp: true, level: true, id: true },
         });
@@ -139,24 +139,29 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
 
       if (items) setProfileItems(updateItems(items));
       if (skills) setProfileSkills(updateSkills(skills));
-      if (profile && profile.activityId && profile.activityStart) {
-        const activity = craftingRecipes.get(profile.activityId);
-        if (activity?.id && activity.skillRequirements.length > 0) {
-          const skillId = activity.skillRequirements[0].skillId;
-          if (typeof skillId === 'string') setSelectedSkillTab(skillId);
-        }
 
-        // TODO: A timeout here is probably not the right solution, but it works? for now??
-        // The problem is that setProfileItems and setProfileSkills only sets the values with a small delay,
-        // and we can only run startActivity after they are set.
-        setTimeout(() => {
-          if (profile && profile.activityId && profile.activityStart) {
-            startActivity(profile.activityId, profile.activityStart);
+      switch (profile?.activity?.type) {
+        case 'crafting': {
+          const recipe = craftingRecipes.get(profile.activity.recipeId);
+          if (recipe?.id && recipe.skillRequirements.length > 0) {
+            const skillId = recipe.skillRequirements[0].skillId;
+            setSelectedSkillTab(skillId);
           }
-        }, 100);
-      } else if (profile?.activityId == 'None') {
-        clearTimeouts();
-        setActiveActivity(undefined);
+
+          // TODO: A timeout here is probably not the right solution, but it works? for now??
+          // The problem is that setProfileItems and setProfileSkills only sets the values with a small delay,
+          // and we can only run startActivity after they are set.
+          setTimeout(() => {
+            if (profile && profile.activity?.type === 'crafting' && profile.activity.start) {
+              startCraftingRecipe(profile.activity.recipeId, profile.activity.start);
+            }
+          }, 100);
+
+          break;
+        }
+        case 'none':
+          clearTimeouts();
+          setActiveActivity(undefined);
       }
     },
     [
@@ -169,7 +174,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
       socket,
       navigate,
       setSelectedSkillTab,
-      startActivity,
+      startCraftingRecipe,
       setActiveActivity,
     ],
   );

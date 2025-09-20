@@ -6,10 +6,13 @@ interface Props {
   tooltipContent: ReactNode;
   delayDuration?: number;
   disableHoverableContent?: boolean;
+  isDisabled?: boolean;
 }
 
 export const BasicTooltip: FC<Props> = React.memo(function BasicTooltip(props) {
-  const { children, tooltipContent, delayDuration = 100, disableHoverableContent } = props;
+  const { children, tooltipContent, delayDuration = 100, disableHoverableContent, isDisabled = false } = props;
+
+  if (isDisabled) return children;
 
   return (
     <Tooltip.Provider>
