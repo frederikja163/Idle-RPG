@@ -11,7 +11,6 @@ import { useAtomValue } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/frontend/router/routes';
 import { craftingRecipes, type ItemAmount } from '@/shared/definition/definition-crafting';
-import { Array } from '@sinclair/typebox';
 import { Image } from '@/frontend/components/ui/image';
 import { LabelBox } from '@/frontend/components/ui/label-box';
 import { nameOf } from '@/frontend/lib/function-utils';
@@ -37,34 +36,41 @@ export const ProfileCard: FC<Props> = React.memo((props) => {
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-  const activityDef = useMemo(() => craftingRecipes.get(profile.activityId ?? ''), [profile.activityId]);
+  const activityDisplay = useMemo(() => {
+    switch (profile.activity?.type) {
+      case 'crafting': {
+        const recipe = craftingRecipes.get(profile.activity.recipeId);
+        if (!recipe) break;
+
+        return recipe.display;
+      }
+    }
+
+    return 'Inactive';
+  }, [profile]);
 
   const activityImage = useMemo(() => {
-    if (!activityDef) {
-      return <></>;
+    switch (profile.activity?.type) {
+      case 'crafting': {
+        const result = craftingRecipes.get(profile.activity.recipeId)?.result;
+        if (!result) break;
+
+        return (
+          <Row>
+            {result.map((item: ItemAmount) => (
+              <Image
+                key={item.itemId}
+                src={`${import.meta.env.VITE_BASE_URL}/assets/items/${item.itemId}.svg`}
+                alt={item.itemId}
+              />
+            ))}
+          </Row>
+        );
+      }
     }
 
-    if (activityDef.result instanceof Array) {
-      return (
-        <Row>
-          {(activityDef.result as ItemAmount[]).map((item: ItemAmount) => (
-            <Image
-              key={item.itemId}
-              src={`${import.meta.env.VITE_BASE_URL}/assets/items/${item.itemId}.svg`}
-              alt={activityDef.display}
-            />
-          ))}
-        </Row>
-      );
-    }
-
-    return (
-      <Image
-        src={`${import.meta.env.VITE_BASE_URL}/assets/items/${(activityDef.result as ItemAmount).itemId}.svg`}
-        alt={activityDef.display}
-      />
-    );
-  }, [activityDef]);
+    return <></>;
+  }, [profile]);
 
   const openDeleteModal = useCallback(() => setDeleteModalOpen(true), []);
   const closeDeleteModal = useCallback(() => setDeleteModalOpen(false), []);
@@ -108,14 +114,20 @@ export const ProfileCard: FC<Props> = React.memo((props) => {
             {isSelected && <LabelBox text="Active" className="bg-primary text-primary-foreground font-bold" />}
           </Row>
           <Column className="gap-2 opacity-80">
-            <LabeledText label="Current activity" text={activityDef?.display ?? 'Inactive'} />
+            <LabeledText label="Current activity" text={activityDisplay} />
             <LabeledText
               label="First login"
-              text={profile.firstLogin?.toLocaleString(undefined, dateTimeNoSeconds) ?? 'Unknown'}
+              text={
+                profile.firstLogin
+                  ? new Date(profile.firstLogin).toLocaleString(undefined, dateTimeNoSeconds)
+                  : 'Unknown'
+              }
             />
             <LabeledText
               label="Last login"
-              text={profile.lastLogin?.toLocaleString(undefined, dateTimeNoSeconds) ?? 'Unknown'}
+              text={
+                profile.lastLogin ? new Date(profile.lastLogin).toLocaleString(undefined, dateTimeNoSeconds) : 'Unknown'
+              }
             />
           </Column>
           <RoundButton

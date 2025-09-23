@@ -1,4 +1,4 @@
-import { Type, type TLiteralValue, type TProperties, type TSchema } from '@sinclair/typebox';
+import { type TLiteralValue, type TProperties, type TSchema, Type } from '@sinclair/typebox';
 import { ErrorType } from './socket-errors';
 import { createDtos, createManyDtos, createProfileDto, simplify } from './socket-event-helpers';
 import { itemsTable } from '../definition/schema/db/db-items';
@@ -19,7 +19,7 @@ const userDtos = createDtos(
 
 const profileSchema = simplify(createSelectSchema(profilesTable));
 const profileDtos = createDtos(
-  Type.Composite([profileSchema, Type.Object({ activity: activityReplaceDto })]),
+  Type.Composite([profileSchema, Type.Object({ activity: activityDto })]),
   ['id', 'settings', 'name', 'firstLogin', 'lastLogin', 'activity'],
   ['settings'],
 );
@@ -74,5 +74,5 @@ function event<T1 extends TLiteralValue, T2 extends TProperties>(type: T1, data:
 }
 
 function activity<T1 extends TLiteralValue, T2 extends TProperties>(type: T1, data: T2) {
-  return Type.Object({ type: Type.Literal(type), start: Type.Date(), ...data });
+  return Type.Object({ type: Type.Literal(type), start: Type.Integer(), ...data });
 }
