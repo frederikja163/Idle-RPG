@@ -1,4 +1,4 @@
-name: Run eslint
+name: CI/CD
 
 on:
   pull_request:
@@ -16,5 +16,8 @@ jobs:
       - name: Install dependencies with Bun
         run: bun install
 
-      - name: Run eslint
-        run: bun eslint
+      - name: Compile project
+        run: bun compile
+
+      - name: Lint project
+        run: bun lint

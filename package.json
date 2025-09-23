@@ -6,6 +6,8 @@
   "main": "backend/src/app.ts",
   "module": "backend/src/app.ts",
   "scripts": {
+    "lint": "bun eslint",
+    "compile": "bun tsc",
     "setup": "bun scripts/setup.ts",
     "dev": "bun scripts/dev.ts",
     "fe": "vite",
@@ -15,6 +17,7 @@
     "be:start": "NODE_ENV=production bun backend/src/app.ts",
     "db:generate": "npx drizzle-kit generate",
     "db:migrate": "npx drizzle-kit migrate",
+    "db:upgrade": "npx drizzle-kit up",
     "db:push": "npx drizzle-kit push --force",
     "db": "npx drizzle-kit studio --verbose"
   },
