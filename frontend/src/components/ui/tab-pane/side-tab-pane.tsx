@@ -57,7 +57,7 @@ export const SideTabPane: FC<Props> = React.memo(function SideTabPane(props) {
               <Column className="gap-4">
                 {tabs.map((tab, i) => (
                   <TabButton
-                    key={tab.label}
+                    key={i}
                     index={i}
                     selectedIndex={selectedTabIndex}
                     label={tab.label}

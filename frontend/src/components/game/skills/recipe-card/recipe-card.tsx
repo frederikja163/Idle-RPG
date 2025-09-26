@@ -10,7 +10,7 @@ import { useAtomValue } from 'jotai';
 import { activeActivityAtom, profileItemsAtom, profileSkillsAtom } from '@/frontend/store/atoms';
 import { motion, useAnimation } from 'framer-motion';
 import { useSocket } from '@/frontend/providers/socket-provider';
-import { getKey, getMsUntilActionDone } from '@/frontend/lib/utils';
+import { getMsUntilActionDone } from '@/frontend/lib/utils';
 import { Row } from '@/frontend/components/ui/layout/row';
 import { nameOf } from '@/frontend/lib/function-utils';
 import { RecipeCardSlot } from '@/frontend/components/game/skills/recipe-card/recipe-card-slot';
@@ -156,7 +156,7 @@ export const RecipeCard: FC<Props> = React.memo((props) => {
             {recipeDef.result.length > 1 && (
               <Row className="justify-center">
                 {recipeDef.result.map((item) => (
-                  <Column key={getKey()} className="p-1 w-10 items-center">
+                  <Column key={item.itemId} className="p-1 w-10 items-center">
                     <Image
                       src={`${import.meta.env.VITE_BASE_URL}/assets/items/${item.itemId}.svg`}
                       alt={item.itemId}
