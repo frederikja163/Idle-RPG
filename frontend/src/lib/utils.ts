@@ -3,7 +3,7 @@ import { twMerge } from 'tailwind-merge';
 import type { FormEvent } from 'react';
 import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skills';
 import type { Item, ItemId } from '@/shared/definition/schema/types/types-items';
-import { craftingRecipes, type CraftingRecipeId } from '@/shared/definition/definition-crafting';
+import { type CraftingRecipeId, craftingRecipes } from '@/shared/definition/definition-crafting';
 import type { Profile, ProfileId } from '@/shared/definition/schema/types/types-profiles';
 
 export function cn(...inputs: ClassValue[]) {
@@ -15,25 +15,29 @@ export function getFormData<T>(formEvent: FormEvent<HTMLFormElement>) {
   return Object.fromEntries(formData.entries()) as unknown as T;
 }
 
-export const getSkill = (skills: Map<SkillId, Partial<Skill>>) => (id: SkillId) => {
-  return {
-    id,
-    xp: 0,
-    level: 0,
-    profileId: '',
-    ...skills.get(id),
+export const getSkill =
+  (skills: Map<SkillId, Partial<Skill>>) =>
+  (id: SkillId): Skill => {
+    return {
+      id,
+      xp: 0,
+      level: 0,
+      profileId: '',
+      ...skills.get(id),
+    };
   };
-};
 
-export const getItem = (items: Map<ItemId, Partial<Item>>) => (id: ItemId) => {
-  return {
-    id,
-    count: 0,
-    index: 0,
-    profileId: '',
-    ...items.get(id),
+export const getItem =
+  (items: Map<ItemId, Partial<Item>>) =>
+  (id: ItemId): Item => {
+    return {
+      id,
+      count: 0,
+      index: 0,
+      profileId: '',
+      ...items.get(id),
+    };
   };
-};
 
 export const updateSkills = (updatedSkills: Partial<Skill>[]) => (existingSkills: Map<SkillId, Partial<Skill>>) => {
   const skills = new Map(existingSkills);
@@ -75,12 +79,12 @@ export const updateProfiles =
     return profiles;
   };
 
-export const getMsUntilActionDone = (activityId: CraftingRecipeId, activityStart: Date) => {
+export const getMsUntilActionDone = (activityId: CraftingRecipeId, activityStart: number) => {
   const activityDef = craftingRecipes.get(activityId);
   if (!activityDef) return 0;
 
   const activityActionTime = activityDef.time;
-  const activityElapsedMs = new Date().getTime() - activityStart.getTime();
+  const activityElapsedMs = new Date().getTime() - activityStart;
   const actionElapsedMs = activityElapsedMs % activityActionTime;
   return activityActionTime - actionElapsedMs;
 };

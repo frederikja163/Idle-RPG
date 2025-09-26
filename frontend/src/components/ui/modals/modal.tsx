@@ -28,7 +28,7 @@ export const Modal: FC<Props> = React.memo(function Modal(props) {
 
   return (
     <Dialog.Root open={isOpen}>
-      <Dialog.Trigger>{children}</Dialog.Trigger>
+      <Dialog.Trigger asChild>{children}</Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className={overlayCva()} />
         <Dialog.Content className={contentCva()}>
@@ -41,11 +41,7 @@ export const Modal: FC<Props> = React.memo(function Modal(props) {
                 <X />
               </Dialog.Close>
             </Row>
-            {description && (
-              <Dialog.Description>
-                <Typography>{description}</Typography>
-              </Dialog.Description>
-            )}
+            {description && <Dialog.Description>{description}</Dialog.Description>}
             {content}
           </Card>
         </Dialog.Content>

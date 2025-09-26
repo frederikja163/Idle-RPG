@@ -5,7 +5,7 @@ import { injectableSingleton } from '@/backend/core/lib/lib-tsyringe';
 import { and, eq, inArray } from 'drizzle-orm';
 import type { UserId } from '@/shared/definition/schema/types/types-user';
 import type { Profile, ProfileId, ProfileInsert } from '@/shared/definition/schema/types/types-profiles';
-import { timestampNow } from '@/shared/definition/schema/db/db-types';
+import { timestampNowSql } from '@/shared/definition/schema/db/db-types';
 
 @injectableSingleton()
 export class ProfileRepository {
@@ -19,7 +19,7 @@ export class ProfileRepository {
       .returning();
     if (!profile) return null;
     await tx.insert(userProfilesTable).values({ userId: userId, profileId: profile.id });
-    return profile;
+    return profile as Profile;
   }
 
   public async findByUserId(userId: UserId): Promise<Profile[]> {
@@ -30,12 +30,12 @@ export class ProfileRepository {
         .where(eq(userProfilesTable.userId, userId))
         .innerJoin(profilesTable, eq(userProfilesTable.profileId, profilesTable.id))
         .orderBy(profilesTable.id)
-    ).map((r) => r.profiles);
+    ).map((r) => r.profiles as Profile);
   }
 
-  public async findByProfileId(profileId: ProfileId) {
+  public async findByProfileId(profileId: ProfileId): Promise<Profile> {
     const [profile] = await this.db.select().from(profilesTable).where(eq(profilesTable.id, profileId)).limit(1);
-    return profile;
+    return profile as Profile;
   }
 
   public async userHasAccess(profileId: ProfileId, userId: UserId) {
@@ -50,7 +50,7 @@ export class ProfileRepository {
   public async update(profileId: ProfileId, data: Partial<Profile>, tx: Transaction) {
     await tx
       .update(profilesTable)
-      .set({ ...data, lastLogin: timestampNow })
+      .set({ ...data, lastLogin: timestampNowSql })
       .where(eq(profilesTable.id, profileId))
       .returning();
   }
@@ -59,7 +59,7 @@ export class ProfileRepository {
     await tx
       .update(profilesTable)
       .set({
-        lastLogin: timestampNow,
+        lastLogin: timestampNowSql,
       })
       .where(inArray(profilesTable.id, profileIds));
   }

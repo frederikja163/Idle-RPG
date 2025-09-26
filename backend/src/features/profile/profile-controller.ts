@@ -7,7 +7,7 @@ import {
 import { SocketHub } from '@/backend/core/server/sockets/socket-hub';
 import { injectableSingleton } from '@/backend/core/lib/lib-tsyringe';
 import { ProfileService } from './profile-service';
-import type { ClientData, ServerData, SocketId } from '@/shared/socket/socket-types';
+import type { Activity, ClientData, ServerData, SocketId } from '@/shared/socket/socket-types';
 import { ErrorType, ServerError } from '@/shared/socket/socket-errors';
 import { ItemService } from '../item/item-service';
 import { SkillService } from '../skill/skill-service';
@@ -18,7 +18,7 @@ import {
   updateValueMany,
 } from '@/backend/core/lib/lib-query-transform';
 import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
-import { craftingRecipes, NoActivity, type CraftingRecipeId } from '@/shared/definition/definition-crafting';
+import { craftingRecipes } from '@/shared/definition/definition-crafting';
 import { ServerProfileInterface } from './profile-interface';
 import { canStartCrafting, processCrafting } from '@/shared/util/util-crafting';
 
@@ -96,8 +96,6 @@ export class ProfileController implements SocketOpenEventListener {
 
     await this.profileService.create(userId, {
       name,
-      activityId: NoActivity,
-      activityStart: null,
     });
 
     const profiles = await this.profileService.getProfilesByUserId(userId);
@@ -145,69 +143,99 @@ export class ProfileController implements SocketOpenEventListener {
     });
   }
 
-  private async handleActivityReplace(socketId: SocketId, { activityId }: ServerData<'Profile/ActivityReplace'>) {
+  private async handleActivityReplace(socketId: SocketId, activityDto: ServerData<'Profile/ActivityReplace'>) {
     const profileId = this.socketHub.requireProfileId(socketId);
-    await this.stopActivity(profileId);
-    if (activityId != NoActivity) {
-      const activityStart = await this.startActivity(profileId, activityId);
-      this.socketHub.broadcastToProfile(profileId, 'Profile/Updated', {
-        profile: {
-          activityId,
-          activityStart,
-        },
-      });
-      return;
-    }
-    this.socketHub.broadcastToProfile(profileId, 'Profile/Updated', {
-      profile: {
-        activityId: NoActivity,
-      },
-    });
-  }
-
-  private async stopActivity(profileId: ProfileId) {
     const profile = await this.profileService.getProfileById(profileId);
 
-    if (!profile.activityId || !profile.activityStart) return;
+    this.isActivityTypeValid(activityDto.type);
 
-    const activity = this.getActivity(profile.activityId);
-    const activityEnd = new Date();
-
-    const { items, skills } = await processCrafting(
-      profile.activityStart,
-      activityEnd,
-      activity.id,
-      new ServerProfileInterface(profileId, this.skillService, this.itemService),
-    );
-
+    const { items, skills } = await this.calculateActivity(profileId);
     skills.forEach((s) => this.skillService.update(profileId, s.id));
     items.forEach((i) => this.itemService.update(profileId, i.id));
 
-    profile.activityId = NoActivity;
-    profile.activityStart = null;
-    this.profileService.update(profile.id);
+    try {
+      profile.activity = await this.startActivity(profileId, activityDto);
+      this.profileService.update(profileId);
+    } catch (error) {
+      profile.activity = { type: 'none', start: new Date().getTime() };
+      this.profileService.update(profileId);
+      throw error;
+    } finally {
+      this.socketHub.broadcastToProfile(profileId, 'Profile/Updated', {
+        profile: {
+          activity: profile.activity,
+        },
+        items,
+        skills,
+      });
+    }
   }
 
-  private async startActivity(profileId: ProfileId, activityId: CraftingRecipeId) {
-    const activity = this.getActivity(activityId);
-    const error = await canStartCrafting(
-      activity.id,
-      new ServerProfileInterface(profileId, this.skillService, this.itemService),
-    );
-    if (error) throw new ServerError(error);
+  private isActivityTypeValid(activityType: Activity['type']) {
+    switch (activityType) {
+      case 'none':
+      case 'crafting':
+        break;
+      default:
+        throw new ServerError(ErrorType.InvalidActivity);
+    }
+  }
 
+  private async calculateActivity(profileId: ProfileId) {
     const profile = await this.profileService.getProfileById(profileId);
+    const activity = profile.activity;
 
-    const activityStart = new Date();
-    profile.activityId = activity.id;
-    profile.activityStart = activityStart;
-    this.profileService.update(profile.id);
-    return activityStart;
+    switch (activity.type) {
+      case 'none':
+        return { skills: [], items: [] };
+      case 'crafting': {
+        const recipe = craftingRecipes.get(activity.recipeId);
+        if (!recipe)
+          throw new ServerError(
+            ErrorType.InternalError,
+            'Existing recipe is not valid. Contact a server admin to help solve this issue.',
+          );
+
+        const { items, skills } = await processCrafting(
+          activity.start,
+          new Date().getTime(),
+          recipe.id,
+          new ServerProfileInterface(profileId, this.skillService, this.itemService),
+        );
+        return { items, skills };
+      }
+      default:
+        throw new ServerError(
+          ErrorType.InternalError,
+          'Existing activity type is not valid. Contact a server admin to help solve this issue.',
+        );
+    }
   }
 
-  private getActivity(activityId: CraftingRecipeId) {
-    const activity = craftingRecipes.get(activityId);
-    if (!activity) throw new ServerError(ErrorType.InternalError, 'Activity not found.');
-    return activity;
+  private async startActivity(
+    profileId: ProfileId,
+    activityDto: ServerData<'Profile/ActivityReplace'>,
+  ): Promise<Activity> {
+    switch (activityDto.type) {
+      case 'none':
+        return { type: 'none', start: new Date().getTime() };
+      case 'crafting': {
+        const recipe = craftingRecipes.get(activityDto.recipeId);
+        if (!recipe) throw new ServerError(ErrorType.InternalError, 'Crafting recipe not found.');
+        const error = await canStartCrafting(
+          recipe.id,
+          new ServerProfileInterface(profileId, this.skillService, this.itemService),
+        );
+        if (error) throw new ServerError(error);
+
+        return {
+          type: 'crafting',
+          start: new Date().getTime(),
+          recipeId: recipe.id,
+        };
+      }
+      default:
+        throw new ServerError(ErrorType.InvalidActivity);
+    }
   }
 }

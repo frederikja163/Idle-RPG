@@ -8,6 +8,8 @@ import { useAtomValue } from 'jotai';
 import { profileItemsAtom, selectedInventoryTabAtom } from '@/frontend/store/atoms';
 import { items as itemDefinitions } from '@/shared/definition/definition-items';
 import { inventoryTabMap } from '@/frontend/constants/inventory-consts';
+import { mapEntriesToArray, mapKeysToArray } from '@/frontend/lib/array-utils';
+import type { Item } from '@/shared/definition/schema/types/types-items';
 
 export const Inventory: FC = React.memo(function Inventory() {
   const selectedTab = useAtomValue(selectedInventoryTabAtom);
@@ -15,21 +17,20 @@ export const Inventory: FC = React.memo(function Inventory() {
 
   const shownItems = useMemo(() => {
     const tags = inventoryTabMap.get(selectedTab);
-    return profileItems
-      .entries()
+    return mapEntriesToArray(profileItems)
       .filter(
         ([itemId, item]) =>
           (item.count ?? 0) >= 1 &&
           (tags?.length == 0 || itemDefinitions.get(itemId)?.tags.find((t) => tags?.includes(t)) !== undefined),
       )
-      .map(([itemId, item]) => <InventoryItem key={itemId} item={item} />);
+      .map(([itemId, item]) => <InventoryItem key={itemId} item={item as Partial<Item> & Pick<Item, 'id'>} />);
   }, [selectedTab, profileItems]);
 
   return (
     <Card className="bg-card w-full overflow-hidden">
       <Column>
         <Row className="h-12" style={styles.itemContainer}>
-          {inventoryTabMap.keys().map((label) => (
+          {mapKeysToArray(inventoryTabMap).map((label) => (
             <InventoryTab label={label} key={label} />
           ))}
         </Row>

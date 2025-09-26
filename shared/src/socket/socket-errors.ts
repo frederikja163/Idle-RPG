@@ -14,6 +14,7 @@ export enum ErrorType {
   InsufficientLevel,
   InsufficientItems,
   NoActivity,
+  InvalidActivity,
 }
 
 export const errorMessages: { [type in ErrorType]: string } = {
@@ -33,6 +34,7 @@ export const errorMessages: { [type in ErrorType]: string } = {
   [ErrorType.InsufficientLevel]: 'This activity requires a lever higher than yours.',
   [ErrorType.InsufficientItems]: 'This activity required more items than you have available.',
   [ErrorType.NoActivity]: 'No activity in progress.',
+  [ErrorType.InvalidActivity]: 'Activity is invalid.',
 };
 
 export class ServerError extends Error {
