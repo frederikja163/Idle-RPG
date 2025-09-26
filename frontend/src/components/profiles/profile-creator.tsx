@@ -54,7 +54,7 @@ export const ProfileCreator: FC<Props> = React.memo(function ProfileCreator(prop
               <Input placeholder="Name" required></Input>
             </Form.Control>
           </Form.Field>
-          <Form.Submit>
+          <Form.Submit asChild>
             <Button>
               <Plus />
               <Typography>Create profile</Typography>

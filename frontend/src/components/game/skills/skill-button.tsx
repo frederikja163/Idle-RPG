@@ -22,17 +22,25 @@ interface Props {
 export const SkillButton: FC<Props> = React.memo(function SkillButton(props) {
   const { name, skill } = props;
 
-  const activeActivityId = useAtomValue(activeActivityAtom)?.activityId;
-  const activeActivity = useMemo(
+  const activeActivity = useAtomValue(activeActivityAtom);
+
+  const activeActivityId = useMemo(() => {
+    if (activeActivity?.type === 'crafting') return activeActivity.recipeId;
+
+    return undefined;
+  }, [activeActivity]);
+
+  const activeRecipe = useMemo(
     () => (activeActivityId ? craftingRecipes.get(activeActivityId) : undefined),
     [activeActivityId],
   );
+
   const isActiveSkill = useMemo(
     () =>
-      activeActivity &&
-      activeActivity.skillRequirements.length > 0 &&
-      activeActivity.skillRequirements[0].skillId === skill.id,
-    [activeActivity, skill.id],
+      activeRecipe &&
+      activeRecipe.skillRequirements.length > 0 &&
+      activeRecipe.skillRequirements[0].skillId === skill.id,
+    [activeRecipe, skill.id],
   );
 
   const targetXp = xpAccum.at(skill.level + 1) ?? skill.xp;

@@ -7,6 +7,7 @@ import { items as itemDefinitions } from '@/shared/definition/definition-items';
 import { inventoryTabMap } from '@/frontend/constants/inventory-consts';
 import { TopTabPane } from '@/frontend/components/ui/tab-pane/top-tab-pane';
 import { mapEntriesToArray } from '@/frontend/lib/array-utils';
+import type { Item } from '@/shared/definition/schema/types/types-items';
 import type { Tab } from '@/frontend/components/ui/tab-pane/types';
 import { nameOf } from '@/frontend/lib/function-utils';
 
@@ -31,7 +32,7 @@ export const Inventory: FC = React.memo(() => {
               (itemTags?.length == 0 ||
                 itemDefinitions.get(itemId)?.tags.find((t) => itemTags?.includes(t)) !== undefined),
           )
-          .map(([itemId, item]) => <InventoryItem key={itemId} item={item} />);
+          .map(([itemId, item]) => <InventoryItem key={itemId} item={item as Partial<Item> & Pick<Item, 'id'>} />);
 
         return {
           label,

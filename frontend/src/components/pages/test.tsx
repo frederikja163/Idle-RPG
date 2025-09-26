@@ -28,7 +28,7 @@ export function Test() {
   };
 
   const send = (form: FormData) => {
-    const data = formDiscriminatedUnion('event', form, clientServerEvent);
+    const data = formDiscriminatedUnion('event', form, clientServerEvent as DiscriminatedUnionType);
     socket?.send(data.type as ServerEvent, data.data);
   };
 
@@ -38,7 +38,9 @@ export function Test() {
       {loggedIn ? null : <GoogleLogin onSuccess={handleSuccess} />}
       <form action={send}>
         <button type="submit">Send</button>
-        <DiscriminatedUnionInput path="event" object={clientServerEvent}></DiscriminatedUnionInput>
+        <DiscriminatedUnionInput
+          path="event"
+          object={clientServerEvent as DiscriminatedUnionType}></DiscriminatedUnionInput>
       </form>
     </>
   );
@@ -108,9 +110,9 @@ function formSchema<T extends TSchema>(path: string, form: FormData, schema: T) 
   if (TypeGuard.IsObject(schema)) {
     return formObject(path, form, schema);
   } else if (TypeGuard.IsNumber(schema)) {
-    return formNumber(path, form, schema);
+    return formNumber(path, form);
   } else if (TypeGuard.IsString(schema)) {
-    return formString(path, form, schema);
+    return formString(path, form);
   } else {
     console.log('Object type not found.');
   }

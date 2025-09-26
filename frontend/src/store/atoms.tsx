@@ -2,9 +2,9 @@
 import { atomWithReset, RESET } from 'jotai/utils';
 import type { Item, ItemId } from '@/shared/definition/schema/types/types-items';
 import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skills';
-import type { CraftingRecipeId } from '@/shared/definition/definition-crafting';
 import type { Profile, ProfileId } from '@/shared/definition/schema/types/types-profiles';
 import { nameOf } from '@/frontend/lib/function-utils';
+import type { Activity } from '@/shared/socket/socket-types';
 
 export const profilesAtom = atomWithReset<Map<ProfileId, Partial<Profile>>>(new Map());
 profilesAtom.debugLabel = nameOf({ profilesAtom });
@@ -25,9 +25,7 @@ selectedInventoryTabAtom.debugLabel = nameOf({ selectedSkillTabAtom });
 export const profileSkillsAtom = atomWithReset<Map<SkillId, Partial<Skill>>>(new Map());
 profileSkillsAtom.debugLabel = nameOf({ profileSkillsAtom });
 
-export const activeActivityAtom = atomWithReset<{ activityId: CraftingRecipeId; activityStart: Date } | undefined>(
-  undefined,
-);
+export const activeActivityAtom = atomWithReset<Activity | undefined>(undefined);
 activeActivityAtom.debugLabel = nameOf({ activeActivityAtom });
 
 export const resetAtomsAtom = atom(null, (_, set) => {
