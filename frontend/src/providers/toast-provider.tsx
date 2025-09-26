@@ -1,7 +1,6 @@
 import React, { createContext, type FC, type ReactNode, useCallback, useContext, useState } from 'react';
 import type { ProviderProps } from '@/frontend/types/provider-types';
 import { Toast } from 'radix-ui';
-import { getKey } from '@/frontend/lib/utils';
 
 type ToastType = 'info' | 'success' | 'warning' | 'error';
 
@@ -37,7 +36,7 @@ export const ToastProvider: FC<ProviderProps> = React.memo(function ToastProvide
 
         newToasts[pointer] = (
           <Toast.Root
-            key={getKey()}
+            key={pointer}
             duration={duration}
             className={`w-80 text-primary-foreground p-4 my-2 rounded shadow ${typeColorMap.get(type)}`}>
             <Toast.Description>{text}</Toast.Description>

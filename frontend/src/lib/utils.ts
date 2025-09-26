@@ -88,5 +88,3 @@ export const getMsUntilActionDone = (activityId: CraftingRecipeId, activityStart
   const actionElapsedMs = activityElapsedMs % activityActionTime;
   return activityActionTime - actionElapsedMs;
 };
-
-export const getKey = (i?: number) => `${i}${Math.random()}${Date.now()}`;

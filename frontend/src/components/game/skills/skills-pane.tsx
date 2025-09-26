@@ -1,11 +1,12 @@
 ﻿import React, { type FC, useMemo } from 'react';
-import { SideTabPane, type Tab } from '@/frontend/components/ui/side-tab-pane/side-tab-pane';
+import { SideTabPane, type Tab } from '@/frontend/components/ui/tab-pane/side-tab-pane';
 import { useAtomValue } from 'jotai';
 import { profileSkillsAtom, selectedSkillTabAtom } from '@/frontend/store/atoms';
 import { SkillButton } from './skill-button';
 import { skills as skillDefinitions } from '@/shared/definition/definition-skills';
 import type { SkillId } from '@/shared/definition/schema/types/types-skills';
 import { RecipesGrid } from '@/frontend/components/game/skills/recipes-grid';
+import { nameOf } from '@/frontend/lib/function-utils';
 
 const skillTabIndexMap = new Map<SkillId, number>([
   ['Mining', 0],
@@ -13,11 +14,11 @@ const skillTabIndexMap = new Map<SkillId, number>([
   ['Crafting', 2],
 ]);
 
-export const SkillsPane: FC = React.memo(function SkillsPane() {
+export const SkillsPane: FC = React.memo(() => {
   const profileSkills = useAtomValue(profileSkillsAtom);
   const selectedSkillTab = useAtomValue(selectedSkillTabAtom);
 
-  const skillTabs = useMemo(
+  const skillTabs: Tab[] = useMemo(
     () =>
       skillDefinitions
         .entries()
@@ -33,7 +34,7 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
           return {
             content: <RecipesGrid key={id} skill={profileSkill} />,
             buttonContent: <SkillButton key={id} name={skillDef.display} skill={profileSkill} />,
-          } as Tab;
+          };
         })
         .toArray(),
     [profileSkills],
@@ -45,3 +46,5 @@ export const SkillsPane: FC = React.memo(function SkillsPane() {
     <SideTabPane title="Skills" tabs={skillTabs} collapsable initialTabIndex={skillTabIndexMap.get(selectedSkillTab)} />
   );
 });
+
+SkillsPane.displayName = nameOf({ SkillsPane });
