@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "target": "ES2024",
+    "target": "esnext",
     "module": "preserve",
     "moduleResolution": "bundler",
     "noEmit": true,
