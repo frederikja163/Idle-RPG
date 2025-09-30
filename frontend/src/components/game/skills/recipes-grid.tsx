@@ -1,14 +1,9 @@
 ﻿import React, { type FC, useMemo } from 'react';
 import { Row } from '@/frontend/components/ui/layout/row';
 import type { Skill } from '@/shared/definition/schema/types/types-skills';
-import {
-  type CraftingRecipeDef,
-  type CraftingRecipeId,
-  craftingRecipes,
-} from '@/shared/definition/definition-crafting';
+import { CraftingRecipeDef, type CraftingRecipeId } from '@/shared/definition/definition-crafting';
 import { nameOf } from '@/frontend/lib/function-utils';
 import { RecipeCard } from '@/frontend/components/game/skills/recipe-card/recipe-card';
-import { mapEntriesToArray } from '@/frontend/lib/array-utils';
 
 interface Props {
   skill: Partial<Skill>;
@@ -20,14 +15,15 @@ export const RecipesGrid: FC<Props> = React.memo((props) => {
   const recipeBoxes = useMemo(
     () =>
       skill.id &&
-      mapEntriesToArray(craftingRecipes)
+      CraftingRecipeDef.getAllRecipes()
         .filter(
           ([_, craftingRecipeDef]: [CraftingRecipeId, CraftingRecipeDef]) =>
-            craftingRecipeDef.skillRequirements.at(0)?.skillId === skill.id,
+            craftingRecipeDef.getSkillRequirements().find((_) => true)?.skill.id === skill.id,
         )
         .map(([id, craftingRecipeDef]: [CraftingRecipeId, CraftingRecipeDef]) => (
           <RecipeCard key={id} recipeDef={craftingRecipeDef} />
-        )),
+        ))
+        .toArray(),
     [skill.id],
   );
 

@@ -18,9 +18,9 @@ import {
   updateValueMany,
 } from '@/backend/core/lib/lib-query-transform';
 import type { ProfileId } from '@/shared/definition/schema/types/types-profiles';
-import { craftingRecipes } from '@/shared/definition/definition-crafting';
 import { ServerProfileInterface } from './profile-interface';
 import { canStartCrafting, processCrafting } from '@/shared/util/util-crafting';
+import { CraftingRecipeDef } from '@/shared/definition/definition-crafting';
 
 @injectableSingleton(SocketOpenEventToken)
 export class ProfileController implements SocketOpenEventListener {
@@ -189,12 +189,7 @@ export class ProfileController implements SocketOpenEventListener {
       case 'none':
         return { skills: [], items: [] };
       case 'crafting': {
-        const recipe = craftingRecipes.get(activity.recipeId);
-        if (!recipe)
-          throw new ServerError(
-            ErrorType.InternalError,
-            'Existing recipe is not valid. Contact a server admin to help solve this issue.',
-          );
+        const recipe = CraftingRecipeDef.requireById(activity.recipeId);
 
         const { items, skills } = await processCrafting(
           activity.start,
@@ -220,7 +215,7 @@ export class ProfileController implements SocketOpenEventListener {
       case 'none':
         return { type: 'none', start: new Date().getTime() };
       case 'crafting': {
-        const recipe = craftingRecipes.get(activityDto.recipeId);
+        const recipe = CraftingRecipeDef.getById(activityDto.recipeId);
         if (!recipe) throw new ServerError(ErrorType.InternalError, 'Crafting recipe not found.');
         const error = await canStartCrafting(
           recipe.id,

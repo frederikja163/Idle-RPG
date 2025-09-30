@@ -19,7 +19,11 @@ export const ItemTooltip: FC<Props> = React.memo(function ItemTooltip(props) {
     <Card className="p-2">
       <Column>
         <Typography className="font-bold text-center">{item?.display}</Typography>
-        <Row className="gap-2">{item?.tags.map((tag) => <LabelBox key={tag + Date.now()} text={tag} />)}</Row>
+        <Row className="gap-2">
+          {item?.getTags().map((tag) => (
+            <LabelBox key={tag + Date.now()} text={tag} />
+          ))}
+        </Row>
       </Column>
     </Card>
   );

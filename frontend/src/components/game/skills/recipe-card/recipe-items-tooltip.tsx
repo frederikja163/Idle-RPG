@@ -23,11 +23,11 @@ export const RecipeItemsTooltip: FC<Props> = React.memo((props) => {
       {title && <Typography className="font-bold mb-2">{title}</Typography>}
       <Row className="justify-center">
         {itemAmounts.map((item) => {
-          const profileItemAmount = profileItems.get(item.itemId)?.count ?? 0;
+          const profileItemAmount = profileItems.get(item.item.id)?.count ?? 0;
           return (
             <InventoryItem
-              key={item.itemId}
-              item={{ id: item.itemId, count: item.amount }}
+              key={item.item.id}
+              item={{ id: item.item.id, count: item.amount }}
               background={profileItemAmount < item.amount ? 'error' : 'standard'}
             />
           );

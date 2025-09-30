@@ -30,7 +30,10 @@ export const Inventory: FC = React.memo(() => {
             ([itemId, item]) =>
               (item.count ?? 0) >= 1 &&
               (itemTags?.length == 0 ||
-                itemDefinitions.get(itemId)?.tags.find((t) => itemTags?.includes(t)) !== undefined),
+                itemDefinitions
+                  .get(itemId)
+                  ?.getTags()
+                  .find((t) => itemTags?.includes(t)) !== undefined),
           )
           .map(([itemId, item]) => <InventoryItem key={itemId} item={item as Partial<Item> & Pick<Item, 'id'>} />);
 

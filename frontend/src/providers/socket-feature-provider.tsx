@@ -13,11 +13,7 @@ import {
 } from '@/frontend/store/atoms';
 import { routes } from '@/frontend/router/routes';
 import { getItem, getMsUntilActionDone, getSkill, updateItems, updateSkills } from '@/frontend/lib/utils';
-import {
-  type CraftingRecipeDef,
-  type CraftingRecipeId,
-  craftingRecipes,
-} from '@/shared/definition/definition-crafting';
+import { CraftingRecipeDef, type CraftingRecipeId } from '@/shared/definition/definition-crafting';
 import type { Timeout } from 'react-number-format/types/types';
 import { processCrafting } from '@/shared/util/util-crafting';
 import type { useNavigate } from 'react-router-dom';
@@ -89,7 +85,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
     (recipeId: CraftingRecipeId, activityStart: number) => {
       setActiveActivity({ recipeId, start: activityStart, type: 'crafting' });
 
-      const recipeDef = craftingRecipes.get(recipeId);
+      const recipeDef = CraftingRecipeDef.getById(recipeId);
       if (!recipeDef) return;
 
       const msUntilActionDone = getMsUntilActionDone(recipeId, activityStart);
@@ -142,10 +138,10 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
 
       switch (profile?.activity?.type) {
         case 'crafting': {
-          const recipe = craftingRecipes.get(profile.activity.recipeId);
-          if (recipe?.id && recipe.skillRequirements.length > 0) {
-            const skillId = recipe.skillRequirements[0].skillId;
-            setSelectedSkillTab(skillId);
+          const recipe = CraftingRecipeDef.getById(profile.activity.recipeId);
+          const skill = recipe?.getSkillRequirements().find((_) => true);
+          if (skill) {
+            setSelectedSkillTab(skill.skill.id);
           }
 
           // TODO: A timeout here is probably not the right solution, but it works? for now??
