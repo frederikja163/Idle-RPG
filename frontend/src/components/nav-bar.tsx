@@ -10,8 +10,9 @@ import { Column } from '@/frontend/components/ui/layout/column';
 import { Divider } from '@/frontend/components/ui/layout/divider';
 import { Banner } from '@/frontend/components/banner';
 import { Image } from '@/frontend/components/ui/image';
-import { discordServerLink, githubRepoLink } from '@/frontend/constants/hyperlinks';
+import { discordServerUrl, githubRepoUrl } from '@/frontend/constants/url-consts';
 import { BasicTooltip } from '@/frontend/components/ui/basic-tooltip';
+import { assetsBasePath } from '@/frontend/constants/asset-consts';
 
 export function NavBar() {
   const socket = useSocket();
@@ -42,20 +43,20 @@ export function NavBar() {
         <Row className="gap-4 items-center">
           <BasicTooltip tooltipContent="Join Discord server">
             <a
-              href={discordServerLink}
+              href={discordServerUrl}
               target="_blank"
               rel="noreferrer"
               className="aspect-square h-8 bg-blurple rounded-full shadow">
               <Image
-                src={`${import.meta.env.VITE_BASE_URL}/assets/logos/Discord-Symbol-White.svg`}
+                src={`${assetsBasePath}logos/Discord-Symbol-White.svg`}
                 alt="Discord logo"
                 className="p-[20%]" // Discord requires a margin 1/3 the width of the symbol
               />
             </a>
           </BasicTooltip>
           <BasicTooltip tooltipContent="Visit GitHub repo">
-            <a href={githubRepoLink} target="_blank" rel="noreferrer" className="aspect-square h-8 rounded-full shadow">
-              <Image src={`${import.meta.env.VITE_BASE_URL}/assets/logos/github-mark.svg`} alt="GitHub logo" />
+            <a href={githubRepoUrl} target="_blank" rel="noreferrer" className="aspect-square h-8 rounded-full shadow">
+              <Image src={`${assetsBasePath}logos/github-mark.svg`} alt="GitHub logo" />
             </a>
           </BasicTooltip>
           <Divider orientation="vertical" className="mx-4" />
