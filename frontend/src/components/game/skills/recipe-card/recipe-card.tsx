@@ -20,6 +20,7 @@ import { RecipeLockedTooltip } from '@/frontend/components/game/skills/recipe-ca
 import { RecipeItemsTooltip } from '@/frontend/components/game/skills/recipe-card/recipe-items-tooltip';
 import { InventoryItem } from '@/frontend/components/game/inventory/inventory-item';
 import { BasicHoverCard } from '@/frontend/components/ui/basic-hover-card';
+import { assetsBasePath } from '@/frontend/constants/asset-consts';
 
 interface Props {
   recipeDef: CraftingRecipeDef;
@@ -145,7 +146,7 @@ export const RecipeCard: FC<Props> = React.memo((props) => {
             {isActive && <CirclePlay size={30} className="absolute right-0" />}
             {mainResult && (
               <Image
-                src={`${import.meta.env.VITE_BASE_URL}/assets/items/${mainResult.itemId}.svg`}
+                src={`${assetsBasePath}items/${mainResult.itemId}.svg`}
                 alt={mainResult.itemId}
                 className="p-6 aspect-square"
               />
@@ -158,7 +159,7 @@ export const RecipeCard: FC<Props> = React.memo((props) => {
                 {recipeDef.result.map((item) => (
                   <Column key={item.itemId} className="p-1 w-10 items-center">
                     <Image
-                      src={`${import.meta.env.VITE_BASE_URL}/assets/items/${item.itemId}.svg`}
+                      src={`${assetsBasePath}items/${item.itemId}.svg`}
                       alt={item.itemId}
                       className="aspect-square"
                     />
@@ -182,7 +183,7 @@ export const RecipeCard: FC<Props> = React.memo((props) => {
                 top={
                   <Row className="max-h-8 aspect-square">
                     <Image
-                      src={`${import.meta.env.VITE_BASE_URL}/assets/skills/${mainSkill.skillId}.svg`}
+                      src={`${assetsBasePath}skills/${mainSkill.skillId}.svg`}
                       alt={mainSkill.skillId}
                       className="p-1"
                     />
