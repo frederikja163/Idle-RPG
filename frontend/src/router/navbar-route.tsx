@@ -1,9 +1,9 @@
 ﻿import React, { type FC } from 'react';
 import { Outlet } from 'react-router-dom';
-import { NavBar } from '@/frontend/components/nav-bar';
+import { NavBar } from '@/frontend/components/common/nav-bar';
 import { Column } from '@/frontend/components/ui/layout/column';
 
-export const AppLayout: FC = React.memo(function AppLayout() {
+export const NavbarRoute: FC = React.memo(function NavbarRoute() {
   return (
     <Column>
       <NavBar />

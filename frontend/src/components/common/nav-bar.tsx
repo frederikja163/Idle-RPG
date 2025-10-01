@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Button } from './ui/input/button';
+import { Button } from '../ui/input/button';
 import { useAuth } from '@/frontend/providers/auth-provider';
 import { Row } from '@/frontend/components/ui/layout/row';
 import { Typography } from '@/frontend/components/ui/typography';
@@ -8,11 +8,9 @@ import { routes } from '@/frontend/router/routes';
 import { useSocket } from '@/frontend/providers/socket-provider';
 import { Column } from '@/frontend/components/ui/layout/column';
 import { Divider } from '@/frontend/components/ui/layout/divider';
-import { Banner } from '@/frontend/components/banner';
-import { Image } from '@/frontend/components/ui/image';
-import { discordServerUrl, githubRepoUrl } from '@/frontend/constants/url-consts';
-import { BasicTooltip } from '@/frontend/components/ui/basic-tooltip';
-import { assetsBasePath } from '@/frontend/constants/asset-consts';
+import { Banner } from '@/frontend/components/common/banner';
+import { DiscordLinkIcon } from '@/frontend/components/common/link-icons/discord-link-icon';
+import { GithubLinkIcon } from '@/frontend/components/common/link-icons/github-link-icon';
 
 export function NavBar() {
   const socket = useSocket();
@@ -41,24 +39,8 @@ export function NavBar() {
       <Row className="justify-between p-4">
         <Typography className="text-2xl">Idle-RPG</Typography>
         <Row className="gap-4 items-center">
-          <BasicTooltip tooltipContent="Join Discord server">
-            <a
-              href={discordServerUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="aspect-square h-8 bg-blurple rounded-full shadow">
-              <Image
-                src={`${assetsBasePath}logos/Discord-Symbol-White.svg`}
-                alt="Discord logo"
-                className="p-[20%]" // Discord requires a margin 1/3 the width of the symbol
-              />
-            </a>
-          </BasicTooltip>
-          <BasicTooltip tooltipContent="Visit GitHub repo">
-            <a href={githubRepoUrl} target="_blank" rel="noreferrer" className="aspect-square h-8 rounded-full shadow">
-              <Image src={`${assetsBasePath}logos/github-mark.svg`} alt="GitHub logo" />
-            </a>
-          </BasicTooltip>
+          <DiscordLinkIcon />
+          <GithubLinkIcon />
           <Divider orientation="vertical" className="mx-4" />
           {import.meta.hot && (
             <Button onClick={navigateToTest}>

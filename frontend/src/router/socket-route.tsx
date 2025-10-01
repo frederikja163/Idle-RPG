@@ -1,8 +1,7 @@
 import React, { type FC, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { routes } from '@/frontend/router/routes';
 import { useSocket } from '@/frontend/providers/socket-provider';
-import { AppLayout } from '@/frontend/router/app-layout';
 
 export const SocketRoute: FC = React.memo(function SocketRoute() {
   const navigate = useNavigate();
@@ -25,5 +24,5 @@ export const SocketRoute: FC = React.memo(function SocketRoute() {
     // eslint-disable-next-line
   }, [socket]);
 
-  return <AppLayout />;
+  return <Outlet />;
 });
