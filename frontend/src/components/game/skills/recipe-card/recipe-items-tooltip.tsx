@@ -1,4 +1,4 @@
-import React, { type FC } from 'react';
+import React, { type FC, useEffect } from 'react';
 import { type ItemAmount } from '@/shared/definition/definition-crafting';
 import { nameOf } from '@/frontend/lib/function-utils';
 import { Typography } from '@/frontend/components/ui/typography';
@@ -17,6 +17,10 @@ export const RecipeItemsTooltip: FC<Props> = React.memo((props) => {
   const { itemAmounts, title } = props;
 
   const profileItems = useAtomValue(profileItemsAtom);
+
+  useEffect(() => {
+    console.log('ia ', itemAmounts);
+  }, [itemAmounts]);
 
   return (
     <Card className="flex-col p-4">

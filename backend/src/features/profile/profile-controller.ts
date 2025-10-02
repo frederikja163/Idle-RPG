@@ -1,8 +1,8 @@
 import { ProfileEventDispatcher } from '@/backend/core/events/profile-dispatcher';
 import {
-  SocketOpenEventToken,
   type SocketOpenEventData,
   type SocketOpenEventListener,
+  SocketOpenEventToken,
 } from '@/backend/core/events/socket-event';
 import { SocketHub } from '@/backend/core/server/sockets/socket-hub';
 import { injectableSingleton } from '@/backend/core/lib/lib-tsyringe';
@@ -215,8 +215,7 @@ export class ProfileController implements SocketOpenEventListener {
       case 'none':
         return { type: 'none', start: new Date().getTime() };
       case 'crafting': {
-        const recipe = CraftingRecipeDef.getById(activityDto.recipeId);
-        if (!recipe) throw new ServerError(ErrorType.InternalError, 'Crafting recipe not found.');
+        const recipe = CraftingRecipeDef.requireById(activityDto.recipeId);
         const error = await canStartCrafting(
           recipe.id,
           new ServerProfileInterface(profileId, this.skillService, this.itemService),
