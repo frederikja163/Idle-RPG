@@ -3,8 +3,8 @@ import { Typography } from '@/frontend/components/ui/typography';
 import { Column } from '@/frontend/components/ui/layout/column';
 import { Row } from '@/frontend/components/ui/layout/row';
 import { Card } from '@/frontend/components/ui/card';
-import { items } from '@/shared/definition/definition-items';
 import { LabelBox } from '@/frontend/components/ui/label-box';
+import { ItemDef } from '@/shared/definition/definition-items';
 
 interface Props {
   itemId: string;
@@ -13,7 +13,7 @@ interface Props {
 export const ItemTooltip: FC<Props> = React.memo(function ItemTooltip(props) {
   const { itemId } = props;
 
-  const item = items.get(itemId);
+  const item = ItemDef.getById(itemId);
 
   return (
     <Card className="p-2">

@@ -60,7 +60,7 @@ export const ProfileCard: FC<Props> = React.memo((props) => {
           <Row>
             {result
               .map((item: ItemAmount) => (
-              <Image key={item.itemId} src={`${assetsBasePath}items/${item.itemId}.svg`} alt={item.itemId} />
+                <Image key={item.item.id} src={`${assetsBasePath}items/${item.item.id}.svg`} alt={item.item.id} />
               ))
               .toArray()}
           </Row>

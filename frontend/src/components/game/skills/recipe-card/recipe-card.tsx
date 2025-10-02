@@ -206,7 +206,7 @@ export const RecipeCard: FC<Props> = React.memo((props) => {
                 <Row className="pl-2">
                   <BasicHoverCard
                     hoverContent={<RecipeItemsTooltip title="Item costs" itemAmounts={costAmountsSorted} />}
-                    isDisabled={costAmountsSorted.length < 2 && false}>
+                    isDisabled={costAmountsSorted.length < 2}>
                     {/*Wrapped in row due to nested tooltips/hover cards*/}
                     <Row>
                       <InventoryItem
