@@ -2,6 +2,7 @@ import { Row } from '@/frontend/components/ui/layout/row';
 import { Typography } from '@/frontend/components/ui/typography';
 import { Divider } from '@/frontend/components/ui/layout/divider';
 import React, { type FC } from 'react';
+import { discordServerUrl } from '@/frontend/constants/url-consts';
 
 export const Banner: FC = React.memo(function Banner() {
   return (
@@ -11,7 +12,7 @@ export const Banner: FC = React.memo(function Banner() {
           WARNING this is a beta! All profiles and their content may be wiped at any moment. If you experience any
           issues visit our
         </Typography>
-        <a href="https://discord.gg/vJhkD4RvNF">discord</a>
+        <a href={discordServerUrl}>discord</a>
       </Row>
       <Divider />
     </>

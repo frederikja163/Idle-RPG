@@ -19,6 +19,7 @@ import { LabeledText } from '@/frontend/components/ui/labeled-text';
 import { BasicTooltip } from '@/frontend/components/ui/basic-tooltip';
 import { dateTimeNoSeconds } from '@/frontend/constants/date-time-consts';
 import { Dialog } from '@/frontend/components/ui/modals/dialog';
+import { assetsBasePath } from '@/frontend/constants/asset-consts';
 
 interface Props {
   profile: Partial<Profile>;
@@ -59,11 +60,7 @@ export const ProfileCard: FC<Props> = React.memo((props) => {
           <Row>
             {result
               .map((item: ItemAmount) => (
-                <Image
-                  key={item.item.id}
-                  src={`${import.meta.env.VITE_BASE_URL}/assets/items/${item.item}.svg`}
-                  alt={item.item.id}
-                />
+              <Image key={item.itemId} src={`${assetsBasePath}items/${item.itemId}.svg`} alt={item.itemId} />
               ))
               .toArray()}
           </Row>

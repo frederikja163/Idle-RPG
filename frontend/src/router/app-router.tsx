@@ -10,6 +10,7 @@ import { NoConnection } from '@/frontend/components/pages/no-connection';
 import { SocketRoute } from '@/frontend/router/socket-route';
 import { ResyncService } from '@/frontend/services/resync-service';
 import { Error } from '@/frontend/components/pages/error';
+import { NavbarRoute } from '@/frontend/router/navbar-route';
 
 // TODO: try to remove this by splitting up SocketFeatureProvider
 // Needed to pass navigate to some providers
@@ -44,20 +45,24 @@ export const AppRouter = createHashRouter([
             element: <Login />,
           },
           {
-            path: routes.test,
-            element: <Test />,
-          },
-
-          {
-            element: <AuthRoute />,
+            element: <NavbarRoute />,
             children: [
               {
-                path: routes.profiles,
-                element: <Profiles />,
+                path: routes.test,
+                element: <Test />,
               },
               {
-                path: routes.game,
-                element: <Game />,
+                element: <AuthRoute />,
+                children: [
+                  {
+                    path: routes.profiles,
+                    element: <Profiles />,
+                  },
+                  {
+                    path: routes.game,
+                    element: <Game />,
+                  },
+                ],
               },
             ],
           },

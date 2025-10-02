@@ -13,6 +13,7 @@ import { BasicTooltip } from '@/frontend/components/ui/basic-tooltip';
 import { Card } from '@/frontend/components/ui/card';
 import { LabeledText } from '@/frontend/components/ui/labeled-text';
 import { CraftingRecipeDef } from '@/shared/definition/definition-crafting';
+import { assetsBasePath } from '@/frontend/constants/asset-consts';
 
 interface Props {
   name: string;
@@ -63,7 +64,7 @@ export const SkillButton: FC<Props> = React.memo(function SkillButton(props) {
         <Typography>{name}</Typography>
       </Row>
       <Row className="w-1/2">
-        <Image src={`${import.meta.env.VITE_BASE_URL}/assets/skills/${skill.id}.svg`} alt={skill.id} />
+        <Image src={`${assetsBasePath}skills/${skill.id}.svg`} alt={skill.id} />
       </Row>
       <BasicTooltip tooltipContent={toolTip} disableHoverableContent>
         <Column className="w-full">
