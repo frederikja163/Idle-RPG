@@ -48,7 +48,7 @@ export async function processCrafting(
   );
 
   const timeActions = Math.floor(getActionCount(activityStart, recipe.time, activityEnd));
-  const costActions = recipe.getCosts().some((_) => true)
+  const costActions = recipe.getCosts().some(() => true)
     ? recipe
         .getCosts()
         .map((item, i) => cost[i].count / item.amount)

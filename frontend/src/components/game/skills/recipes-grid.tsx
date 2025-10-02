@@ -18,7 +18,7 @@ export const RecipesGrid: FC<Props> = React.memo((props) => {
       CraftingRecipeDef.getAllRecipes()
         .filter(
           ([_, craftingRecipeDef]: [CraftingRecipeId, CraftingRecipeDef]) =>
-            craftingRecipeDef.getSkillRequirements().find((_) => true)?.skill.id === skill.id,
+            craftingRecipeDef.getSkillRequirements().find(() => true)?.skill.id === skill.id,
         )
         .map(([id, craftingRecipeDef]: [CraftingRecipeId, CraftingRecipeDef]) => (
           <RecipeCard key={id} recipeDef={craftingRecipeDef} />

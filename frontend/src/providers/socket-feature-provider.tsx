@@ -139,7 +139,7 @@ export const SocketFeatureProvider: FC<Props> = React.memo(function SocketFeatur
       switch (profile?.activity?.type) {
         case 'crafting': {
           const recipe = CraftingRecipeDef.getById(profile.activity.recipeId);
-          const skill = recipe?.getSkillRequirements().find((_) => true);
+          const skill = recipe?.getSkillRequirements().find(() => true);
           if (skill) {
             setSelectedSkillTab(skill.skill.id);
           }
