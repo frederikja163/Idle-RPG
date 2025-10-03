@@ -10,6 +10,7 @@ import type { Item } from '@/shared/definition/schema/types/types-items';
 import type { Tab } from '@/frontend/components/ui/tab-pane/types';
 import { nameOf } from '@/frontend/lib/function-utils';
 import { ItemDef } from '@/shared/definition/definition-items';
+import { EquipmentTab } from '@/frontend/components/game/inventory/equipment/equipment-tab';
 
 export const Inventory: FC = React.memo(() => {
   const selectedTab = useAtomValue(selectedInventoryTabAtom);
@@ -22,27 +23,32 @@ export const Inventory: FC = React.memo(() => {
     return index === -1 ? undefined : index;
   }, [inventoryTabsDefinition, selectedTab]);
 
-  const inventoryTabs: Tab[] = useMemo(
-    () =>
-      inventoryTabsDefinition.map(([label, itemTags]) => {
-        const shownItems = mapEntriesToArray(profileItems)
-          .filter(
-            ([itemId, item]) =>
-              (item.count ?? 0) >= 1 &&
-              (itemTags?.length == 0 ||
+  const inventoryTabs: Tab[] = useMemo(() => {
+    const itemTabs: Tab[] = inventoryTabsDefinition.map(([label, itemTags]) => {
+      const shownItems = mapEntriesToArray(profileItems)
+        .filter(
+          ([itemId, item]) =>
+            (item.count ?? 0) >= 1 &&
+            (itemTags?.length == 0 ||
                 ItemDef.getById(itemId)
                   ?.getTags()
                   .find((t) => itemTags?.includes(t)) !== undefined),
-          )
-          .map(([itemId, item]) => <InventoryItem key={itemId} item={item as Partial<Item> & Pick<Item, 'id'>} />);
+        )
+        .map(([itemId, item]) => <InventoryItem key={itemId} item={item as Partial<Item> & Pick<Item, 'id'>} />);
 
-        return {
-          label,
-          content: <Row className="gap-2 h-80 overflow-y-scroll flex-wrap">{shownItems}</Row>,
-        };
-      }),
-    [inventoryTabsDefinition, profileItems],
-  );
+      return {
+        label,
+        content: <Row className="gap-2 h-80 overflow-y-scroll flex-wrap">{shownItems}</Row>,
+      };
+    });
+
+    const equipTab: Tab = {
+      label: 'Equipment',
+      content: <EquipmentTab />,
+    };
+
+    return [...itemTabs, equipTab];
+  }, [inventoryTabsDefinition, profileItems]);
 
   return <TopTabPane tabs={inventoryTabs} initialTabIndex={selectedTabIndex} />;
 });
