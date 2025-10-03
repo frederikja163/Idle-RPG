@@ -1,3 +1,4 @@
+import { resolveFuncs, zero, type Func, type FuncReplace } from '../lib/funcs';
 import { ErrorType, ServerError } from '../socket/socket-errors';
 import { type ItemDef } from './definition-items';
 import type { SkillDef } from './definition-skills';
@@ -5,50 +6,84 @@ import type { SkillDef } from './definition-skills';
 export type CraftingRecipeId = string;
 
 export type ItemAmount = { item: ItemDef; amount: number };
-function itemAmount(itemId: ItemDef, amount: number): ItemAmount {
-  return { item: itemId, amount };
-}
 
-export type SkillRequirement = { skill: SkillDef; level: number; xp: number };
-function skillRequirement(skillId: SkillDef, level: number, xp: number = 0): SkillRequirement {
-  return { skill: skillId, level, xp };
-}
+export type SkillRequirement = { skill: SkillDef; xp: number; level: number };
 
 export class CraftingRecipeBuilder {
   private constructor(
-    private readonly _id: CraftingRecipeId,
-    private readonly _display: string,
-    private readonly _time: number,
-    private readonly _skillRequirements: SkillRequirement[] = [],
-    private readonly _costs: ItemAmount[] = [],
-    private readonly _results: ItemAmount[] = [],
+    private _xpDefault: Func = zero,
+    private _levelDefault: Func = zero,
+    private _costDefault: Func = zero,
+    private _resultDefault: Func = zero,
+    private _timeDefault: Func = zero,
+    private readonly _skillRequirements: FuncReplace<SkillRequirement>[] = [],
+    private readonly _costs: FuncReplace<ItemAmount>[] = [],
+    private readonly _results: FuncReplace<ItemAmount>[] = [],
   ) {}
 
-  public addSkillRequirement(...args: Parameters<typeof skillRequirement>) {
-    this._skillRequirements.push(skillRequirement(...args));
-    return this;
-  }
-  public addCost(...args: Parameters<typeof itemAmount>) {
-    this._costs.push(itemAmount(...args));
-    return this;
-  }
-  public addResult(...args: Parameters<typeof itemAmount>) {
-    this._results.push(itemAmount(...args));
+  public xp(xp: Func) {
+    this._xpDefault = xp;
     return this;
   }
 
-  public static createBuilder(id: CraftingRecipeId, display: string, time: number) {
-    return new CraftingRecipeBuilder(id, display, time);
+  public level(level: Func) {
+    this._levelDefault = level;
+    return this;
   }
 
-  public build() {
+  public costAmount(cost: Func) {
+    this._costDefault = cost;
+    return this;
+  }
+
+  public resultAmount(result: Func) {
+    this._resultDefault = result;
+    return this;
+  }
+
+  public time(time: Func) {
+    this._timeDefault = time;
+    return this;
+  }
+
+  public skill(skill: SkillDef, xp?: Func, level?: Func) {
+    this._skillRequirements.push({ skill, level: level ?? this._levelDefault, xp: xp ?? this._xpDefault });
+    return this;
+  }
+  public cost(item: ItemDef, amount?: Func) {
+    this._costs.push({ item, amount: amount ?? this._costDefault });
+    return this;
+  }
+  public result(item: ItemDef, amount?: Func) {
+    this._results.push({ item, amount: amount ?? this._resultDefault });
+    return this;
+  }
+
+  public copy() {
+    return new CraftingRecipeBuilder(
+      this._xpDefault,
+      this._levelDefault,
+      this._costDefault,
+      this._resultDefault,
+      this._timeDefault,
+      this._skillRequirements.slice(),
+      this._costs.slice(),
+      this._results.slice(),
+    );
+  }
+
+  public static createBuilder() {
+    return new CraftingRecipeBuilder();
+  }
+
+  public build(item: ItemDef, actionName: string, tier: number, time?: number) {
     CraftingRecipeDef.createRecipe(
-      this._id,
-      this._display,
-      this._time,
-      this._skillRequirements,
-      this._costs,
-      this._results,
+      item.id,
+      `${actionName} ${item.display}`,
+      time ?? this._timeDefault(tier),
+      this._skillRequirements.map((s) => resolveFuncs(s, tier)),
+      this._costs.map((a) => resolveFuncs(a, tier)),
+      this._results.map((a) => resolveFuncs(a, tier)),
     );
   }
 }
@@ -100,20 +135,6 @@ export class CraftingRecipeDef {
     const recipe = new CraftingRecipeDef(id, display, time, skillRequirements, cost, result);
     CraftingRecipeDef.craftingRecipes.set(recipe._id, recipe);
     return recipe;
-  }
-
-  public static createGathering(result: ItemDef, skill: SkillDef, activityName: string, tier: number) {
-    return CraftingRecipeBuilder.createBuilder(`${result.id}`, `${activityName} ${result.display}`, 5000)
-      .addSkillRequirement(skill, tier * 10, tier + 1)
-      .addResult(result, 1)
-      .build();
-  }
-  public static createProcessing(cost: ItemDef, result: ItemDef, skill: SkillDef, activityName: string, tier: number) {
-    return CraftingRecipeBuilder.createBuilder(`${result.id}`, `${activityName} ${result.display}`, 5000)
-      .addSkillRequirement(skill, tier * 10, tier + 1)
-      .addCost(cost, 1)
-      .addResult(result, 1)
-      .build();
   }
 
   public static getById(id: CraftingRecipeId) {
