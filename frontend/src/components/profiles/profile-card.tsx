@@ -10,7 +10,7 @@ import { selectedProfileIdAtom } from '@/frontend/store/atoms';
 import { useAtomValue } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/frontend/router/routes';
-import { craftingRecipes, type ItemAmount } from '@/shared/definition/definition-crafting';
+import { CraftingRecipeDef, type ItemAmount } from '@/shared/definition/definition-crafting';
 import { Image } from '@/frontend/components/ui/image';
 import { LabelBox } from '@/frontend/components/ui/label-box';
 import { nameOf } from '@/frontend/lib/function-utils';
@@ -40,7 +40,7 @@ export const ProfileCard: FC<Props> = React.memo((props) => {
   const activityDisplay = useMemo(() => {
     switch (profile.activity?.type) {
       case 'crafting': {
-        const recipe = craftingRecipes.get(profile.activity.recipeId);
+        const recipe = CraftingRecipeDef.getById(profile.activity.recipeId);
         if (!recipe) break;
 
         return recipe.display;
@@ -53,14 +53,16 @@ export const ProfileCard: FC<Props> = React.memo((props) => {
   const activityImage = useMemo(() => {
     switch (profile.activity?.type) {
       case 'crafting': {
-        const result = craftingRecipes.get(profile.activity.recipeId)?.result;
+        const result = CraftingRecipeDef.getById(profile.activity.recipeId)?.getResults();
         if (!result) break;
 
         return (
           <Row>
-            {result.map((item: ItemAmount) => (
-              <Image key={item.itemId} src={`${assetsBasePath}items/${item.itemId}.svg`} alt={item.itemId} />
-            ))}
+            {result
+              .map((item: ItemAmount) => (
+                <Image key={item.item.id} src={`${assetsBasePath}items/${item.item.id}.svg`} alt={item.item.id} />
+              ))
+              .toArray()}
           </Row>
         );
       }

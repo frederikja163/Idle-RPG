@@ -1,4 +1,4 @@
-import { type CraftingRecipeId, craftingRecipes } from '../definition/definition-crafting';
+import { CraftingRecipeDef, type CraftingRecipeId } from '../definition/definition-crafting';
 import type { Item, ItemId } from '../definition/schema/types/types-items';
 import type { Skill, SkillId } from '../definition/schema/types/types-skills';
 import { addItems, subItems } from './util-items';
@@ -19,15 +19,15 @@ export async function canStartCrafting(
   recipeId: CraftingRecipeId,
   profileInterface: ProfileInterface,
 ): Promise<ErrorType | undefined> {
-  const recipe = craftingRecipes.get(recipeId);
+  const recipe = CraftingRecipeDef.getById(recipeId);
   if (!recipe) return ErrorType.InvalidInput;
   const skills = await Promise.all(
-    recipe.skillRequirements.map(async (skill) => await profileInterface.getSkill(skill.skillId)),
+    await recipe.getSkillRequirements().map(async (skill) => await profileInterface.getSkill(skill.skill.id)),
   );
-  const cost = await Promise.all(recipe.cost.map(async (item) => await profileInterface.getItem(item.itemId)));
+  const costs = await Promise.all(recipe.getCosts().map(async (item) => await profileInterface.getItem(item.item.id)));
 
-  if (recipe.skillRequirements.find((req, i) => skills[i].level < req.level)) return ErrorType.InsufficientLevel;
-  if (recipe.cost.find((req, i) => cost[i].count < req.amount)) return ErrorType.InsufficientLevel;
+  if (recipe.getSkillRequirements().find((req, i) => skills[i].level < req.level)) return ErrorType.InsufficientLevel;
+  if (recipe.getCosts().find((cost, i) => costs[i].count < cost.amount)) return ErrorType.InsufficientLevel;
 }
 
 export async function processCrafting(
@@ -36,24 +36,29 @@ export async function processCrafting(
   recipeId: CraftingRecipeId,
   profileInterface: ProfileInterface,
 ): Promise<{ items: Item[]; skills: Skill[] }> {
-  const recipe = craftingRecipes.get(recipeId);
+  const recipe = CraftingRecipeDef.getById(recipeId);
   if (!recipe) return { items: [], skills: [] };
 
   const skills = await Promise.all(
-    recipe.skillRequirements.map(async (skill) => await profileInterface.getSkill(skill.skillId)),
+    recipe.getSkillRequirements().map(async (req) => await profileInterface.getSkill(req.skill.id)),
   );
-  const cost = await Promise.all(recipe.cost.map(async (item) => await profileInterface.getItem(item.itemId)));
-  const result = await Promise.all(recipe.result.map(async (item) => await profileInterface.getItem(item.itemId)));
+  const cost = await Promise.all(recipe.getCosts().map(async (item) => await profileInterface.getItem(item.item.id)));
+  const result = await Promise.all(
+    recipe.getResults().map(async (item) => await profileInterface.getItem(item.item.id)),
+  );
 
   const timeActions = Math.floor(getActionCount(activityStart, recipe.time, activityEnd));
-  const costActions = recipe.cost.length
-    ? recipe.cost.map((item, i) => cost[i].count / item.amount).reduce((l, r) => Math.min(l, r))
+  const costActions = recipe.getCosts().some(() => true)
+    ? recipe
+        .getCosts()
+        .map((item, i) => cost[i].count / item.amount)
+        .reduce((l, r) => Math.min(l, r))
     : Number.POSITIVE_INFINITY;
   const actionCount = Math.min(timeActions, costActions);
 
-  recipe.skillRequirements.forEach((req, i) => addXp(skills[i], actionCount * req.xp));
-  recipe.cost.forEach((item, i) => subItems(cost[i], actionCount * item.amount));
-  recipe.result.forEach((item, i) => addItems(result[i], actionCount * item.amount));
+  recipe.getSkillRequirements().forEach((req, i) => addXp(skills[i], actionCount * req.xp));
+  recipe.getCosts().forEach((item, i) => subItems(cost[i], actionCount * item.amount));
+  recipe.getResults().forEach((item, i) => addItems(result[i], actionCount * item.amount));
 
   return { items: [...cost, ...result], skills };
 }

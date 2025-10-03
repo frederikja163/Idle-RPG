@@ -9,10 +9,10 @@ import { Row } from '@/frontend/components/ui/layout/row';
 import { CirclePlay } from 'lucide-react';
 import { useAtomValue } from 'jotai/index';
 import { activeActivityAtom } from '@/frontend/store/atoms';
-import { craftingRecipes } from '@/shared/definition/definition-crafting';
 import { BasicTooltip } from '@/frontend/components/ui/basic-tooltip';
 import { Card } from '@/frontend/components/ui/card';
 import { LabeledText } from '@/frontend/components/ui/labeled-text';
+import { CraftingRecipeDef } from '@/shared/definition/definition-crafting';
 import { assetsBasePath } from '@/frontend/constants/asset-consts';
 
 interface Props {
@@ -32,15 +32,12 @@ export const SkillButton: FC<Props> = React.memo(function SkillButton(props) {
   }, [activeActivity]);
 
   const activeRecipe = useMemo(
-    () => (activeActivityId ? craftingRecipes.get(activeActivityId) : undefined),
+    () => (activeActivityId ? CraftingRecipeDef.getById(activeActivityId) : undefined),
     [activeActivityId],
   );
 
   const isActiveSkill = useMemo(
-    () =>
-      activeRecipe &&
-      activeRecipe.skillRequirements.length > 0 &&
-      activeRecipe.skillRequirements[0].skillId === skill.id,
+    () => activeRecipe && activeRecipe.getSkillRequirements().some((s) => s.skill.id == skill.id),
     [activeRecipe, skill.id],
   );
 

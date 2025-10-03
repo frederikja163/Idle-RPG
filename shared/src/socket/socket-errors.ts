@@ -15,6 +15,10 @@ export enum ErrorType {
   InsufficientItems,
   NoActivity,
   InvalidActivity,
+  InvalidSkill,
+  InvalidSlot,
+  InvalidItem,
+  InvalidCraftingRecipe,
 }
 
 export const errorMessages: { [type in ErrorType]: string } = {
@@ -35,6 +39,10 @@ export const errorMessages: { [type in ErrorType]: string } = {
   [ErrorType.InsufficientItems]: 'This activity required more items than you have available.',
   [ErrorType.NoActivity]: 'No activity in progress.',
   [ErrorType.InvalidActivity]: 'Activity is invalid.',
+  [ErrorType.InvalidSkill]: 'Skill is invalid.',
+  [ErrorType.InvalidSlot]: 'Slot is invalid.',
+  [ErrorType.InvalidItem]: 'Item is invalid.',
+  [ErrorType.InvalidCraftingRecipe]: 'Crafting recipe is invalid.',
 };
 
 export class ServerError extends Error {

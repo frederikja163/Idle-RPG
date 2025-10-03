@@ -1,10 +1,10 @@
-import { gatheringDef, processingDef } from './definition-crafting';
-import { itemDef, ItemTag } from './definition-items';
-import { skillDef } from './definition-skills';
+import { CraftingRecipeDef } from './definition-crafting';
+import { ItemDef, ItemTag } from './definition-items';
+import { SkillDef } from './definition-skills';
 
-const mining = skillDef('Mining');
-const lumberjacking = skillDef('Lumberjacking');
-const crafting = skillDef('Crafting');
+const mining = SkillDef.createSkill('Mining', ['Handle', 'Head']);
+const lumberjacking = SkillDef.createSkill('Lumberjacking', ['Handle', 'Head']);
+const crafting = SkillDef.createSkill('Crafting', ['Handle', 'Head']);
 
 ore('Talc', 0);
 ore('Gypsum', 1);
@@ -19,19 +19,19 @@ wood('Cherry', 3);
 wood('Oak', 4);
 
 function ore(name: string, tier: number) {
-  const ore = itemDef(`Ore${name}`, `${name} Ore`, ItemTag.Resource);
-  gatheringDef(ore, mining, 'Mine', tier);
-  const pickaxe = itemDef(`HeadPickaxe${name}`, `${name} Pickaxe Head`, ItemTag.Tool);
-  processingDef(ore, pickaxe, crafting, 'Craft', tier);
-  const axe = itemDef(`HeadAxe${name}`, `${name} Axe Head`, ItemTag.Tool);
-  processingDef(ore, axe, crafting, 'Craft', tier);
-  const hammer = itemDef(`HeadHammer${name}`, `${name} Hammer Head`, ItemTag.Tool);
-  processingDef(ore, hammer, crafting, 'Craft', tier);
+  const ore = ItemDef.createItem(`Ore${name}`, `${name} Ore`, [ItemTag.Resource]);
+  CraftingRecipeDef.createGathering(ore, mining, 'Mine', tier);
+  const pickaxe = ItemDef.createItem(`HeadPickaxe${name}`, `${name} Pickaxe Head`, [ItemTag.Tool]);
+  CraftingRecipeDef.createProcessing(ore, pickaxe, crafting, 'Craft', tier);
+  const axe = ItemDef.createItem(`HeadAxe${name}`, `${name} Axe Head`, [ItemTag.Tool]);
+  CraftingRecipeDef.createProcessing(ore, axe, crafting, 'Craft', tier);
+  const hammer = ItemDef.createItem(`HeadHammer${name}`, `${name} Hammer Head`, [ItemTag.Tool]);
+  CraftingRecipeDef.createProcessing(ore, hammer, crafting, 'Craft', tier);
 }
 
 function wood(name: string, tier: number) {
-  const log = itemDef(`Log${name}`, `${name} Log`, ItemTag.Resource);
-  gatheringDef(log, lumberjacking, 'Cut', tier);
-  const handle = itemDef(`Handle${name}`, `${name} Handle`, ItemTag.Tool);
-  processingDef(log, handle, crafting, `Craft`, tier);
+  const log = ItemDef.createItem(`Log${name}`, `${name} Log`, [ItemTag.Resource]);
+  CraftingRecipeDef.createGathering(log, lumberjacking, 'Cut', tier);
+  const handle = ItemDef.createItem(`Handle${name}`, `${name} Handle`, [ItemTag.Tool]);
+  CraftingRecipeDef.createProcessing(log, handle, crafting, `Craft`, tier);
 }

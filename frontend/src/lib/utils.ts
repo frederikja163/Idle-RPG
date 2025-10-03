@@ -3,7 +3,7 @@ import { twMerge } from 'tailwind-merge';
 import type { FormEvent } from 'react';
 import type { Skill, SkillId } from '@/shared/definition/schema/types/types-skills';
 import type { Item, ItemId } from '@/shared/definition/schema/types/types-items';
-import { type CraftingRecipeId, craftingRecipes } from '@/shared/definition/definition-crafting';
+import { CraftingRecipeDef, type CraftingRecipeId } from '@/shared/definition/definition-crafting';
 import type { Profile, ProfileId } from '@/shared/definition/schema/types/types-profiles';
 
 export function cn(...inputs: ClassValue[]) {
@@ -80,7 +80,7 @@ export const updateProfiles =
   };
 
 export const getMsUntilActionDone = (activityId: CraftingRecipeId, activityStart: number) => {
-  const activityDef = craftingRecipes.get(activityId);
+  const activityDef = CraftingRecipeDef.getById(activityId);
   if (!activityDef) return 0;
 
   const activityActionTime = activityDef.time;

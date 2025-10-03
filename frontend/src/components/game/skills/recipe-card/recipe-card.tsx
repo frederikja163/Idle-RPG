@@ -17,10 +17,10 @@ import { RecipeCardSlot } from '@/frontend/components/game/skills/recipe-card/re
 import { recipeCardCva } from '@/frontend/components/game/skills/recipe-card/styles';
 import { BasicTooltip } from '@/frontend/components/ui/basic-tooltip';
 import { RecipeLockedTooltip } from '@/frontend/components/game/skills/recipe-card/recipe-locked-tooltip';
-import { RecipeItemsTooltip } from '@/frontend/components/game/skills/recipe-card/recipe-items-tooltip';
 import { InventoryItem } from '@/frontend/components/game/inventory/inventory-item';
 import { BasicHoverCard } from '@/frontend/components/ui/basic-hover-card';
 import { assetsBasePath } from '@/frontend/constants/asset-consts';
+import { RecipeItemsTooltip } from '@/frontend/components/game/skills/recipe-card/recipe-items-tooltip';
 
 interface Props {
   recipeDef: CraftingRecipeDef;
@@ -36,6 +36,8 @@ export const RecipeCard: FC<Props> = React.memo((props) => {
   const profileSkills = useAtomValue(profileSkillsAtom);
   const profileItems = useAtomValue(profileItemsAtom);
 
+  const skillRequirements = useMemo(() => recipeDef.getSkillRequirements().toArray(), [recipeDef]);
+
   const isActive = useMemo(
     () => activeActivity?.type !== 'none' && activeActivity?.recipeId === recipeDef.id,
     [activeActivity, recipeDef.id],
@@ -43,37 +45,41 @@ export const RecipeCard: FC<Props> = React.memo((props) => {
 
   const isUnlocked = useMemo(
     () =>
-      recipeDef.skillRequirements.every(
-        (requirement) => (profileSkills.get(requirement.skillId)?.level ?? 0) >= requirement.level,
+      skillRequirements.every(
+        (requirement) => (profileSkills.get(requirement.skill.id)?.level ?? 0) >= requirement.level,
       ),
-    [profileSkills, recipeDef.skillRequirements],
+    [profileSkills, skillRequirements],
   );
 
   const canAfford = useMemo(
-    () => recipeDef.cost.every((itemAmount) => profileItems.get(itemAmount.itemId)?.count ?? 0 >= itemAmount.amount),
-    [profileItems, recipeDef.cost],
+    () =>
+      recipeDef.getCosts().every((itemAmount) => profileItems.get(itemAmount.item.id)?.count ?? 0 >= itemAmount.amount),
+    [profileItems, recipeDef],
   );
 
   const costAmountsSorted = useMemo(
     () =>
-      recipeDef.cost.slice().sort((itemA, itemB) => {
-        const profileItemAmountA = profileItems.get(itemA.itemId)?.count ?? 0;
-        const missingAmountA = itemA.amount - profileItemAmountA;
+      recipeDef
+        .getCosts()
+        .toArray()
+        .sort((itemA, itemB) => {
+          const profileItemAmountA = profileItems.get(itemA.item.id)?.count ?? 0;
+          const missingAmountA = itemA.amount - profileItemAmountA;
 
-        const profileItemAmountB = profileItems.get(itemB.itemId)?.count ?? 0;
-        const missingAmountB = itemB.amount - profileItemAmountB;
+          const profileItemAmountB = profileItems.get(itemB.item.id)?.count ?? 0;
+          const missingAmountB = itemB.amount - profileItemAmountB;
 
-        return missingAmountB - missingAmountA;
-      }),
-    [profileItems, recipeDef.cost],
+          return missingAmountB - missingAmountA;
+        }),
+    [profileItems, recipeDef],
   );
 
-  const mainSkill = useMemo(() => recipeDef.skillRequirements.at(0), [recipeDef.skillRequirements]);
-  const mainResult = useMemo(() => recipeDef.result.at(0), [recipeDef.result]);
+  const mainSkill = useMemo(() => skillRequirements.at(0), [skillRequirements]);
+  const mainResult = useMemo(() => recipeDef.getResults().find(() => true), [recipeDef]);
   const mainCost = useMemo(() => costAmountsSorted.at(0), [costAmountsSorted]);
 
   const canAffordMainCost = useMemo(
-    () => (mainCost ? (profileItems.get(mainCost.itemId)?.count ?? 0) >= mainCost.amount : false),
+    () => (mainCost ? (profileItems.get(mainCost.item.id)?.count ?? 0) >= mainCost.amount : false),
     [mainCost, profileItems],
   );
 
@@ -130,7 +136,7 @@ export const RecipeCard: FC<Props> = React.memo((props) => {
 
   return (
     <BasicTooltip
-      tooltipContent={<RecipeLockedTooltip skillRequirements={recipeDef.skillRequirements} />}
+      tooltipContent={<RecipeLockedTooltip skillRequirements={skillRequirements} />}
       isDisabled={isUnlocked}>
       <Card className={style} onClick={handleClick}>
         <motion.div
@@ -146,26 +152,29 @@ export const RecipeCard: FC<Props> = React.memo((props) => {
             {isActive && <CirclePlay size={30} className="absolute right-0" />}
             {mainResult && (
               <Image
-                src={`${assetsBasePath}items/${mainResult.itemId}.svg`}
-                alt={mainResult.itemId}
+                src={`${assetsBasePath}items/${mainResult.item.id}.svg`}
+                alt={mainResult.item.id}
                 className="p-6 aspect-square"
               />
             )}
           </Column>
           {/* The min-height below might not be the ideal way to make equal heights. Should maybe use grids, but it's a big refactor */}
           <Column className="min-h-20">
-            {recipeDef.result.length > 1 && (
+            {skillRequirements && (
               <Row className="justify-center">
-                {recipeDef.result.map((item) => (
-                  <Column key={item.itemId} className="p-1 w-10 items-center">
-                    <Image
-                      src={`${assetsBasePath}items/${item.itemId}.svg`}
-                      alt={item.itemId}
-                      className="aspect-square"
-                    />
-                    <Typography className="text-sm">{item.amount}</Typography>
-                  </Column>
-                ))}
+                {recipeDef
+                  .getResults()
+                  .map((item) => (
+                    <Column key={item.item.id} className="p-1 w-10 items-center">
+                      <Image
+                        src={`${assetsBasePath}items/${item.item.id}.svg`}
+                        alt={item.item.id}
+                        className="aspect-square"
+                      />
+                      <Typography className="text-sm">{item.amount}</Typography>
+                    </Column>
+                  ))
+                  .toArray()}
               </Row>
             )}
             <Typography>{recipeDef.display}</Typography>
@@ -183,8 +192,8 @@ export const RecipeCard: FC<Props> = React.memo((props) => {
                 top={
                   <Row className="max-h-8 aspect-square">
                     <Image
-                      src={`${assetsBasePath}skills/${mainSkill.skillId}.svg`}
-                      alt={mainSkill.skillId}
+                      src={`${assetsBasePath}skills/${mainSkill.skill.id}.svg`}
+                      alt={mainSkill.skill.id}
                       className="p-1"
                     />
                   </Row>
@@ -201,7 +210,7 @@ export const RecipeCard: FC<Props> = React.memo((props) => {
                     {/*Wrapped in row due to nested tooltips/hover cards*/}
                     <Row>
                       <InventoryItem
-                        item={{ id: mainCost.itemId, count: mainCost.amount }}
+                        item={{ id: mainCost.item.id, count: mainCost.amount }}
                         background={canAffordMainCost ? 'standard' : 'error'}
                         disableTooltip={costAmountsSorted.length > 1}
                       />
