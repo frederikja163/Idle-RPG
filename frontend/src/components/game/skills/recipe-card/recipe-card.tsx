@@ -144,7 +144,7 @@ export const RecipeCard: FC<Props> = React.memo((props) => {
           className="absolute h-full w-full -m-2 bg-primary"
           style={styles.animatedBackground}
         />
-        <Column className="relative">
+        <Column className="relative h-full">
           <Column className="relative">
             {!isUnlocked && (
               <Lock className="absolute w-2/3 h-auto z-10 justify-self-center place-self-center top-1/2 -translate-y-1/2 opacity-40" />
@@ -159,7 +159,7 @@ export const RecipeCard: FC<Props> = React.memo((props) => {
             )}
           </Column>
           {/* The min-height below might not be the ideal way to make equal heights. Should maybe use grids, but it's a big refactor */}
-          <Column className="min-h-20">
+          <Column className="min-h-20 mb-2">
             {skillRequirements && (
               <Row className="justify-center">
                 {recipeDef
@@ -179,7 +179,7 @@ export const RecipeCard: FC<Props> = React.memo((props) => {
             )}
             <Typography>{recipeDef.display}</Typography>
           </Column>
-          <Divider className="my-2" />
+          <Divider className="mb-2 mt-auto" />
           <Row className="items-center">
             <RecipeCardSlot
               bottom={`${Math.round(recipeDef.time / 1000)}s`}

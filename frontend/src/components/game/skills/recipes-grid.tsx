@@ -1,9 +1,9 @@
 ﻿import React, { type FC, useMemo } from 'react';
-import { Row } from '@/frontend/components/ui/layout/row';
 import type { Skill } from '@/shared/definition/schema/types/types-skills';
 import { CraftingRecipeDef, type CraftingRecipeId } from '@/shared/definition/definition-crafting';
 import { nameOf } from '@/frontend/lib/function-utils';
 import { RecipeCard } from '@/frontend/components/game/skills/recipe-card/recipe-card';
+import { Grid } from '@/frontend/components/ui/layout/grid';
 
 interface Props {
   skill: Partial<Skill>;
@@ -27,7 +27,7 @@ export const RecipesGrid: FC<Props> = React.memo((props) => {
     [skill.id],
   );
 
-  return <Row className="gap-4 items-start flex-wrap">{recipeBoxes}</Row>;
+  return <Grid className="w-full h-min gap-4 grid-cols-[repeat(auto-fill,minmax(180px,1fr))]">{recipeBoxes}</Grid>;
 });
 
 RecipesGrid.displayName = nameOf({ RecipesGrid });
