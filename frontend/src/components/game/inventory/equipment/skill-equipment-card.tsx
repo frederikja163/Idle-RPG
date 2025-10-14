@@ -28,7 +28,7 @@ export const SkillEquipmentCard: FC<Props> = React.memo((props) => {
   const gridStyle = useMemo(() => `grid-cols-${2} text-center`, []);
 
   return (
-    <Card className="bg-background p-4">
+    <Card className="bg-background p-4 w-60">
       <Row className="h-10 gap-4">
         <Row>
           <Image src={`${assetsBasePath}skills/${skillDef.id}.svg`} alt={skillDef.id} />
