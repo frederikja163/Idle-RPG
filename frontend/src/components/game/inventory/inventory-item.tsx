@@ -20,7 +20,7 @@ export const InventoryItem: FC<Props> = React.memo((props) => {
   return (
     <BasicTooltip tooltipContent={<ItemTooltip itemId={item.id} />} isDisabled={disableTooltip}>
       <Column
-        className={`rounded min-w-16 w-16 h-16 p-1 select-none ${background === 'error' ? 'bg-red-300' : 'bg-gray-200'}`}>
+        className={`rounded min-w-16 w-16 h-16 p-1 select-none ${background === 'error' ? 'bg-red-300' : 'bg-muted'}`}>
         <Row className="aspect-square overflow-hidden justify-center">
           <img src={`${assetsBasePath}items/${item.id}.svg`} alt={item.id} />
         </Row>
