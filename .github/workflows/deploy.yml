@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  front-end:
+  frontend:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -39,11 +39,11 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: './dist'
-      - name: Deploy front-end to GitHub pages
+      - name: Deploy frontend to GitHub pages
         id: deployment
         uses: actions/deploy-pages@v4
 
-  back-end:
+  backend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

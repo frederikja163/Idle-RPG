@@ -4,7 +4,7 @@ import path from 'path';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, path.resolve(__dirname, 'src/front-end'), '');
+  const env = loadEnv(mode, path.resolve(__dirname, 'frontend/src'), '');
 
   return {
     plugins: [
@@ -18,10 +18,11 @@ export default defineConfig(({ mode }) => {
         ],
       }),
     ],
-    root: 'src/front-end',
+    root: 'frontend/src',
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, 'src/'),
+        '@/shared': path.resolve(__dirname, 'shared/src'),
+        '@/frontend': path.resolve(__dirname, 'frontend/src'),
       },
     },
     server: {

@@ -7,7 +7,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
 
 export default defineConfig([
   {
-    files: ['src/**/*.{ts,tsx}'],
+    files: ['{frontend,backend,shared}/**/*.{ts,tsx}'],
     plugins: {
       js,
       '@typescript-eslint': tseslint.plugin,
